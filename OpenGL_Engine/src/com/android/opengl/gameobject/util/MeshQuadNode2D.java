@@ -1,5 +1,8 @@
 package com.android.opengl.gameobject.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class MeshQuadNode2D {
 	
 	private MeshQuadNode2D parent;
@@ -85,6 +88,17 @@ public class MeshQuadNode2D {
 		}
 		public MeshData getRightFarQuadData(){
 			return new MeshData(indexData);
+		}
+		
+		private long[] getTriagleArrayWithinRect(){
+			ArrayList<Long> arrayList = new ArrayList<Long>();
+			long [] array = new long[arrayList.size()];
+			int i = 0;
+			for(Long l:arrayList){
+				array[i++] = l;
+			}
+			
+			return array;
 		}
 	}
 	
