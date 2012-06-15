@@ -72,15 +72,6 @@ public class Shader {
 			"																						" +
 			"}																						";
 	
-	public static class VboDataHandler{
-		public int vboVertexHandle;
-		public int vboTextureHandle;
-		public int vboNormalHandle;
-		public int vboIndexHandle;
-		public float[] vertexData;
-		public int [] indexData;
-		public long facesCount;
-	}
 
 
 	public int loadShader(int type, String shaderCode) {

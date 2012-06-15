@@ -15,7 +15,6 @@ import android.util.Log;
 
 import com.android.opengl.R;
 import com.android.opengl.Shader;
-import com.android.opengl.Shader.VboDataHandler;
 import com.android.opengl.gameobject.util.LoaderManager;
 
 public abstract class CommonGameObject {
@@ -36,7 +35,7 @@ public abstract class CommonGameObject {
 	public int textureHandle;
 	protected int isSelectedHandle;
 	
-	protected static Map<String, VboDataHandler> vboDataHandlerMap = new HashMap<String, Shader.VboDataHandler>();
+	protected static Map<String, VboDataHandler> vboDataHandlerMap = new HashMap<String, VboDataHandler>();
 
 
 	
@@ -61,6 +60,15 @@ public abstract class CommonGameObject {
 	protected Context context;
 	protected LoaderManager.MeshData meshData;
 
+	public static class VboDataHandler{
+		public int vboVertexHandle;
+		public int vboTextureHandle;
+		public int vboNormalHandle;
+		public int vboIndexHandle;
+		public float[] vertexData;
+		public int [] indexData;
+		public long facesCount;
+	}
 	
 	public CommonGameObject(int programHandle, Context context) {
 		this.programHandle = programHandle;

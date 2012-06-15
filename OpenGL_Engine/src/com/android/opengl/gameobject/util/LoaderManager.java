@@ -179,14 +179,14 @@ public class LoaderManager {
 			
 		MeshData meshData = new MeshData();
 		fillMeshData_2(meshData);
-		normalizeTextCoords(meshData);
+		normalizeTextureCoords(meshData);
 
 		deinitData();
 		return meshData;
 	}
 	
 	
-	private void normalizeTextCoords(MeshData meshData) {
+	private void normalizeTextureCoords(MeshData meshData) {
 		if(maxTextCoordX > 1 && maxTextCoordY > 1){
 			int i = 0;
 			while (i < meshData.textureData.length){

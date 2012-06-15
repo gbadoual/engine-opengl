@@ -7,6 +7,7 @@ import android.content.Context;
 import android.opengl.Matrix;
 
 import com.android.opengl.R;
+import com.android.opengl.gameobject.util.MeshQuadNode2D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 
 public class Scene extends CommonGameObject{
@@ -16,6 +17,8 @@ public class Scene extends CommonGameObject{
 	private static final float MAX_ANGLE = 90;
 	
 	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
+	
+	private MeshQuadNode2D sceneQuad2D;
 	
 	
 	protected float[] projectionMatrix = new float[16];
@@ -27,6 +30,8 @@ public class Scene extends CommonGameObject{
 		super(programHandle, context);
 		this.projectionMatrix = projectionMatrix;
 		setupModelMatrix(modelMatrix);
+		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
+		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
 //		setCenterXYZ(modelMatrix[12],modelMatrix[13], modelMatrix[14]);
 		rotate(40, 30, 0);
 	}
