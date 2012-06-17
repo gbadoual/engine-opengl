@@ -1,9 +1,7 @@
 package com.android.opengl.gameobject.util;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -24,12 +22,22 @@ public class LoaderManager {
 	
 	private static final String TAG = LoaderManager.class.getSimpleName();
 	private static final float EPS = 0.00001f;
+
+	
+	private static final char[] typeV = new char[]{'v', ' '};
+	private static final char[] typeVn = new char[]{'v', 'n'};
+	private static final char[] typeVt = new char[]{'v', 't'};
+	private static final char[] typeF = new char[]{'f', ' '};
+	
 	private long startTime;
 	
 	private CommonGameObject commonGameObject;
 	private int facesCount = 0;
 	char[] lineSeparator = System.getProperty("line.separator").toCharArray();
 	char[] potentialLineSeparator = new char[lineSeparator.length];
+	char[] charBuf;
+	
+	int curIndex = 0;
 
 	private int vCapacity = 100, vtCapacity = 100, vnCapacity = 100, fCapacity = 100;
 	private int capacityStep = 100;
@@ -42,8 +50,8 @@ public class LoaderManager {
 	private ArrayList<Integer> vnf; // normals indices
 
 	//for normalizing texture coordinates
-	float maxTextCoordX = Float.MIN_VALUE;
-	float maxTextCoordY = Float.MIN_VALUE;
+	float maxTextureCoordX = Float.MIN_VALUE;
+	float maxTextureCoordY = Float.MIN_VALUE;
 
 //	private ProgressDialog progressDialog;
 //	private Handler handler = new Handler(){
@@ -76,7 +84,6 @@ public class LoaderManager {
 		MeshData objData = null;
 		try {
 			
-			InputStream inputStream = commonGameObject.getContext().getResources().openRawResource(objectRawId);
 			v = new ArrayList<Float>(vCapacity); // vertices
 			vt = new ArrayList<Float>(vtCapacity); // texture coords
 			vn = new ArrayList<Float>(vnCapacity); // normals
@@ -84,10 +91,8 @@ public class LoaderManager {
 			vtf = new ArrayList<Integer>(fCapacity); // texture indices
 			vnf = new ArrayList<Integer>(fCapacity); // normals indices
 
-			BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-			objData = loadOBJ(in);
+			objData = loadOBJ(objectRawId);
 
-//			in.close();
 		}catch (NotFoundException e) {
 			Log.e("tag", TAG + ":loadFromRes() " + e);
 		} catch (IOException e) {
@@ -97,71 +102,27 @@ public class LoaderManager {
 		return objData;
 	}
 	
-	char[] charBuf;
-	
-	BufferedReader in;
-	int curIndex = 0;
+	private MeshData loadOBJ(int objectRawId) throws IOException{
 
-	private MeshData loadOBJ(BufferedReader in) throws IOException{
-		this.in = in;
-
+		InputStream meshStream = commonGameObject.getContext().getResources().openRawResource(objectRawId);
+		charBuf = IOUtils.toCharArray(meshStream) ;
+		meshStream.close();
+		meshStream = null;
+		
 		char[] type = new char[2];
-		char[] typeV = new char[]{'v', ' '};
-		char[] typeVn = new char[]{'v', 'n'};
-		char[] typeVt = new char[]{'v', 't'};
-		char[] typeF = new char[]{'f', ' '};
-		charBuf = IOUtils.toCharArray(in) ;//in.read(charBuf);
-		in.close();
 		while (curIndex < charBuf.length){
 			type [0] = charBuf[curIndex];
 			type [1] = charBuf[curIndex+1];
 //			Log.i("tag", "type = [" + type[0] + ", " + type[1]+"]");
 			
 			if(Arrays.equals(type, typeV)) {
-				curIndex += 3;
-				v.add(nextFloatToken(' ')); 	// x
-				v.add(nextFloatToken(' ')); 	// y
-				v.add(nextFloatToken('\n')); 	// z
-				curIndex--;
-
-				if (v.size() == vCapacity){
-					vCapacity += capacityStep ;
-					v.ensureCapacity(vCapacity);
-				}
-				
+				addVertex();				
 			} else	if(Arrays.equals(type, typeVn)) {
-					curIndex += 3;
-					vn.add(nextFloatToken(' ')); 	// x
-					vn.add(nextFloatToken(' ')); 	// y
-					vn.add(nextFloatToken('\n')); 	// z
-					curIndex--;
-					if (v.size() == vCapacity){
-						vCapacity += capacityStep ;
-						v.ensureCapacity(vCapacity);
-					}
-					
+				addNormal();
 			} else	if(Arrays.equals(type, typeVt)) {
-				curIndex += 3;
-				vt.add(nextFloatToken(' ')); 	// x
-				vt.add(nextFloatToken(' ')); 	// y
-				vt.add(nextFloatToken('\n')); 	// z
-				curIndex--;
-
+				addTextureCoord();
 			} else	if(Arrays.equals(type, typeF)) {
-				curIndex += 2;
-				facesCount++;
-
-				for(int i = 0; i < 3; ++i){
-					vf.add(nextIntToken('/') - 1);
-					vtf.add(nextIntToken('/') - 1);
-					vnf.add(nextIntToken(' ') - 1);
-					if (v.size() == vCapacity){
-						vCapacity += capacityStep ;
-						v.ensureCapacity(vCapacity);
-					}
-				}
-				curIndex--;
-				
+				addFace();
 			}
 			nextLine();
 		}
@@ -174,24 +135,72 @@ public class LoaderManager {
 		vtf.trimToSize();
 		
 		Log.d("tag", "parsing file time = " + (System.currentTimeMillis() - startTime)/1000.0 +" sec. (" + commonGameObject +")");
-		maxTextCoordX = Float.MIN_VALUE;
-		maxTextCoordY = Float.MIN_VALUE;
+		maxTextureCoordX = Float.MIN_VALUE;
+		maxTextureCoordY = Float.MIN_VALUE;
 			
 		MeshData meshData = new MeshData();
 		fillMeshData_2(meshData);
 		normalizeTextureCoords(meshData);
-
 		deinitData();
 		return meshData;
 	}
 	
 	
+	private void addFace() {
+		curIndex += 2;
+		facesCount++;
+
+		for(int i = 0; i < 3; ++i){
+			vf.add(nextIntToken('/') - 1);
+			vtf.add(nextIntToken('/') - 1);
+			vnf.add(nextIntToken(' ') - 1);
+			if (v.size() == vCapacity){
+				vCapacity += capacityStep ;
+				v.ensureCapacity(vCapacity);
+			}
+		}
+		curIndex--;
+	}
+
+	private void addTextureCoord() {
+		curIndex += 3;
+		vt.add(nextFloatToken(' ')); 	// x
+		vt.add(nextFloatToken(' ')); 	// y
+		vt.add(nextFloatToken('\n')); 	// z
+		curIndex--;
+	}
+
+	private void addNormal() {
+		curIndex += 3;
+		vn.add(nextFloatToken(' ')); 	// x
+		vn.add(nextFloatToken(' ')); 	// y
+		vn.add(nextFloatToken('\n')); 	// z
+		curIndex--;
+		if (v.size() == vCapacity){
+			vCapacity += capacityStep ;
+			v.ensureCapacity(vCapacity);
+		}
+	}
+
+	private void addVertex() {
+		curIndex += 3;
+		v.add(nextFloatToken(' ')); 	// x
+		v.add(nextFloatToken(' ')); 	// y
+		v.add(nextFloatToken('\n')); 	// z
+		curIndex--;
+
+		if (v.size() == vCapacity){
+			vCapacity += capacityStep ;
+			v.ensureCapacity(vCapacity);
+		}
+	}
+
 	private void normalizeTextureCoords(MeshData meshData) {
-		if(maxTextCoordX > 1 && maxTextCoordY > 1){
+		if(maxTextureCoordX > 1 && maxTextureCoordY > 1){
 			int i = 0;
 			while (i < meshData.textureData.length){
-				meshData.textureData[i] /= maxTextCoordX;
-				meshData.textureData[i + 1] /= maxTextCoordY;
+				meshData.textureData[i] /= maxTextureCoordX;
+				meshData.textureData[i + 1] /= maxTextureCoordY;
 				i+= 3;
 			}
 		}
@@ -247,8 +256,8 @@ public class LoaderManager {
 			objData.textureData[curVertexPacked] = vt.get(vtf.get(i)*3);
 			objData.textureData[curVertexPacked+1] = vt.get(vtf.get(i)*3+1);
 			objData.textureData[curVertexPacked+2] = vt.get(vtf.get(i)*3+2);
-			if (maxTextCoordX < objData.textureData[curVertexPacked]){maxTextCoordX = objData.textureData[curVertexPacked];}
-			if (maxTextCoordY < objData.textureData[curVertexPacked + 1]){maxTextCoordY = objData.textureData[curVertexPacked + 1];}
+			if (maxTextureCoordX < objData.textureData[curVertexPacked]){maxTextureCoordX = objData.textureData[curVertexPacked];}
+			if (maxTextureCoordY < objData.textureData[curVertexPacked + 1]){maxTextureCoordY = objData.textureData[curVertexPacked + 1];}
 			
 			objData.indexData[i] = vf.get(i);
 
@@ -278,8 +287,8 @@ public class LoaderManager {
 			objData.textureData[cur] = vt.get(tmpInd*3);
 			objData.textureData[cur+1] = vt.get(tmpInd*3+1);
 			objData.textureData[cur+2] = vt.get(tmpInd*3+2);
-			if (maxTextCoordX < objData.textureData[cur]){maxTextCoordX = objData.textureData[cur];}
-			if (maxTextCoordY < objData.textureData[cur + 1]){maxTextCoordY = objData.textureData[cur + 1];}
+			if (maxTextureCoordX < objData.textureData[cur]){maxTextureCoordX = objData.textureData[cur];}
+			if (maxTextureCoordY < objData.textureData[cur + 1]){maxTextureCoordY = objData.textureData[cur + 1];}
 
 			cur +=3;
 			objData.indexData[i] = i;
@@ -336,53 +345,6 @@ public class LoaderManager {
 
 
 
-//	private void processLine(String type, StringTokenizer t) {
-//	if(type.equals("v")) {
-//		vs.add(Float.parseFloat(t.nextToken())); 	// x
-//		vs.add(Float.parseFloat(t.nextToken()));	// y
-//		vs.add(Float.parseFloat(t.nextToken()));	// z
-//		if (vs.size() == vsCapacity){
-//			vsCapacity += capacityStep ;
-//			vs.ensureCapacity(vsCapacity);
-//		}
-//		
-//	} else if (type.equals("vn")) {
-//		ns.add(Float.parseFloat(t.nextToken())); 	// x
-//		ns.add(Float.parseFloat(t.nextToken()));	// y
-//		ns.add(Float.parseFloat(t.nextToken()));	// y
-//		if (ns.size() == nsCapacity){
-//			nsCapacity += capacityStep ;
-//			ns.ensureCapacity(nsCapacity);
-//		}
-//		
-//	} else if (type.equals("vt")) {
-//		tc.add(Float.parseFloat(t.nextToken())); 	// u
-//		tc.add(Float.parseFloat(t.nextToken()));	// v
-//		if (tc.size() == tcCapacity){
-//			tcCapacity += capacityStep ;
-//			tc.ensureCapacity(tcCapacity);
-//		}
-//		
-//	} else if (type.equals("f")) {
-//		String fFace;
-//		numFaces++;
-//		for (int j = 0; j < 3; j++) {
-//			fFace = t.nextToken();
-//			// another tokenizer - based on /
-//			ft = new StringTokenizer(fFace, "/");
-//			vfs.add(Integer.parseInt(ft.nextToken()) - 1);
-//			tfs.add(Integer.parseInt(ft.nextToken()) - 1);
-//			nfs.add(Integer.parseInt(ft.nextToken()) - 1);
-//		}
-//		if (vfs.size() == fCapacity){
-//			fCapacity += capacityStep ;
-//			vfs.ensureCapacity(fCapacity);
-//			tfs.ensureCapacity(fCapacity);
-//			nfs.ensureCapacity(fCapacity);
-//		}
-//
-//	}
-//}
 	public static class MeshData{
 		public float[] 	vertexData;
 		public float[] 	textureData;
@@ -414,16 +376,6 @@ public class LoaderManager {
 	        // Bind to the texture in OpenGL
 	        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
 	 
-//	        // Set filtering
-//	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-//	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-//	 
-//	        // Load the bitmap into the bound texture.
-//	        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
-//	 
-//	        // Recycle the bitmap, since its data has been loaded into OpenGL.
-//	        bmp.recycle();
-	        
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_NEAREST);
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR_MIPMAP_NEAREST);
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
@@ -447,12 +399,12 @@ public class LoaderManager {
 	            bmp = bmp2;
 	        }
 	        
-	        bmp.recycle();	        
+	        bmp.recycle();	
 	    }
 	 
 	    if (textureHandle[0] == 0)
 	    {
-	        throw new RuntimeException("Error loading texture.");
+	        throw new RuntimeException("loadTexture() - Error loading texture.");
 	    }
 	 
 	    return textureHandle[0];

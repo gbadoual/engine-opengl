@@ -2,8 +2,13 @@ package com.android.opengl.gameobject.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import android.util.Log;
+
+import com.android.opengl.gameobject.util.geometry.Point3D;
+import com.android.opengl.gameobject.util.geometry.Triangle3D;
+import com.android.opengl.gameobject.util.geometry.Vector3D;
 
 public class MeshQuadNode2D {
 	
@@ -21,8 +26,11 @@ public class MeshQuadNode2D {
 	private static final int Z_OFFSET = 2;
 	private static final int VERTEX_ELEMENTS_COUNT = 3;
 	private static final int VERTEX_PER_FACE = 3;
+	private static final int FACE_ELEMENTS_COUNT = VERTEX_PER_FACE * VERTEX_ELEMENTS_COUNT;
 
 	private static final int MAX_LEVEL = 10;
+
+	private static final float EPSILON = 0.000001f;
 
 	
 //	private static final int FACE_ELEMENT_COUNT = 3; 
@@ -166,11 +174,80 @@ public class MeshQuadNode2D {
 	// returns indexies of intersected triangle 
 	// or null if there is no any intersection detected
 	
-	public int[] interractionTest(float x, float y, float z){
-				
-		return null;
+	public boolean intersectionTest(Vector3D ray){
+		if (ray == null){
+			Log.w(TAG, "intersectionTest() - incoming ray is null");
+			return false;
+		}
+		ray.normalize();
+		int[] rawFaceData = new int[VERTEX_PER_FACE];
+
+		int i = 0;
+		while (i < indexData.length){
+			for(int j = 0; j < VERTEX_PER_FACE; ++j){
+				rawFaceData[j] = indexData[i + j];
+			}
+			if (rayTriangleIntersectionTest(ray, rawFaceData)){
+				return true;//new Triangle3D(rawFaceData);
+			};
+			
+			i += VERTEX_PER_FACE;
+		}
 		
+		
+				
+		return false;
+		
+	}	
+	
+	private boolean rayTriangleIntersectionTest(Vector3D ray, int[] triangleIndices){
+		float[] vertexData = getVerdexData();
+		float[] edge1 = new float[VERTEX_ELEMENTS_COUNT];
+		float[] edge2 = new float[VERTEX_ELEMENTS_COUNT];
+		float[] tvec = new float[VERTEX_ELEMENTS_COUNT];
+		float[] pvec;
+		float[] qvec;
+		float det, invDet;
+		int vertexIndex0 = indexData[triangleIndices[0]] * VERTEX_ELEMENTS_COUNT;
+		int vertexIndex1 = indexData[triangleIndices[1]] * VERTEX_ELEMENTS_COUNT;
+		int vertexIndex2 = indexData[triangleIndices[2]] * VERTEX_ELEMENTS_COUNT;
+		edge1[0] = vertexData[vertexIndex1 + 0] - vertexData[vertexIndex0 + 0];
+		edge1[1] = vertexData[vertexIndex1 + 1] - vertexData[vertexIndex0 + 1];
+		edge1[2] = vertexData[vertexIndex1 + 2] - vertexData[vertexIndex0 + 2];
+
+		edge2[0] = vertexData[vertexIndex2 + 0] - vertexData[vertexIndex0 + 0];
+		edge2[1] = vertexData[vertexIndex2 + 1] - vertexData[vertexIndex0 + 1];
+		edge2[2] = vertexData[vertexIndex2 + 2] - vertexData[vertexIndex0 + 2];
+		
+		float[] direction = ray.getDirection().asFloatArray();
+		pvec = Vector3D.vectorProduct(edge2, direction);
+		det = Vector3D.dotProduct(pvec, edge1);
+		
+		if(det > -EPSILON && det < EPSILON){
+			return false;
+		}
+		invDet = 1/det;
+		float u, v;
+		float[] position = ray.getPosition().asFloatArray();
+		tvec[0] = position[0] - vertexData[vertexIndex0 + 0];
+		tvec[1] = position[1] - vertexData[vertexIndex0 + 1];
+		tvec[2] = position[2] - vertexData[vertexIndex0 + 2];
+		u = Vector3D.dotProduct(tvec, pvec) * invDet;
+		if(u < 0.0 || u > 1.0){
+			return false;
+		}
+		qvec = Vector3D.vectorProduct(edge1, tvec);
+		v = Vector3D.dotProduct(direction, qvec);
+		if(v < 0.0 || u + v > 1.0 ){
+			return false;
+		}
+		
+		float len = Vector3D.dotProduct(edge2, qvec) * invDet;
+		ray.setLength(len);
+		
+		return true;		
 	}
+
 	
 
 }
