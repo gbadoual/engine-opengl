@@ -19,7 +19,6 @@ public class Vector3D {
 	public Vector3D(Point3D direction) {
 		this.direction = direction;
 		this.position = new Point3D();
-//		normalize();
 	}
 
 	public Vector3D(Point3D startPoint, Point3D endPoint) {
@@ -29,7 +28,6 @@ public class Vector3D {
 				endPoint.x - startPoint.x, 
 				endPoint.y - startPoint.y,
 				endPoint.z - startPoint.z);
-//		normalize();
 	}
 
 	public Vector3D(float[] fStartPoint, float[] fEndPoint) {
@@ -38,8 +36,15 @@ public class Vector3D {
 				fEndPoint[0] - fStartPoint[0],
 				fEndPoint[1] - fStartPoint[1], 
 				fEndPoint[2] - fStartPoint[2]);
-//		normalize();
 	}
+	
+	public Point3D getTargetPoint(){
+		float x = position.x + direction.x * length;
+		float y = position.y + direction.y * length;
+		float z = position.z + direction.z * length;
+		return new Point3D(x, y, z);
+	}	
+	
 
 	public float dotProduct(Vector3D other) {
 		return direction.x * other.direction.x + direction.y

@@ -161,19 +161,25 @@ public class Scene extends CommonGameObject{
 	public void setIsSelected(Vector3D ray) {
 		boolean isAnyGameObgectSelected = false;
 		for(GameObject gameObject: gameObjectList){
-			isAnyGameObgectSelected = isAnyGameObgectSelected | gameObject.setIsSelected(ray);
+			isAnyGameObgectSelected |= gameObject.setIsSelected(ray);
 		}
 		if(!isAnyGameObgectSelected){
 			//find intersection point with scene
+			long time = System.currentTimeMillis();
 			boolean res = sceneQuad2D.intersectionTest(ray);
-			Log.d("tag", "res = " + res);
+			time = System.currentTimeMillis() - time;
+			if(res){
+				Log.d("tag", "intersection point with scene: " + ray.getTargetPoint()+", time = " + time/1000.0f +" sec.");
+			} else{
+				Log.d("tag", "no intersection with scene detected");
+			}
 		}
 	}
 
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.scene_first;
+		return R.raw.landscape;
 	}
 
 }
