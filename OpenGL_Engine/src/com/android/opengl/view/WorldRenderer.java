@@ -307,7 +307,7 @@ public class WorldRenderer implements Renderer {
 		resXYZ1[3] = 1;
 
 		Vector3D vector = new Vector3D(resXYZ0, resXYZ1);
-		vector.transform(scene.getModelMatrix());
+//		vector.transform(scene.getModelMatrix());
 		scene.setIsSelected(vector);
 //		for(GameObject gameObject: gameObjectList){
 //			gameObject.setIsSelected(vector);

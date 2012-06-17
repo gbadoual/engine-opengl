@@ -193,12 +193,14 @@ public class MeshQuadNode2D {
 			
 			i += VERTEX_PER_FACE;
 		}
-		
-		
-				
 		return false;
+	}
+	
+	private boolean rayIntersectionTest(float x, float z){
 		
-	}	
+		
+		return false;		
+	}
 	
 	private boolean rayTriangleIntersectionTest(Vector3D ray, int[] triangleIndices){
 		float[] vertexData = getVerdexData();
@@ -208,9 +210,9 @@ public class MeshQuadNode2D {
 		float[] pvec;
 		float[] qvec;
 		float det, invDet;
-		int vertexIndex0 = indexData[triangleIndices[0]] * VERTEX_ELEMENTS_COUNT;
-		int vertexIndex1 = indexData[triangleIndices[1]] * VERTEX_ELEMENTS_COUNT;
-		int vertexIndex2 = indexData[triangleIndices[2]] * VERTEX_ELEMENTS_COUNT;
+		int vertexIndex0 = triangleIndices[0] * VERTEX_ELEMENTS_COUNT;
+		int vertexIndex1 = triangleIndices[1] * VERTEX_ELEMENTS_COUNT;
+		int vertexIndex2 = triangleIndices[2] * VERTEX_ELEMENTS_COUNT;
 		edge1[0] = vertexData[vertexIndex1 + 0] - vertexData[vertexIndex0 + 0];
 		edge1[1] = vertexData[vertexIndex1 + 1] - vertexData[vertexIndex0 + 1];
 		edge1[2] = vertexData[vertexIndex1 + 2] - vertexData[vertexIndex0 + 2];
@@ -237,7 +239,7 @@ public class MeshQuadNode2D {
 			return false;
 		}
 		qvec = Vector3D.vectorProduct(edge1, tvec);
-		v = Vector3D.dotProduct(direction, qvec);
+		v = Vector3D.dotProduct(direction, qvec) * invDet;
 		if(v < 0.0 || u + v > 1.0 ){
 			return false;
 		}
