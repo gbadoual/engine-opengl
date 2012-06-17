@@ -8,7 +8,9 @@ public class Vector3D {
 
 	public Point3D position;
 	public Point3D direction;
-	public float length;
+	private float length;
+	
+	private boolean isNormalized;
 
 	public Vector3D() {
 
@@ -47,24 +49,47 @@ public class Vector3D {
 	public Vector3D vectorProduct(Vector3D other) {
 		throw new UnsupportedOperationException("not supported yet");
 	}
+	
+	public static float dotProduct(float[] vector1, float[] vector2) {
+		return vector2[0] * vector1[0] +   vector2[1] * vector1[1] +  vector2[2] * vector1[2];
+	}
+
+	public static float[] vectorProduct(float[] vector1, float[] vector2){
+		return new float[]{vector2[1] * vector1[2] - vector2[2] * vector1[1], 
+						   vector2[2] * vector1[0] - vector2[0] * vector1[2], 
+						   vector2[0] * vector1[1] - vector2[1] * vector1[0]};
+	}
+	
+	public static float[] sub(float[] vector1, float[] vector2){
+		return new float[]{vector2[0] - vector1[0], 
+						   vector2[1] - vector1[1], 
+						   vector2[2] - vector1[2]};
+	}
 
 	public Vector3D normalize() {
+		if(isNormalized){
+			return this;
+		}
 		float x = direction.x;
 		float y = direction.y;
 		float z = direction.z;
-
-		if (length != 1.0f) {
+		
+		length = (float) Math.sqrt(x * x + y * y + z * z);
+		
+		if (length != 1.0f && length != 0.0f) {
 			direction.x = x / length;
 			direction.y = y / length;
 			direction.z = z / length;
 		}
+		isNormalized = true;
 		return this;
 	}
 
 	public Vector3D transform(float[] tranformMatrix) {
 		float[] res = new float[4];
 		float[] tmp = new float[4];
-		checkLength();
+//		checkLength();
+		normalize();
 		tmp[0] = position.x + direction.x * length;
 		tmp[1] = position.y + direction.y * length;
 		tmp[2] = position.z + direction.z * length;
@@ -74,6 +99,7 @@ public class Vector3D {
 		Matrix.multiplyMV(res, 0, tranformMatrix, 0, tmp, 0);
 		direction = new Point3D(res[0] - position.x, res[1] - position.y,
 				res[2] - position.z);
+		isNormalized = false;
 		normalize();
 
 		return this;
@@ -101,7 +127,33 @@ public class Vector3D {
 	public String toString() {
 		return new StringBuilder().append("Vector {direction = ")
 				.append(direction).append(", position = ").append(position)
-				.append("}").toString();
+				.append(", length = ").append(length).append("}").toString();
 	}
+
+	public Point3D getPosition() {
+		return position;
+	}
+
+//	public void setPosition(Point3D position) {
+//		this.position = position;
+//	}
+
+	public Point3D getDirection() {
+		return direction;
+	}
+
+//	public void setDirection(Point3D direction) {
+//		this.direction = direction;
+//	}
+
+	public float getLength() {
+		return length;
+	}
+
+	public void setLength(float length) {
+		this.length = length;
+	}
+	
+	
 
 }

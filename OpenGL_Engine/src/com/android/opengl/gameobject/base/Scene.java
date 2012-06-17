@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.android.opengl.R;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
@@ -157,20 +158,22 @@ public class Scene extends CommonGameObject{
 		return isRendingFinished;
 	}
 	
-	public void setIsSelected(Vector3D vector) {
+	public void setIsSelected(Vector3D ray) {
 		boolean isAnyGameObgectSelected = false;
 		for(GameObject gameObject: gameObjectList){
-			isAnyGameObgectSelected = isAnyGameObgectSelected | gameObject.setIsSelected(vector);
+			isAnyGameObgectSelected = isAnyGameObgectSelected | gameObject.setIsSelected(ray);
 		}
 		if(!isAnyGameObgectSelected){
 			//find intersection point with scene
+			boolean res = sceneQuad2D.intersectionTest(ray);
+			Log.d("tag", "res = " + res);
 		}
 	}
 
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.landscape;//R.raw.scene;
+		return R.raw.scene_first;
 	}
 
 }

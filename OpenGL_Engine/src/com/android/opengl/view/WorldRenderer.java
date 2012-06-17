@@ -30,11 +30,11 @@ public class WorldRenderer implements Renderer {
 
 
 	private long currentFrame = 0;
-	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
+//	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
 	private GameObject cube1;
 	private GameObject cube2;
-	private GameObject bmw1;
-	private GameObject bmw2;
+//	private GameObject bmw1;
+//	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
 	
@@ -97,14 +97,14 @@ public class WorldRenderer implements Renderer {
 	private void initGameObjects() {
 		CommonGameObject.facesCount = 0;
 		scene = new Scene(worldView.getContext(), programHandle, calculateProjectionMatrix(0, 0));
-		bmw1 = new BMW(scene);
+//		bmw1 = new BMW(scene);
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
 		cube2 = new Cube(scene);
 		earth = new Earth(scene);
-		for(int i = 0; i < 4; ++i){
-			gameObjectList.add(new BMW(scene));
-		}
+//		for(int i = 0; i < 4; ++i){
+//			gameObjectList.add(new BMW(scene));
+//		}
 	}
 
 
@@ -197,35 +197,35 @@ public class WorldRenderer implements Renderer {
 		cube2.drawFrame();
 
 		float step = 7;
-		int size = gameObjectList.size();
-		int iSize = (int)Math.sqrt(size);
-		int x = 0, z = 0;
-		for(int i = 0; i < size ; ++i){
-		
-//			i = i*2;
-			gameObjectList.get(i).translate(-20 +step * x , 4, -20 + step * z);
-			gameObjectList.get(i).drawFrame();
-			x++;
-			if(x > iSize){
-				x = 0;
-				z++;
-			}
-//			bmw1.translate(-10 +step  * i, 4, -9);
-//			bmw1.drawFrame();
-	
-//			bmw1.translate(0 +step  * i, 8, 0);
-//			bmw1.drawFrame();
-	
-//			bmw1.translate(10 +step  * i, 8, -9);
-//			bmw1.drawFrame();
-	
-//			bmw1.translate(0 +step  * i, 12, 0);
-//			bmw1.drawFrame();
-	
-//			bmw1.translate(-10 +step  * i, 12, -9);
-//			bmw1.drawFrame();
-//			i = i/2;
-		}
+//		int size = gameObjectList.size();
+//		int iSize = (int)Math.sqrt(size);
+//		int x = 0, z = 0;
+//		for(int i = 0; i < size ; ++i){
+//		
+////			i = i*2;
+//			gameObjectList.get(i).translate(-20 +step * x , 4, -20 + step * z);
+//			gameObjectList.get(i).drawFrame();
+//			x++;
+//			if(x > iSize){
+//				x = 0;
+//				z++;
+//			}
+////			bmw1.translate(-10 +step  * i, 4, -9);
+////			bmw1.drawFrame();
+//	
+////			bmw1.translate(0 +step  * i, 8, 0);
+////			bmw1.drawFrame();
+//	
+////			bmw1.translate(10 +step  * i, 8, -9);
+////			bmw1.drawFrame();
+//	
+////			bmw1.translate(0 +step  * i, 12, 0);
+////			bmw1.drawFrame();
+//	
+////			bmw1.translate(-10 +step  * i, 12, -9);
+////			bmw1.drawFrame();
+////			i = i/2;
+//		}
 
 		earth.translate(-8, 5, 3);
 		earth.drawFrame();
