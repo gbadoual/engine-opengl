@@ -171,7 +171,7 @@ public class Scene extends CommonGameObject{
 			if(res){
 				Log.d("tag", "intersection point with scene: " + ray.getTargetPoint()+", time = " + time/1000.0f +" sec.");
 			} else{
-				Log.d("tag", "no intersection with scene detected");
+				Log.d("tag", "no intersection with scene detected, time = " + time/1000.0f +" sec.");
 			}
 		}
 	}

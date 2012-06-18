@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import android.util.Log;
 
+import com.android.opengl.gameobject.util.geometry.Plane;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Triangle3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
@@ -23,6 +24,7 @@ public class MeshQuadNode2D {
 	
 	
 	private static final int X_OFFSET = 0;
+	private static final int Y_OFFSET = 1;
 	private static final int Z_OFFSET = 2;
 	private static final int VERTEX_ELEMENTS_COUNT = 3;
 	private static final int VERTEX_PER_FACE = 3;
@@ -32,6 +34,7 @@ public class MeshQuadNode2D {
 
 	private static final float EPSILON = 0.000001f;
 
+
 	
 //	private static final int FACE_ELEMENT_COUNT = 3; 
 	private Integer[] indexData;
@@ -40,8 +43,9 @@ public class MeshQuadNode2D {
 	private float far;
 	private float right;
 	private float near;	
+	private float top = Float.MIN_VALUE;	
+	private float bottom = Float.MAX_VALUE;	
 	
-//	private MeshData meshData;
 	
 	private int level;
 
@@ -132,6 +136,8 @@ public class MeshQuadNode2D {
 				for(int j = 0; j < VERTEX_PER_FACE; ++ j)
 				arrayList.add(indexData[curFace + j]);
 			}
+			if(top < indexData[curFace + Y_OFFSET]){top = indexData[curFace + Y_OFFSET];}
+			if(bottom > indexData[curFace + Y_OFFSET]){bottom = indexData[curFace + Y_OFFSET];}
 			curFace += VERTEX_PER_FACE;
 		}
 		
@@ -180,26 +186,74 @@ public class MeshQuadNode2D {
 			return false;
 		}
 		ray.normalize();
-		int[] rawFaceData = new int[VERTEX_PER_FACE];
-
-		int i = 0;
-		while (i < indexData.length){
-			for(int j = 0; j < VERTEX_PER_FACE; ++j){
-				rawFaceData[j] = indexData[i + j];
-			}
-			if (rayTriangleIntersectionTest(ray, rawFaceData)){
-				return true;//new Triangle3D(rawFaceData);
-			};
-			
-			i += VERTEX_PER_FACE;
+		
+		float[] point = getRayPlane2DIntersectionPoint(bottom, ray);
+		if( point[X_OFFSET] < left || point[X_OFFSET] > right
+			|| point[Z_OFFSET] < far || point[Z_OFFSET] > near){
+			return false;
 		}
+		int sonCount = 0;
+		if(leftNearSon != null){
+			sonCount++;
+			if(leftNearSon.intersectionTest(ray)){ return true; };
+		}
+		if(leftNearSon != null){
+			sonCount++;
+			if(leftNearSon.intersectionTest(ray)){ return true; };
+		}
+		if(leftNearSon != null){
+			sonCount++;
+			if(leftNearSon.intersectionTest(ray)){ return true; };
+		}
+		if(leftNearSon != null){
+			sonCount++;
+			if(leftNearSon.intersectionTest(ray)){ return true; };
+		}
+		
+		if(sonCount == 0){
+			int[] rawFaceData = new int[VERTEX_PER_FACE];
+
+			int i = 0;
+			while (i < indexData.length){
+				for(int j = 0; j < VERTEX_PER_FACE; ++j){
+					rawFaceData[j] = indexData[i + j];
+				}
+				if (rayTriangleIntersectionTest(ray, rawFaceData)){
+					return true;//new Triangle3D(rawFaceData);
+				};
+				
+				i += VERTEX_PER_FACE;
+			}
+		}
+		
+//		int[] rawFaceData = new int[VERTEX_PER_FACE];
+
+//		int i = 0;
+//		while (i < indexData.length){
+//			for(int j = 0; j < VERTEX_PER_FACE; ++j){
+//				rawFaceData[j] = indexData[i + j];
+//			}
+//			if (rayTriangleIntersectionTest(ray, rawFaceData)){
+//				return true;//new Triangle3D(rawFaceData);
+//			};
+//			
+//			i += VERTEX_PER_FACE;
+//		}
 		return false;
 	}
 	
-	private boolean rayIntersectionTest(float x, float z){
-		
-		
+	private boolean rayIntersectionTest(Vector3D ray){
+//		Point3D pointOnPlane = new Point3D(vector.direction.x * s + vector.position.x, vector.direction.y * s + vector.position.y, vector.direction.z * s + vector.position.z);
+
 		return false;		
+	}
+	
+	private float[] getRayPlane2DIntersectionPoint(float yCoord, Vector3D ray){
+		//2d plane normal is always {0, 1, 0}
+		float y0 = ray.position.y - yCoord; 
+		float s =  - y0 / ray.getDirection().y;
+		ray.setLength(s);
+		return ray.getTargetPoint().asFloatArray();
 	}
 	
 	private boolean rayTriangleIntersectionTest(Vector3D ray, int[] triangleIndices){

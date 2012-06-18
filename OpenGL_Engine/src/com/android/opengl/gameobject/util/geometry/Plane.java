@@ -86,6 +86,28 @@ public class Plane {
 		return fPlane;
 	}
 
+	public Point3D getIntersectionPoint(Vector3D vector){
+		if (normal.dotProduct(vector) == 0){
+			return null;
+		}
+		float x0 = vector.position.x - normal.position.x; 
+		float y0 = vector.position.y - normal.position.y; 
+		float z0 = vector.position.z - normal.position.z;
+		float a = normal.direction.x;
+		float b = normal.direction.y;
+		float c = normal.direction.z;
+		float dotProduct = normal.dotProduct(vector);
+		float s =  -(a*x0 + b*y0 +c*z0)/dotProduct;
+		Point3D pointOnPlane = new Point3D(vector.direction.x * s + vector.position.x, vector.direction.y * s + vector.position.y, vector.direction.z * s + vector.position.z);
+//		Log.i("tag", "pointOnPlane = "+pointOnPlane);
+//		Log.i("tag", "normal = "+normal);
+//		Log.i("tag", "vector = "+vector);
+//		Log.i("tag", "=========================");
+		return pointOnPlane;
+	}
+
+
+
 	@Override
 	public String toString() {
 		return new StringBuilder("{ normal = ").append(normal).append(", {p1 = ").append(p1)
