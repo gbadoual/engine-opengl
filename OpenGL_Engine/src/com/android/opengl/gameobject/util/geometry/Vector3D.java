@@ -45,7 +45,13 @@ public class Vector3D {
 		return new Point3D(x, y, z);
 	}	
 	
-
+	public Point3D getTargetPoint(float length) {
+		float x = position.x + direction.x * length;
+		float y = position.y + direction.y * length;
+		float z = position.z + direction.z * length;
+		return new Point3D(x, y, z);
+	}
+	
 	public float dotProduct(Vector3D other) {
 		return direction.x * other.direction.x + direction.y
 				* other.direction.y + direction.z * other.direction.z;
@@ -158,6 +164,8 @@ public class Vector3D {
 	public void setLength(float length) {
 		this.length = length;
 	}
+
+
 	
 	
 

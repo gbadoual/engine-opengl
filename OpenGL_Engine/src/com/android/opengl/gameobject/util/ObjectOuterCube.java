@@ -86,7 +86,7 @@ public class ObjectOuterCube {
 
 		Plane trPlane = planesData[planeIndex];
 
-		Point3D pointOnPlane = getIntersectionPoint(trPlane, ray);
+		Point3D pointOnPlane = trPlane.getIntersectionPoint(ray);
 		if (pointOnPlane == null || pointOnPlane.z > ray.position.z){
 			// the ray has no intersection with the plane or the point is behind the ray
 			return false;
@@ -107,26 +107,7 @@ public class ObjectOuterCube {
 		return true;
 	}
 	
-	private Point3D getIntersectionPoint(Plane plane, Vector3D vector) {
-		Vector3D normal = plane.getNormal();
-		if (normal.dotProduct(vector) == 0){
-			return null;
-		}
-		float x0 = vector.position.x - normal.position.x; 
-		float y0 = vector.position.y - normal.position.y; 
-		float z0 = vector.position.z - normal.position.z;
-		float a = normal.direction.x;
-		float b = normal.direction.y;
-		float c = normal.direction.z;
-		float dotProduct = normal.dotProduct(vector);
-		float s =  -(a*x0 + b*y0 +c*z0)/dotProduct;
-		Point3D pointOnPlane = new Point3D(vector.direction.x * s + vector.position.x, vector.direction.y * s + vector.position.y, vector.direction.z * s + vector.position.z);
-//		Log.i("tag", "pointOnPlane = "+pointOnPlane);
-//		Log.i("tag", "normal = "+normal);
-//		Log.i("tag", "vector = "+vector);
-//		Log.i("tag", "=========================");
-		return pointOnPlane;
-	}
+
 
 	private void generatePlanes(float[] mvMatrix) {
 		float coordLeft 	= 	this.coordLeft;
