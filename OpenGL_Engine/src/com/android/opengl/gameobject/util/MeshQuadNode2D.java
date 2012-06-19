@@ -186,31 +186,43 @@ public class MeshQuadNode2D {
 			return false;
 		}
 		ray.normalize();
-		
 		float[] point = getRayPlane2DIntersectionPoint(bottom, ray);
-		if( point[X_OFFSET] < left || point[X_OFFSET] > right
-			|| point[Z_OFFSET] < far || point[Z_OFFSET] > near){
-			return false;
+		return intersectionTest(ray.position.x, ray.position.z, point[X_OFFSET], point[Z_OFFSET], ray);
+		
+	}	
+	private  boolean intersectionTest(float x1, float z1, float x2, float z2, Vector3D ray){
+
+		
+//		if( point[X_OFFSET] < left || point[X_OFFSET] > right
+//			|| point[Z_OFFSET] < far || point[Z_OFFSET] > near){
+//			return false;
+//		}
+		if(x1 == x2){
+			
+		}else{
+			float k = (z1 - z2)/(x1 - x2);
+			
+								
 		}
 		int sonCount = 0;
 		if(leftNearSon != null){
 			sonCount++;
-			if(leftNearSon.intersectionTest(ray)){ return true; };
+			if(leftNearSon.intersectionTest(x1, z1, x2, z2, ray)){ return true; };
 		}
 		if(leftNearSon != null){
 			sonCount++;
-			if(leftNearSon.intersectionTest(ray)){ return true; };
+			if(leftNearSon.intersectionTest(x1, z1, x2, z2, ray)){ return true; };
 		}
 		if(leftNearSon != null){
 			sonCount++;
-			if(leftNearSon.intersectionTest(ray)){ return true; };
+			if(leftNearSon.intersectionTest(x1, z1, x2, z2, ray)){ return true; };
 		}
 		if(leftNearSon != null){
 			sonCount++;
-			if(leftNearSon.intersectionTest(ray)){ return true; };
+			if(leftNearSon.intersectionTest(x1, z1, x2, z2, ray)){ return true; };
 		}
 		
-		if(sonCount == 0){
+		if(sonCount < 4){
 			int[] rawFaceData = new int[VERTEX_PER_FACE];
 
 			int i = 0;
@@ -219,6 +231,7 @@ public class MeshQuadNode2D {
 					rawFaceData[j] = indexData[i + j];
 				}
 				if (rayTriangleIntersectionTest(ray, rawFaceData)){
+					Log.i("tag", "intersection found. level: " +level);
 					return true;//new Triangle3D(rawFaceData);
 				};
 				
