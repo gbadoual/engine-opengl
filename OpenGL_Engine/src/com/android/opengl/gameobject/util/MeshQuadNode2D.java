@@ -14,13 +14,11 @@ import com.android.opengl.gameobject.util.geometry.Vector3D;
 public class MeshQuadNode2D {
 	
 	private static final String TAG = MeshQuadNode2D.class.getSimpleName();
+	private static final int TREE_SONS_COUNT = 4;
 
 	private MeshQuadNode2D parent;
 	
-	private MeshQuadNode2D leftNearSon;
-	private MeshQuadNode2D leftFarSon;
-	private MeshQuadNode2D rightNearSon;
-	private MeshQuadNode2D rightFarSon;
+	private MeshQuadNode2D[] treeSons;
 	
 	
 	private static final int X_OFFSET = 0;
@@ -39,10 +37,10 @@ public class MeshQuadNode2D {
 //	private static final int FACE_ELEMENT_COUNT = 3; 
 	private Integer[] indexData;
 	
-	private float left;
-	private float far;
-	private float right;
-	private float near;	
+	private double left;
+	private double far;
+	private double right;
+	private double near;	
 	private float top = Float.MIN_VALUE;	
 	private float bottom = Float.MAX_VALUE;	
 	
@@ -72,15 +70,7 @@ public class MeshQuadNode2D {
 		Log.i("tag", "MeshQuadNode2D() created for "+ creatingTime+" sec");
 	}
 	
-	private void init(int level) {
-		this.level = level;
-		leftNearSon = getLeftNearQuadData(level+1);
-		leftFarSon = getLeftFarQuadData(level+1);
-		rightNearSon = getRightNearQuadData(level+1);
-		rightFarSon = getRightFarQuadData(level+1);
-	}
-
-	public MeshQuadNode2D(MeshQuadNode2D parent,  int level, Integer[] indexData, float left, float near, float right, float far) {
+	private MeshQuadNode2D(MeshQuadNode2D parent,  int level, Integer[] indexData, double left, double near, double right, double far) {
 		this.indexData = indexData;
 		this.left = left;
 		this.near = near;
@@ -89,6 +79,50 @@ public class MeshQuadNode2D {
 		this.parent = parent;
 		init(level);		
 	}	
+	
+	private MeshQuadNode2D(){
+		this.indexData = new Integer[0];
+		treeSons = new MeshQuadNode2D[TREE_SONS_COUNT];
+	}
+	
+	private void init(int level) {
+		this.level = level;
+		treeSons = new MeshQuadNode2D[TREE_SONS_COUNT];
+		treeSons[0] = getLeftNearQuadData(level+1);
+		if(treeSons[0] != null)	treeSons[1] = getLeftFarQuadData(level+1);
+		if(treeSons[1] != null)	treeSons[2] = getRightNearQuadData(level+1);
+		if(treeSons[2] != null)	treeSons[3] = getRightFarQuadData(level+1);
+		if(treeSons[3] == null){ 
+			for(int i = 0; i < TREE_SONS_COUNT; ++i){
+				treeSons[i] = null;
+			}
+		}
+		
+//		boolean isAnyQuadInited = false;
+//		isAnyQuadInited |= treeSons[0]!=null;
+//		treeSons[0] = getLeftNearQuadData(level+1);
+//		treeSons[1] = getLeftFarQuadData(level+1);
+//		treeSons[2] = getRightNearQuadData(level+1);
+//		treeSons[3] = getRightFarQuadData(level+1);
+//		for(int i = 0; i < TREE_SONS_COUNT; ++i){
+//			isAnyQuadInited |= treeSons[i] != null;
+//		}
+//		if(isAnyQuadInited){
+//			for(int i = 0; i < TREE_SONS_COUNT; ++i){
+//				if (treeSons[i] == null){
+//					treeSons[i] = new MeshQuadNode2D();
+//				};
+//			}
+//		}
+
+//		for(int i = 0; i < TREE_SONS_COUNT; ++i){
+//			int len = treeSons[i] != null ? treeSons[i].indexData.length : 0;
+//			Log.i("tag" ,"len = "+len+", treeSon["+i+"] = " + treeSons[i]+", level = " + level);
+//		}
+//		Log.i("tag", "*******************************************");
+	}
+
+
 	
 
 	private float[] getVerdexData(){
@@ -99,7 +133,7 @@ public class MeshQuadNode2D {
 		}
 	}
 
-	private MeshQuadNode2D getQuad(float left, float near, float right, float far, int level){
+	private MeshQuadNode2D getQuad(double left, double near, double right, double far, int level){
 		Integer[] indexData;
 		indexData = getTriagleArrayWithinRect(left, near, right, far);
 		if(indexData.length == 0 || indexData.length >= this.indexData.length || level >= MAX_LEVEL){
@@ -116,7 +150,7 @@ public class MeshQuadNode2D {
 	}
 	public MeshQuadNode2D getRightNearQuadData(int level){
 
-		return getQuad(left, near, (left + right)/2,(near+far)/2, level);
+		return getQuad((left + right)/2, near, right,(near+far)/2, level);
 	}
 	public MeshQuadNode2D getLeftFarQuadData(int level){
 
@@ -128,7 +162,7 @@ public class MeshQuadNode2D {
 	}
 	
 	
-	private Integer[] getTriagleArrayWithinRect(float left, float near, float right, float far){
+	private Integer[] getTriagleArrayWithinRect(double left, double near, double right, double far){
 		ArrayList<Integer> arrayList = new ArrayList<Integer>();
 		int curFace = 0;
 		while(curFace < indexData.length){
@@ -150,7 +184,7 @@ public class MeshQuadNode2D {
 		return array;
 	}
 	
-	private boolean faceAllFartherNearLeftBorder(int vertexIndex, float left, float near, float right, float far) {
+	private boolean faceAllFartherNearLeftBorder(int vertexIndex, double left, double near, double right, double far) {
 		float[] vertexData = getVerdexData();
 		for(int i = 0; i < VERTEX_PER_FACE; ++i){
 			int vertexDataIndex = indexData[vertexIndex + i] * VERTEX_ELEMENTS_COUNT;
@@ -163,7 +197,7 @@ public class MeshQuadNode2D {
 		return true;
 	}
 	
-	private boolean faceAnyNearerFarRightBorder(int vertexIndex, float left, float near, float right, float far) {
+	private boolean faceAnyNearerFarRightBorder(int vertexIndex, double left, double near, double right, double far) {
 		float[] vertexData = getVerdexData();
 		for(int i = 0; i < VERTEX_PER_FACE; ++i){
 			int vertexDataIndex = indexData[vertexIndex + i] * VERTEX_ELEMENTS_COUNT;
@@ -187,49 +221,45 @@ public class MeshQuadNode2D {
 		}
 		ray.normalize();
 		float[] point = getRayPlane2DIntersectionPoint(bottom, ray);
-		return intersectionTest(ray.position.x, ray.position.z, point[X_OFFSET], point[Z_OFFSET], ray);
+		float[] ray2DProjection = new float[]{ray.position.x, ray.position.z, point[X_OFFSET], point[Z_OFFSET]};
+		float k = Float.NaN;
+		if(ray.position.x != point[X_OFFSET]){
+			k = (point[Z_OFFSET] - ray.position.z)/(point[X_OFFSET] - ray.position.x);
+		}
+		testedFacesCount = 0;
+		boolean res = intersectionTest(ray2DProjection, k, ray);
+		Log.i("tag", "testedFacesCount = " + testedFacesCount);
+		return res; 
 		
 	}	
-	private  boolean intersectionTest(float x1, float z1, float x2, float z2, Vector3D ray){
+	private static long testedFacesCount;
+	private  boolean intersectionTest(float[] x1z1x2z2, float k, Vector3D ray){
 
 		
-//		if( point[X_OFFSET] < left || point[X_OFFSET] > right
-//			|| point[Z_OFFSET] < far || point[Z_OFFSET] > near){
+//		if( !isRayIntersectsQuad(ray)){
 //			return false;
 //		}
-		if(x1 == x2){
-			
-		}else{
-			float k = (z1 - z2)/(x1 - x2);
-			
-								
-		}
+//		Log.i("tag", "quad intersected: level = " + level);
 		int sonCount = 0;
-		if(leftNearSon != null){
-			sonCount++;
-			if(leftNearSon.intersectionTest(x1, z1, x2, z2, ray)){ return true; };
+
+		for(int i = 0; i < TREE_SONS_COUNT; ++i){
+			if(treeSons[i] != null){
+				sonCount++;
+				if(treeSons[i].intersectionTest(x1z1x2z2, k, ray)){ return true; };
+			}
 		}
-		if(leftNearSon != null){
-			sonCount++;
-			if(leftNearSon.intersectionTest(x1, z1, x2, z2, ray)){ return true; };
-		}
-		if(leftNearSon != null){
-			sonCount++;
-			if(leftNearSon.intersectionTest(x1, z1, x2, z2, ray)){ return true; };
-		}
-		if(leftNearSon != null){
-			sonCount++;
-			if(leftNearSon.intersectionTest(x1, z1, x2, z2, ray)){ return true; };
-		}
-		
-		if(sonCount < 4){
+//		Log.i("tag", "sonCount = " + sonCount);
+		if(sonCount == 0){
 			int[] rawFaceData = new int[VERTEX_PER_FACE];
+//			Log.i("tag", "sonCount = " + sonCount);
 
 			int i = 0;
+//			Log.i("tag", "len = "+ indexData.length + ", level = "+ level);
 			while (i < indexData.length){
 				for(int j = 0; j < VERTEX_PER_FACE; ++j){
 					rawFaceData[j] = indexData[i + j];
 				}
+				testedFacesCount++;
 				if (rayTriangleIntersectionTest(ray, rawFaceData)){
 					Log.i("tag", "intersection found. level: " +level);
 					return true;//new Triangle3D(rawFaceData);
@@ -255,18 +285,30 @@ public class MeshQuadNode2D {
 		return false;
 	}
 	
-	private boolean rayIntersectionTest(Vector3D ray){
-//		Point3D pointOnPlane = new Point3D(vector.direction.x * s + vector.position.x, vector.direction.y * s + vector.position.y, vector.direction.z * s + vector.position.z);
-
-		return false;		
+	private boolean isRayIntersectsQuad(Vector3D ray) {
+		// checking bottom plane intersection
+		float[] point = getRayPlane2DIntersectionPoint(bottom, ray);
+		if(point[X_OFFSET] < left || point[X_OFFSET] > right
+			|| point[Z_OFFSET] < far || point[Z_OFFSET] > near){
+			// if no intersection detected, check it with the bottom one
+			point = getRayPlane2DIntersectionPoint(top, ray);
+			if(point[X_OFFSET] < left || point[X_OFFSET] > right
+				|| point[Z_OFFSET] < far || point[Z_OFFSET] > near){
+				// ok, ray didn't hit current quad at all
+				return false;
+			}
+		}
+		return true;
 	}
+
+
+
 	
 	private float[] getRayPlane2DIntersectionPoint(float yCoord, Vector3D ray){
 		//2d plane normal is always {0, 1, 0}
 		float y0 = ray.position.y - yCoord; 
 		float s =  - y0 / ray.getDirection().y;
-		ray.setLength(s);
-		return ray.getTargetPoint().asFloatArray();
+		return ray.getTargetPoint(s).asFloatArray();
 	}
 	
 	private boolean rayTriangleIntersectionTest(Vector3D ray, int[] triangleIndices){
