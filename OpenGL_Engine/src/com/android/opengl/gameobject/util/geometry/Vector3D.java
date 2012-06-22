@@ -39,10 +39,7 @@ public class Vector3D {
 	}
 	
 	public Point3D getTargetPoint(){
-		float x = position.x + direction.x * length;
-		float y = position.y + direction.y * length;
-		float z = position.z + direction.z * length;
-		return new Point3D(x, y, z);
+		return getTargetPoint(length);
 	}	
 	
 	public Point3D getTargetPoint(float length) {
