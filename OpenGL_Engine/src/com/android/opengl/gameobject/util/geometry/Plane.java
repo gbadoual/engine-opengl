@@ -1,5 +1,7 @@
 package com.android.opengl.gameobject.util.geometry;
 
+import android.util.Log;
+
 public class Plane {
 
 	public static final int X_OFFSET = 0;
@@ -11,6 +13,8 @@ public class Plane {
 	public static final int P2_OFFSET = 4;
 	public static final int P3_OFFSET = 8;
 	public static final int P4_OFFSET = 12;
+	private static final float EPSILON = 0.000001f;
+	private static final String TAG = Plane.class.getSimpleName();
 
 	private Point3D p1 = new Point3D();
 	private Point3D p2 = new Point3D();
@@ -19,10 +23,20 @@ public class Plane {
 	private Vector3D normal = new Vector3D();
 
 	public Plane() {
+		p1 = new Point3D();
+		p2 = new Point3D();
+		p3 = new Point3D();
+		p4 = new Point3D();
+		normal = new Vector3D();
+	}
+	
+	public Plane(Point3D pointOnPlane, Vector3D normal){
+		this.normal = new Vector3D(normal.getDirection());
+		this.normal.position = pointOnPlane;
 	}
 
 	public Plane(Point3D p1, Point3D p2, Point3D p3, Point3D p4) {
-		super();
+		this();
 		this.p1 = p1;
 		this.p2 = p2;
 		this.p3 = p3;
@@ -31,6 +45,7 @@ public class Plane {
 	}
 
 	public Plane(float[] fPlane) {
+		this();
 		if (fPlane.length != 16) {
 			throw new IllegalArgumentException(
 					"fPlane source need to be formed as 4x4 matrix with point coordinates as columns");
@@ -63,6 +78,10 @@ public class Plane {
 	}
 
 	public float[] asFloatArray() {
+		if(p1 == null || p2 == null || p3 == null || p4 == null){
+			Log.w(TAG, "asFloatArray(): Some points are null");
+			return null;
+		}
 		float[] fPlane = new float[16];
 		fPlane[X_OFFSET + P1_OFFSET] = (float)p1.x;
 		fPlane[Y_OFFSET + P1_OFFSET] = (float)p1.y;
@@ -86,24 +105,57 @@ public class Plane {
 		return fPlane;
 	}
 
-	public Point3D getIntersectionPoint(Vector3D vector){
-		if (normal.dotProduct(vector) == 0){
+	public static Point3D getIntersectionPoint(float[] pointOnPlaneXYZ, float[] normalDirection, Vector3D vectorToIntersect){
+		float dotProduct = -Vector3D.dotProduct(normalDirection, vectorToIntersect.getDirection().asFloatArray());
+		if(Math.abs(dotProduct) < EPSILON){
+			Log.d(TAG, "vector is parallel to the plane. No intersection");
 			return null;
 		}
+		float x0 = vectorToIntersect.getPosition().x - pointOnPlaneXYZ[X_OFFSET]; 
+		float y0 = vectorToIntersect.getPosition().y - pointOnPlaneXYZ[Y_OFFSET]; 
+		float z0 = vectorToIntersect.getPosition().z - pointOnPlaneXYZ[Z_OFFSET]; 
+		float a = 0;
+		float b = 0;
+		float c = 0;
+		if (normalDirection[X_OFFSET] != 0 && x0 != 0){
+			a = normalDirection[X_OFFSET] * x0;
+		}
+		if (normalDirection[Y_OFFSET] != 0 && y0 != 0){
+			b = normalDirection[Y_OFFSET] * y0;
+		}
+		if (normalDirection[Z_OFFSET] != 0 && z0 != 0){
+			c = normalDirection[Z_OFFSET] * z0;
+		}
+		float s =  (a + b +c)/dotProduct;
+		return vectorToIntersect.getTargetPoint(s);
+		
+	}
+	public Point3D getIntersectionPoint(Vector3D vector){
+		float dotProduct = - normal.dotProduct(vector);
+		if(Math.abs(dotProduct) < EPSILON){
+			Log.d(TAG, "vector is parallel to the plane. No intersection");
+			return null;
+		}
+		
 		float x0 = vector.position.x - normal.position.x; 
 		float y0 = vector.position.y - normal.position.y; 
 		float z0 = vector.position.z - normal.position.z;
-		float a = normal.direction.x;
-		float b = normal.direction.y;
-		float c = normal.direction.z;
-		float dotProduct = normal.dotProduct(vector);
-		float s =  -(a*x0 + b*y0 +c*z0)/dotProduct;
-		Point3D pointOnPlane = new Point3D(vector.direction.x * s + vector.position.x, vector.direction.y * s + vector.position.y, vector.direction.z * s + vector.position.z);
-//		Log.i("tag", "pointOnPlane = "+pointOnPlane);
-//		Log.i("tag", "normal = "+normal);
-//		Log.i("tag", "vector = "+vector);
-//		Log.i("tag", "=========================");
-		return pointOnPlane;
+		float a = 0;
+		float b = 0;
+		float c = 0;
+		if (normal.direction.x != 0 && x0 != 0){
+			a = normal.direction.x * x0;
+		}
+		if (normal.direction.y != 0 && y0 != 0){
+			b = normal.direction.y * y0;
+		}
+		if (normal.direction.z != 0 && z0 != 0){
+			c = normal.direction.z * z0;
+		}
+						
+		float s =  (a + b +c)/dotProduct;
+		return vector.getTargetPoint(s);
+		
 	}
 
 

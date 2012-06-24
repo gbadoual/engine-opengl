@@ -113,18 +113,6 @@ public class Vector3D {
 		return this;
 	}
 
-	private void checkLength() {
-		float x = direction.x;
-		float y = direction.y;
-		float z = direction.z;
-		if(length == 0){
-			length = (float) Math.sqrt(x * x + y * y + z * z);
-		}
-		if(length == 0){
-			throw new IllegalArgumentException("length of vector is 0. Something wrong");
-		}
-	}
-
 	public float[] asFloatArray() {
 		return new float[] { direction.x, direction.y,
 				direction.z, position.x, position.y,
@@ -135,7 +123,7 @@ public class Vector3D {
 	public String toString() {
 		return new StringBuilder().append("Vector {direction = ")
 				.append(direction).append(", position = ").append(position)
-				.append(", length = ").append(length).append("}").toString();
+				.append(", length = ").append(length).append(", target = ").append(getTargetPoint()).append("}").toString();
 	}
 
 	public Point3D getPosition() {
