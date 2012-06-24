@@ -3,7 +3,6 @@ package com.android.opengl.gameobject.vehicle;
 import android.opengl.Matrix;
 
 import com.android.opengl.R;
-import com.android.opengl.gameobject.base.CommonGameObject;
 import com.android.opengl.gameobject.base.Scene;
 
 public class BMW extends AbstractVehicle{

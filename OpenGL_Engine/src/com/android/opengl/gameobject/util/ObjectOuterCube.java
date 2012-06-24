@@ -68,8 +68,8 @@ public class ObjectOuterCube {
 	
 	
 	public boolean isIntersected(Vector3D ray){
-		float[] mvMatrix = new float[16];
-		float[] viewMatrix = new float[16];
+//		float[] mvMatrix = new float[16];
+//		float[] viewMatrix = new float[16];
 //		viewMatrix = innerGameObjectName.getParentScene().getModelMatrix();
 //		Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, innerGameObjectName.getModelMatrix(), 0);
 		generatePlanes(innerGameObjectName.getModelMatrix());

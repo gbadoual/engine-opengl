@@ -2,7 +2,6 @@ package com.android.opengl.view;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.TextView;

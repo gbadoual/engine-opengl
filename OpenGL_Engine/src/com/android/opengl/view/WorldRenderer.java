@@ -3,8 +3,6 @@ package com.android.opengl.view;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -47,8 +45,6 @@ public class WorldRenderer implements Renderer {
 	private WorldView worldView;
 	private float x;
 	private float y;
-	private int w;
-	private int h;
 	private float[] resXYZ0 = new float[4];
 	private float[] resXYZ1 = new float[4];
 	private float[] screenXYZ = new float[16];
@@ -189,14 +185,13 @@ public class WorldRenderer implements Renderer {
 
 	private void drawWorld() {
 		scene.drawFrame();
-//		setSelectedCube();
-		cube1.translate(3, 2, -6);
+		cube1.translate(0, 3, -6);
 		cube1.drawFrame();
 		
 		cube2.translate(4, 2, 4);
 		cube2.drawFrame();
 
-		float step = 7;
+//		float step = 7;
 //		int size = gameObjectList.size();
 //		int iSize = (int)Math.sqrt(size);
 //		int x = 0, z = 0;
@@ -234,20 +229,7 @@ public class WorldRenderer implements Renderer {
 	}
 
 
-	private int currentSelectedCube;
 	private long lastFrame;
-//	private void setSelectedCube() {
-//		if(currentFrame - lastFrame > 100){
-//			lastFrame = currentFrame;
-//			gameObjectList.get(currentSelectedCube).setSelected(false);
-//			currentSelectedCube++;
-//			if(currentSelectedCube >= gameObjectList.size()){
-//				currentSelectedCube = 0;
-//			}
-//			gameObjectList.get(currentSelectedCube).setSelected(true);
-//		}
-//		
-//	}
 
 
 	private void countFPS() {
@@ -261,10 +243,6 @@ public class WorldRenderer implements Renderer {
 	}
 
 	
-//	public void notifyVPMatrixChanged(){
-//		Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
-//	}
-
 
 	public void rotateScene(float angleX, float angleY, float angleZ) {
 		angleX = angleX%360;
@@ -287,8 +265,8 @@ public class WorldRenderer implements Renderer {
 			
 		this.x = x;
 		this.y = h-y;
-		this.w = w;
-		this.h = h;		
+//		this.w = w;
+//		this.h = h;		
 //		float [] resXYZ0 = new float[]{0, 0, 0, 0};
 //		float [] resXYZ1 = new float[]{0, 0, 0, 0};
 
@@ -334,8 +312,7 @@ public class WorldRenderer implements Renderer {
 		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
 		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
 		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
-		Log.i("tag", "x/y/z/w/0 = "+resXYZ0[0]+", "+resXYZ0[1]+", "+resXYZ0[2]+", "+resXYZ0[3]);
-		Log.i("tag", "x/y/z/w/1 = "+resXYZ1[0]+", "+resXYZ1[1]+", "+resXYZ1[2]+", "+resXYZ1[3]);
+		Log.i("tag", "ray = "+vector);
 		Log.i("tag", "-------------------------------");
 		}
 		
