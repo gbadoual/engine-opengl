@@ -10,10 +10,21 @@ public class MeshQuadNode2D {
 	
 	private static final String TAG = MeshQuadNode2D.class.getSimpleName();
 	private static final int TREE_SONS_COUNT = 4;
+	private static final int NEIGHBOURS_COUNT = 3;
+	
+	private static final short LEFT_NEAR_SON_INDEX = 0;
+	private static final short RIGHT_NEAR_SON_INDEX = 1;
+	private static final short RIGHT_FAR_SON_INDEX = 2;
+	private static final short LEFT_FAR_SON_INDEX = 3;
+
+	private static final short LEFT_NEIGHBOUR = 0;
+	private static final short LEFT_NEAR_NEIGHBOUR = 1;
+	private static final short NEAR_NEIGHBOUR = 2;
 
 	private MeshQuadNode2D parent;
 	
 	private MeshQuadNode2D[] treeSons;
+	private MeshQuadNode2D[] neighboringQuads;
 	
 	
 	private static final int X_OFFSET = 0;
@@ -55,6 +66,7 @@ public class MeshQuadNode2D {
 		for(int i = 0; i < indexData.length; ++i){
 			this.indexData[i] = indexData[i];			
 		}
+		neighboringQuads = new MeshQuadNode2D[NEIGHBOURS_COUNT];
 		indexToDrawList = new ArrayList<Integer>();
 		this.vertexData = vertexData;
 		int i = 0;
@@ -70,32 +82,97 @@ public class MeshQuadNode2D {
 		Log.i("tag", "MeshQuadNode2D() created for "+ creatingTime+" sec");
 	}
 	
-	private MeshQuadNode2D(MeshQuadNode2D parent,  int level, Integer[] indexData, float left, float near, float right, float far) {
+	private MeshQuadNode2D(MeshQuadNode2D parent,  int level, Integer[] indexData, MeshQuadNode2D[] neighbouringQuads, float left, float near, float right, float far) {
 		this.indexData = indexData;
 		this.left = left;
 		this.near = near;
 		this.right = right;
 		this.far = far;
 		this.parent = parent;
+		this.neighboringQuads = neighbouringQuads;
 		init(level);		
 	}	
 	
 	private void init(int level) {
 		this.level = level;
 		treeSons = new MeshQuadNode2D[TREE_SONS_COUNT];
-		treeSons[0] = getLeftNearQuadData(level+1);
-		if(treeSons[0] != null)	treeSons[1] = getRightNearQuadData(level+1);
-		if(treeSons[1] != null)	treeSons[2] = getLeftFarQuadData(level+1);
-		if(treeSons[2] != null)	treeSons[3] = getRightFarQuadData(level+1);
-		if(treeSons[3] == null){ 
+		treeSons[LEFT_NEAR_SON_INDEX] = getLeftNearQuadData(level+1);
+
+		if(treeSons[LEFT_NEAR_SON_INDEX] != null){
+			initLeftNearQuadNeighbours();	
+			treeSons[RIGHT_NEAR_SON_INDEX] = getRightNearQuadData(level+1);
+		}
+		if(treeSons[RIGHT_NEAR_SON_INDEX] != null){
+			initRightNearQuadNeighbours();
+			treeSons[LEFT_FAR_SON_INDEX] = getLeftFarQuadData(level+1);
+		}
+		if(treeSons[LEFT_FAR_SON_INDEX] != null){
+			initLeftFarQuadNeighbours();
+			treeSons[RIGHT_FAR_SON_INDEX] = getRightFarQuadData(level+1);
+		}
+		
+		if(treeSons[RIGHT_FAR_SON_INDEX] != null){
+			initRightFarQuadNeighbours();	
+		}else{
 			for(int i = 0; i < TREE_SONS_COUNT; ++i){
 				treeSons[i] = null;
 			}
 		}
 	}
 
-	
 
+	private void initLeftNearQuadNeighbours() {
+		if(parent == null){
+			return;
+		}
+		MeshQuadNode2D tmpNeibourQuad;
+		tmpNeibourQuad = parent.neighboringQuads[LEFT_NEIGHBOUR];
+		if(tmpNeibourQuad != null){
+			neighboringQuads[LEFT_NEIGHBOUR] = tmpNeibourQuad.treeSons[RIGHT_NEAR_SON_INDEX];
+		}
+		tmpNeibourQuad = parent.neighboringQuads[LEFT_NEAR_NEIGHBOUR];
+		if(tmpNeibourQuad != null){
+			neighboringQuads[LEFT_NEAR_NEIGHBOUR] = tmpNeibourQuad.treeSons[RIGHT_FAR_SON_INDEX];
+		}
+		tmpNeibourQuad = parent.neighboringQuads[NEAR_NEIGHBOUR];
+		if(tmpNeibourQuad != null){
+			neighboringQuads[NEAR_NEIGHBOUR] = tmpNeibourQuad.treeSons[LEFT_FAR_SON_INDEX];
+		}
+	}
+
+	private void initRightNearQuadNeighbours() {
+		neighboringQuads[LEFT_NEIGHBOUR] = treeSons[LEFT_NEAR_SON_INDEX];
+		if(parent == null){
+			return;
+		}
+		MeshQuadNode2D tmpNeibourQuad;
+		tmpNeibourQuad = parent.neighboringQuads[NEAR_NEIGHBOUR];
+		if(tmpNeibourQuad != null){
+			neighboringQuads[LEFT_NEAR_NEIGHBOUR] = tmpNeibourQuad.treeSons[LEFT_FAR_SON_INDEX];
+			neighboringQuads[NEAR_NEIGHBOUR] = tmpNeibourQuad.treeSons[RIGHT_FAR_SON_INDEX];
+		}
+	}
+
+	private void initLeftFarQuadNeighbours() {
+		neighboringQuads[NEAR_NEIGHBOUR] = treeSons[LEFT_NEAR_SON_INDEX];
+		if(parent == null){
+			return;
+		}
+		MeshQuadNode2D tmpNeibourQuad;
+		tmpNeibourQuad = parent.neighboringQuads[LEFT_NEIGHBOUR];
+		if(tmpNeibourQuad != null){
+			neighboringQuads[LEFT_NEIGHBOUR] = tmpNeibourQuad.treeSons[RIGHT_FAR_SON_INDEX];
+			neighboringQuads[LEFT_NEAR_NEIGHBOUR] = tmpNeibourQuad.treeSons[RIGHT_NEAR_SON_INDEX];
+		}
+		
+	}
+
+	private void initRightFarQuadNeighbours() {
+		neighboringQuads[LEFT_NEIGHBOUR] = treeSons[LEFT_FAR_SON_INDEX];
+		neighboringQuads[LEFT_NEAR_NEIGHBOUR] = treeSons[LEFT_NEAR_NEIGHBOUR];
+		neighboringQuads[NEAR_NEIGHBOUR] = treeSons[RIGHT_NEAR_SON_INDEX];
+	}
+	
 	private float[] getVerdexData(){
 		if(parent == null){
 			return vertexData;
@@ -111,31 +188,36 @@ public class MeshQuadNode2D {
 		}
 	}
 
-	private MeshQuadNode2D getQuad(float left, float near, float right, float far, int level){
+	private MeshQuadNode2D getQuad(float left, float near, float right, float far, MeshQuadNode2D[] neighbours, int level){
 		Integer[] indexData;
 		indexData = getTriangleArrayWithinRect(left, near, right, far);
 		if(indexData.length == 0 || indexData.length >= this.indexData.length || level >= MAX_LEVEL){
 			return null;
 		}
-		return new MeshQuadNode2D(this, level, indexData, left, near, right, far);
+		return new MeshQuadNode2D(this, level, indexData, neighbours, left, near, right, far);
 		
 	}
 		
 	public MeshQuadNode2D getLeftNearQuadData(int level){
-
-		return getQuad(left, near, (left + right)/2,(near+far)/2, level);
+		MeshQuadNode2D[] neighbours = new MeshQuadNode2D[NEIGHBOURS_COUNT];
+		return getQuad(left, near, (left + right)/2,(near+far)/2, neighbours, level);
 	}
 	public MeshQuadNode2D getRightNearQuadData(int level){
-
-		return getQuad((left + right)/2, near, right,(near+far)/2, level);
+		MeshQuadNode2D[] neighbours = new MeshQuadNode2D[NEIGHBOURS_COUNT];
+		neighbours[LEFT_NEIGHBOUR] = treeSons[LEFT_NEAR_SON_INDEX];
+		return getQuad((left + right)/2, near, right,(near+far)/2, neighbours, level);
 	}
 	public MeshQuadNode2D getLeftFarQuadData(int level){
-
-		return getQuad(left, (near + far)/2, (left+right)/2, far, level);
+		MeshQuadNode2D[] neighbours = new MeshQuadNode2D[NEIGHBOURS_COUNT];
+		neighbours[NEAR_NEIGHBOUR] = treeSons[LEFT_NEAR_SON_INDEX];
+		return getQuad(left, (near + far)/2, (left+right)/2, far, neighbours, level);
 	}
 	public MeshQuadNode2D getRightFarQuadData(int level){
-
-		return getQuad((left + right)/2, (near+far)/2, right, far, level);
+		MeshQuadNode2D[] neighbours = new MeshQuadNode2D[NEIGHBOURS_COUNT];
+		neighbours[LEFT_NEIGHBOUR] = treeSons[LEFT_FAR_SON_INDEX];
+		neighbours[LEFT_NEAR_NEIGHBOUR] = treeSons[LEFT_NEAR_SON_INDEX];
+		neighbours[NEAR_NEIGHBOUR] = treeSons[RIGHT_NEAR_SON_INDEX];
+		return getQuad((left + right)/2, (near+far)/2, right, far, neighbours, level);
 	}
 	
 	
@@ -165,7 +247,7 @@ public class MeshQuadNode2D {
 
 		
 		indexDataUniqElementsCount = uniqueTriangleList.size(); 
-		uniqueTriangleList.addAll(tiledTriangleList);
+//		uniqueTriangleList.addAll(tiledTriangleList);
 		
 		return uniqueTriangleList.toArray(new Integer[]{});
 	}
@@ -198,7 +280,7 @@ public class MeshQuadNode2D {
 	}
 	
 	
-	// *******************************************************************
+	// ******************************************************************************************************************
 	// intersection founding implementation
 	
 	// returns indexies of intersected triangle 
@@ -252,27 +334,42 @@ public class MeshQuadNode2D {
 		}
 
 		if(sonCount == 0){
-			int[] rawFaceData = new int[VERTEX_PER_FACE];
-
-			int i = 0;
-			while (i < indexData.length){
-				for(int j = 0; j < VERTEX_PER_FACE; ++j){
-					rawFaceData[j] = indexData[i + j];
-					getIndexToDrawList().add(indexData[i + j]);
+			if (checkIntersection(indexData, ray)){
+				return true;
+			};
+			
+			for(int i = 0; i < NEIGHBOURS_COUNT; ++i){
+				MeshQuadNode2D neighbourQuad = neighboringQuads[i];
+				if(neighbourQuad != null && checkIntersection(neighbourQuad.indexData, ray)){
+					return true;
 				}
-				testedFacesCount++;
-				if (rayTriangleIntersectionTest(ray, rawFaceData)){
-					Log.i("tag", "intersection found. level: " +level);
-					return true;//new Triangle3D(rawFaceData);
-				};
-				
-				i += VERTEX_PER_FACE;
 			}
 		}
 		
 		return false;
 	}
 	
+
+	private boolean checkIntersection(Integer[] indexData, Vector3D ray) {
+		int[] rawFaceData = new int[VERTEX_PER_FACE];
+		int i = 0;
+		while (i < indexData.length){
+			for(int j = 0; j < VERTEX_PER_FACE; ++j){
+				rawFaceData[j] = indexData[i + j];
+				getIndexToDrawList().add(indexData[i + j]);
+			}
+			testedFacesCount++;
+			if (rayTriangleIntersectionTest(ray, rawFaceData)){
+				Log.i("tag", "intersection found. level: " +level);
+				return true;//new Triangle3D(rawFaceData);
+			};
+			
+			i += VERTEX_PER_FACE;
+		}
+		return false;
+		
+	}
+
 	private boolean clipProjection(float[] x1z1x2z2, double[] lineEquation) {
 
 		if(x1z1x2z2[0] > right && x1z1x2z2[2] > right
