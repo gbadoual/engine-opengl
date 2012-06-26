@@ -75,6 +75,9 @@ public class ObjectOuterCube {
 		generatePlanes(innerGameObjectName.getModelMatrix());
 		for(int i = 0; i < PLANES_COUNT; i++){
 			if (planeIntersectionTest(i, ray)){
+				Log.i("tag" , "left = " + planesData[PLANE_LEFT] + ", right = " + planesData[PLANE_RIGHT]);
+				Log.i("tag" , "top = " + planesData[PLANE_TOP] + ", bottom = " + planesData[PLANE_BOTTOM]);
+				Log.i("tag" , "near = " + planesData[PLANE_NEAR] + ", far = " + planesData[PLANE_FAR]);
 				return true;
 			};
 		}
