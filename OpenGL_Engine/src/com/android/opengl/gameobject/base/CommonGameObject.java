@@ -27,9 +27,9 @@ public abstract class CommonGameObject {
 	public int mvpMatrixHandle;
 	public int positionHandle;
 	
-	public int textureCoordHandle;
-	public int textureUniformHandle;
-	private int textureDataHandler;
+	protected int textureCoordHandle;
+	protected int textureUniformHandle;
+	protected int textureDataHandler;
 
 	public int normalHandle;
 	public int textureHandle;
@@ -50,7 +50,7 @@ public abstract class CommonGameObject {
 
 	protected boolean isSelected;
 	
-	private int vertexElementSize = 3;
+	protected int vertexElementSize = 3;
 	protected int colorElementSize = 3;
 	protected int textureElementSize = 3;
 	protected int normalElementSize = 3;

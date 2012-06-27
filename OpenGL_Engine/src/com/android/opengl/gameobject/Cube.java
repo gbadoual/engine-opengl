@@ -15,14 +15,14 @@ public class Cube extends GameObject{
 
 	@Override
 	public void drawFrame() {
-		Matrix.rotateM(modelMatrix, 0, 0.5f, 0.5f, 1f, 1f);
+//		Matrix.rotateM(modelMatrix, 0, 0.5f, 0.5f, 1f, 1f);
 		super.drawFrame();
 
 	}
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.twisted_cube;
+		return R.raw.cube;
 	}
 
 }
