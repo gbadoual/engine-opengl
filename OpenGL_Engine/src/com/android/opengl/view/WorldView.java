@@ -48,6 +48,14 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	}
 	
 	@Override
+	public void onPause() {
+		super.onPause();
+		if(worldRenderer != null){
+			worldRenderer.deinit();
+		}
+	}
+	
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		gestureDetector.onTouchEvent(event);
 		return true;

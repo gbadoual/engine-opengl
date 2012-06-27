@@ -35,7 +35,7 @@ public class WorldRenderer implements Renderer {
 //	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
-	
+
 	private Shader shader;
 	private int programHandle;
 
@@ -314,6 +314,15 @@ public class WorldRenderer implements Renderer {
 		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
 		Log.i("tag", "ray = "+vector);
 		Log.i("tag", "-------------------------------");
+		}
+
+
+		public void deinit() {
+			if(scene != null){
+				scene.deinit();				
+			} 
+			
+			
 		}
 		
 

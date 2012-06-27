@@ -264,37 +264,37 @@ public class LoaderManager {
 		}
 	}
 
-//	private void fillMeshData_1(MeshData objData) {
-//		objData.facesCount = facesCount;
-//		int vertNum = facesCount * 3;
-//		objData.vertexData = new float[vertNum * 3];//vfs.size() * 3];
-//		objData.textureData = new float[vertNum * 3];//vfs.size() * 3];
-//		objData.normalData = new float[vertNum * 3];//vfs.size() * 3];
-//		objData.indexData = new int[vertNum * 3];//vfs.size() * 3];
-//		int cur = 0;
-//		for(int i = 0; i<vertNum;++i){
-//			int tmpInd = vf.get(i);
-//			objData.vertexData[cur] = v.get(tmpInd*3);
-//			objData.vertexData[cur+1] = v.get(tmpInd*3+1);
-//			objData.vertexData[cur+2] = v.get(tmpInd*3+2);
-//
-//			tmpInd = vnf.get(i);
-//			objData.normalData[cur] = vn.get(tmpInd*3);
-//			objData.normalData[cur+1] = vn.get(tmpInd*3+1);
-//			objData.normalData[cur+2] = vn.get(tmpInd*3+2);
-//			
-//			tmpInd = vtf.get(i);
-//			objData.textureData[cur] = vt.get(tmpInd*3);
-//			objData.textureData[cur+1] = vt.get(tmpInd*3+1);
-//			objData.textureData[cur+2] = vt.get(tmpInd*3+2);
-//			if (maxTextureCoordX < objData.textureData[cur]){maxTextureCoordX = objData.textureData[cur];}
-//			if (maxTextureCoordY < objData.textureData[cur + 1]){maxTextureCoordY = objData.textureData[cur + 1];}
-//
-//			cur +=3;
-//			objData.indexData[i] = i;
-//
-//		}
-//	}
+	private void fillMeshData_1(MeshData objData) {
+		objData.facesCount = facesCount;
+		int vertNum = facesCount * 3;
+		objData.vertexData = new float[vertNum * 3];//vfs.size() * 3];
+		objData.textureData = new float[vertNum * 3];//vfs.size() * 3];
+		objData.normalData = new float[vertNum * 3];//vfs.size() * 3];
+		objData.indexData = new int[vertNum * 3];//vfs.size() * 3];
+		int cur = 0;
+		for(int i = 0; i<vertNum;++i){
+			int tmpInd = vf.get(i);
+			objData.vertexData[cur] = v.get(tmpInd*3);
+			objData.vertexData[cur+1] = v.get(tmpInd*3+1);
+			objData.vertexData[cur+2] = v.get(tmpInd*3+2);
+
+			tmpInd = vnf.get(i);
+			objData.normalData[cur] = vn.get(tmpInd*3);
+			objData.normalData[cur+1] = vn.get(tmpInd*3+1);
+			objData.normalData[cur+2] = vn.get(tmpInd*3+2);
+			
+			tmpInd = vtf.get(i);
+			objData.textureData[cur] = vt.get(tmpInd*3);
+			objData.textureData[cur+1] = vt.get(tmpInd*3+1);
+			objData.textureData[cur+2] = vt.get(tmpInd*3+2);
+			if (maxTextureCoordX < objData.textureData[cur]){maxTextureCoordX = objData.textureData[cur];}
+			if (maxTextureCoordY < objData.textureData[cur + 1]){maxTextureCoordY = objData.textureData[cur + 1];}
+
+			cur +=3;
+			objData.indexData[i] = i;
+
+		}
+	}
 
 	private void nextLine() {
 		while(curIndex < charBuf.length){
