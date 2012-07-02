@@ -296,7 +296,7 @@ public class MeshQuadNode2D {
 		// it is important that clipping performed first 
 		//	as ray intersection uses clipped data to determine ray's y-coordinate above the quad under test
 		if(!clipProjection(x1z1x2z2Clipped, lineEquation)
-//			|| !isRayIntersectsQuad(x1z1x2z2Clipped, ray)
+			|| !isRayIntersectsQuad(x1z1x2z2Clipped, ray)
 			){
 			return false;
 		}

@@ -3,6 +3,7 @@ package com.android.opengl.gameobject.util;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.android.opengl.gameobject.base.CommonGameObject;
 import com.android.opengl.gameobject.base.GameObject;
 import com.android.opengl.gameobject.util.geometry.Plane;
 import com.android.opengl.gameobject.util.geometry.Point3D;
@@ -15,32 +16,54 @@ public class ObjectOuterCube {
 	
 	private static final int PLANES_COUNT = 6;
 
-	public static final int PLANE_LEFT = 0;
-	public static final int PLANE_RIGHT = 1;
-	public static final int PLANE_TOP = 2;
-	public static final int PLANE_BOTTOM = 3;
-	public static final int PLANE_NEAR = 4;
-	public static final int PLANE_FAR = 5;
+	public enum PLANE{
+		PLANE_LEFT(0, "Left"),
+		PLANE_RIGHT(1, "Right"),
+		PLANE_TOP(2, "Top"),
+		PLANE_BOTTOM(3, "Bottom"),
+		PLANE_NEAR(4, "Near"),
+		PLANE_FAR(5, "Far");
+		
+		private final int index;
+		private final String name;
+		
+		private PLANE(int index, String name){
+			this.index = index;
+			this.name = name;
+		}
+		public int getIndex() {
+			return index;
+		}
+		public String getName() {
+			return name;
+		}
+		
+		
+	}
+	public static final int PLANE_LEFT = PLANE.PLANE_LEFT.index;
+	public static final int PLANE_RIGHT = PLANE.PLANE_RIGHT.index;
+	public static final int PLANE_TOP = PLANE.PLANE_TOP.index;
+	public static final int PLANE_BOTTOM = PLANE.PLANE_BOTTOM.index;
+	public static final int PLANE_NEAR = PLANE.PLANE_NEAR.index;
+	public static final int PLANE_FAR = PLANE.PLANE_FAR.index;
 
 	float coordLeft, coordRight, coordTop, coordBottom, coordNear, coordFar;
 
 	
-	private int vertexElementSize;
 	
 	private Plane[] planesData = new Plane[PLANES_COUNT];
 
 	private GameObject innerGameObjectName;
 	
-	private ObjectOuterCube(float[] vertexData, int vertexElementSize) {
+	private ObjectOuterCube(float[] vertexData) {
 		if(vertexData == null || vertexData.length == 0){
 			throw new IllegalArgumentException(TAG +": Vertex Data length is 0. Something wrong...");
 		}
-		this.vertexElementSize = vertexElementSize;
 		initPlanesData(vertexData);
 	}
 
 	public ObjectOuterCube(GameObject innerGameObject) {
-		this(innerGameObject.getVertexData(), innerGameObject.getVertexElementSize());
+		this(innerGameObject.getVertexData());
 		this.innerGameObjectName = innerGameObject;
 	}
 
@@ -52,18 +75,17 @@ public class ObjectOuterCube {
 		coordNear = vertexData[Plane.Z_OFFSET];
 		coordFar = vertexData[Plane.Z_OFFSET];
 		int curVertex = 0;
-		int vertexCount = vertexData.length/vertexElementSize;
-		while (curVertex < vertexCount){
+		while (curVertex < vertexData.length){
 			if(coordLeft > vertexData[curVertex + Plane.X_OFFSET]){coordLeft = vertexData[curVertex + Plane.X_OFFSET];}
 			if(coordRight < vertexData[curVertex + Plane.X_OFFSET]){coordRight = vertexData[curVertex + Plane.X_OFFSET];}
 			if(coordTop < vertexData[curVertex + Plane.Y_OFFSET]){coordTop = vertexData[curVertex + Plane.Y_OFFSET];}
 			if(coordBottom > vertexData[curVertex + Plane.Y_OFFSET]){coordBottom = vertexData[curVertex + Plane.Y_OFFSET];}
 			if(coordNear < vertexData[curVertex + Plane.Z_OFFSET]){coordNear = vertexData[curVertex + Plane.Z_OFFSET];}
 			if(coordFar > vertexData[curVertex + Plane.Z_OFFSET]){coordFar = vertexData[curVertex + Plane.Z_OFFSET];}
-			curVertex += vertexElementSize;
+			curVertex += CommonGameObject.VERTEX_ELEMENT_SIZE;
 		}
 		
-		generatePlanes(null);		
+//		generatePlanes(null);		
 	}
 	
 	
@@ -105,7 +127,7 @@ public class ObjectOuterCube {
 		if (res4 < 0) return false;
 
 		// if we are here then point is in plane's rect - user hit it
-		Log.d("tag", "Intersection found on " +innerGameObjectName+" on plane number " + planeIndex);
+		Log.d("tag", "Intersection found on " +innerGameObjectName+" on plane " + PLANE.values()[planeIndex]);
 		
 		return true;
 	}
