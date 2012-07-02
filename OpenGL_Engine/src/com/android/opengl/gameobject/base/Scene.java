@@ -19,7 +19,7 @@ import com.android.opengl.gameobject.util.geometry.Vector3D;
 public class Scene extends CommonGameObject{
 
 	
-	private static final float MIN_ANGLE = 10;
+	private static final float MIN_ANGLE = -90;
 	private static final float MAX_ANGLE = 90;
 	private static final String TAG = Scene.class.getSimpleName();
 	
@@ -61,8 +61,8 @@ public class Scene extends CommonGameObject{
 		isRendingFinished = false;
 //		rotate(0, -0.5f, 0);
 		mvpMatrix = vpMatrix;
-//		super.drawFrame();
-		localDraw();
+		super.drawFrame();
+//		localDraw();
 
 //		for(GameObject gameObject: gameObjectList){
 //			gameObject.drawFrame();
@@ -85,16 +85,16 @@ public class Scene extends CommonGameObject{
 
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
 		GLES20.glEnableVertexAttribArray(positionHandle);
-		GLES20.glVertexAttribPointer(positionHandle, vertexElementSize, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboNormalHandle);
 		GLES20.glEnableVertexAttribArray(normalHandle);
-		GLES20.glVertexAttribPointer(normalHandle, normalElementSize, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
 		GLES20.glEnableVertexAttribArray(textureCoordHandle);
-		GLES20.glVertexAttribPointer(textureCoordHandle, textureElementSize, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 		IntBuffer indexBuffer;
 		ArrayList<Integer> indexList = (ArrayList<Integer>) sceneQuad2D.getIndexToDrawList().clone();
@@ -243,7 +243,7 @@ public class Scene extends CommonGameObject{
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.landscape;
+		return R.raw.scene;//landscape;
 	}
 
 

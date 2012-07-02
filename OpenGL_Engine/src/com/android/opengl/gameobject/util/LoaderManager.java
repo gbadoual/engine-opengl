@@ -21,7 +21,6 @@ import com.android.opengl.gameobject.base.CommonGameObject;
 public class LoaderManager {
 	
 	private static final String TAG = LoaderManager.class.getSimpleName();
-	private static final float EPS = 0.00001f;
 
 	
 	private static final char[] typeV = new char[]{'v', ' '};
@@ -113,7 +112,6 @@ public class LoaderManager {
 		while (curIndex < charBuf.length){
 			type [0] = charBuf[curIndex];
 			type [1] = charBuf[curIndex+1];
-//			Log.i("tag", "type = [" + type[0] + ", " + type[1]+"]");
 			
 			if(Arrays.equals(type, typeV)) {
 				addVertex();				
@@ -139,7 +137,7 @@ public class LoaderManager {
 		maxTextureCoordY = Float.MIN_VALUE;
 			
 		MeshData meshData = new MeshData();
-		fillMeshData_2(meshData);
+		fillMeshData(meshData);
 		normalizeTextureCoords(meshData);
 		deinitData();
 		return meshData;
@@ -166,7 +164,8 @@ public class LoaderManager {
 		curIndex += 3;
 		vt.add(nextFloatToken(' ')); 	// x
 		vt.add(nextFloatToken(' ')); 	// y
-		vt.add(nextFloatToken('\n')); 	// z
+//		vt.add(nextFloatToken('\n')); 	// z
+		nextFloatToken('\n');
 		curIndex--;
 	}
 
@@ -201,100 +200,95 @@ public class LoaderManager {
 			while (i < meshData.textureData.length){
 				meshData.textureData[i] /= maxTextureCoordX;
 				meshData.textureData[i + 1] /= maxTextureCoordY;
-				i+= 3;
+				i+= CommonGameObject.TEXTURE_ELEMENT_SIZE;
 			}
 		}
 	}
 
-	private void fillMeshData_2(MeshData objData) {
+
+
+
+	private void fillMeshData(MeshData objData) {
+//		Log.i("tag", "v.size() before copying = " + v.size() / 3);
+		cloneVertexWithDifferentTextureOrNormalCoords();
+//		Log.i("tag", "v.size() after copying = " + v.size() / 3);
+//		Log.i("tag", "faces count = " + vf.size() / 3);
 		objData.facesCount = facesCount;
-		int vertNum = v.size();//facesCount * 3;
-		objData.vertexData = new float[vertNum];//vfs.size() * 3];
-		byte[] vertexDegree = new byte[vertNum / 3];
-		objData.textureData = new float[vertNum];//vfs.size() * 3];
-		objData.normalData = new float[vertNum];//vfs.size() * 3];
-		objData.indexData = new int[vf.size()];//vfs.size() * 3];
+		int vertCount = v.size();
+		objData.vertexData = new float[vertCount];
+		objData.textureData = new float[vertCount / CommonGameObject.VERTEX_ELEMENT_SIZE * CommonGameObject.TEXTURE_ELEMENT_SIZE];
+		objData.normalData = new float[vertCount];
+		objData.indexData = new int[vf.size()];
 		
 		
 		int indexCount = vf.size();
 		for(int i = 0; i < indexCount; ++i){
 
-			int curVertexPacked = vf.get(i) * 3;
-			int curVertex = vf.get(i);
-			objData.vertexData[curVertexPacked] = v.get(curVertexPacked);
-			objData.vertexData[curVertexPacked+1] = v.get(curVertexPacked+1);
-			objData.vertexData[curVertexPacked+2] = v.get(curVertexPacked+2);
-			
-			vertexDegree[curVertex]++;
-
-//			curVertexPacked = vf.get(i) * 3;
-//			curVertex = vf.get(i);																
-			if(vertexDegree[curVertex] == 1){
-				objData.normalData[curVertexPacked] = vn.get(vnf.get(i) * 3);
-				objData.normalData[curVertexPacked+1] = vn.get(vnf.get(i) * 3+1);
-				objData.normalData[curVertexPacked+2] = vn.get(vnf.get(i) * 3+2);
-			}
-			else {
-				objData.normalData[curVertexPacked] = (objData.normalData[curVertexPacked] * (vertexDegree[curVertex] - 1) + vn.get(vnf.get(i) * 3))/vertexDegree[curVertex];
-//				curVertexPacked++;
-				objData.normalData[curVertexPacked + 1] = (objData.normalData[curVertexPacked + 1] * (vertexDegree[curVertex] - 1) + vn.get(vnf.get(i) * 3 + 1))/vertexDegree[curVertex];
-//				curVertexPacked++;
-				objData.normalData[curVertexPacked + 2] = (objData.normalData[curVertexPacked + 2] * (vertexDegree[curVertex] - 1) + vn.get(vnf.get(i) * 3 + 2))/vertexDegree[curVertex];
-				float x = objData.normalData[curVertexPacked];
-				float y = objData.normalData[curVertexPacked + 1];
-				float z = objData.normalData[curVertexPacked + 2];
-				float len = (float)Math.sqrt(x*x + y*y + z*z);
-				if( Math.abs(len) > EPS){
-					objData.normalData[curVertexPacked] = x/len;
-					objData.normalData[curVertexPacked + 1] = y/len;
-					objData.normalData[curVertexPacked + 2] = z/len;
-				}
+			int curDestIndexUnpacked = vf.get(i) * CommonGameObject.VERTEX_ELEMENT_SIZE;
+			int curSrcIndexUnpacked = vf.get(i) * CommonGameObject.VERTEX_ELEMENT_SIZE;
+			for(int j = 0; j < CommonGameObject.VERTEX_ELEMENT_SIZE; ++j){
+				objData.vertexData[curDestIndexUnpacked + j] = v.get(curSrcIndexUnpacked + j);
 				
 			}
-			curVertexPacked = vf.get(i) * 3;
 
-			objData.textureData[curVertexPacked] = vt.get(vtf.get(i)*3);
-			objData.textureData[curVertexPacked+1] = vt.get(vtf.get(i)*3+1);
-			objData.textureData[curVertexPacked+2] = vt.get(vtf.get(i)*3+2);
-			if (maxTextureCoordX < objData.textureData[curVertexPacked]){maxTextureCoordX = objData.textureData[curVertexPacked];}
-			if (maxTextureCoordY < objData.textureData[curVertexPacked + 1]){maxTextureCoordY = objData.textureData[curVertexPacked + 1];}
+			curDestIndexUnpacked = vf.get(i) * CommonGameObject.NORMAL_ELEMENT_SIZE;
+			curSrcIndexUnpacked = vnf.get(i) * CommonGameObject.NORMAL_ELEMENT_SIZE;
+			for(int j = 0; j < CommonGameObject.NORMAL_ELEMENT_SIZE; ++j){
+				objData.normalData[curDestIndexUnpacked + j] = vn.get(curSrcIndexUnpacked + j);
+			}
+
+			curDestIndexUnpacked = vf.get(i) * CommonGameObject.TEXTURE_ELEMENT_SIZE;
+			curSrcIndexUnpacked = vtf.get(i) * CommonGameObject.TEXTURE_ELEMENT_SIZE;
+			for(int j = 0; j < CommonGameObject.TEXTURE_ELEMENT_SIZE; ++j){
+				objData.textureData[curDestIndexUnpacked + j] = vt.get(curSrcIndexUnpacked + j);
+			}
+
+			if (maxTextureCoordX < objData.textureData[curDestIndexUnpacked]){maxTextureCoordX = objData.textureData[curDestIndexUnpacked];}
+			if (maxTextureCoordY < objData.textureData[curDestIndexUnpacked + 1]){maxTextureCoordY = objData.textureData[curDestIndexUnpacked + 1];}
 			
 			objData.indexData[i] = vf.get(i);
-
 		}
 	}
+	private void cloneVertexWithDifferentTextureOrNormalCoords() {
+		int facesCount = vf.size();
+		int[][] vertexStat = new int[2][v.size() / 3];
+		Arrays.fill(vertexStat[0], -1);
+		for(int i = 0; i < facesCount; ++ i){
+			int curIndex = vf.get(i);
+			if(vertexStat[0][curIndex] == -1){
+				vertexStat[0][curIndex] = vtf.get(i);
+				vertexStat[1][curIndex] = vnf.get(i);
+			} else {
+				if(vertexStat[0][curIndex] != vtf.get(i)
+					|| vertexStat[1][curIndex] != vnf.get(i)){
+					// copying current vertex as it referenced with another texture coordinate or normal index
+					int unpackedCurIndex = curIndex * CommonGameObject.VERTEX_ELEMENT_SIZE; 
+					v.add(v.get(unpackedCurIndex + 0));
+					v.add(v.get(unpackedCurIndex + 1));
+					v.add(v.get(unpackedCurIndex + 2));
 
-	private void fillMeshData_1(MeshData objData) {
-		objData.facesCount = facesCount;
-		int vertNum = facesCount * 3;
-		objData.vertexData = new float[vertNum * 3];//vfs.size() * 3];
-		objData.textureData = new float[vertNum * 3];//vfs.size() * 3];
-		objData.normalData = new float[vertNum * 3];//vfs.size() * 3];
-		objData.indexData = new int[vertNum * 3];//vfs.size() * 3];
-		int cur = 0;
-		for(int i = 0; i<vertNum;++i){
-			int tmpInd = vf.get(i);
-			objData.vertexData[cur] = v.get(tmpInd*3);
-			objData.vertexData[cur+1] = v.get(tmpInd*3+1);
-			objData.vertexData[cur+2] = v.get(tmpInd*3+2);
-
-			tmpInd = vnf.get(i);
-			objData.normalData[cur] = vn.get(tmpInd*3);
-			objData.normalData[cur+1] = vn.get(tmpInd*3+1);
-			objData.normalData[cur+2] = vn.get(tmpInd*3+2);
-			
-			tmpInd = vtf.get(i);
-			objData.textureData[cur] = vt.get(tmpInd*3);
-			objData.textureData[cur+1] = vt.get(tmpInd*3+1);
-			objData.textureData[cur+2] = vt.get(tmpInd*3+2);
-			if (maxTextureCoordX < objData.textureData[cur]){maxTextureCoordX = objData.textureData[cur];}
-			if (maxTextureCoordY < objData.textureData[cur + 1]){maxTextureCoordY = objData.textureData[cur + 1];}
-
-			cur +=3;
-			objData.indexData[i] = i;
-
+					unpackedCurIndex = vnf.get(i) * CommonGameObject.NORMAL_ELEMENT_SIZE;
+					vn.add(vn.get(unpackedCurIndex + 0));
+					vn.add(vn.get(unpackedCurIndex + 1));
+					vn.add(vn.get(unpackedCurIndex + 2));
+					
+					unpackedCurIndex = vtf.get(i) * CommonGameObject.TEXTURE_ELEMENT_SIZE;
+					vt.add(vt.get(unpackedCurIndex + 0));
+					vt.add(vt.get(unpackedCurIndex + 1));
+					
+					//update references
+					vf.set(i, v.size() / CommonGameObject.VERTEX_ELEMENT_SIZE - 1);
+					vnf.set(i, vn.size() / CommonGameObject.NORMAL_ELEMENT_SIZE - 1);
+					vtf.set(i, vt.size() / CommonGameObject.TEXTURE_ELEMENT_SIZE - 1);
+				}				
+			} 
 		}
+		
 	}
+	
+	
+	
+	
 
 	private void nextLine() {
 		while(curIndex < charBuf.length){
@@ -340,6 +334,7 @@ public class LoaderManager {
 		vf = null;
 		vnf = null;
 		vtf = null;
+		charBuf = null;
 		System.gc();
 	}
 
@@ -353,10 +348,14 @@ public class LoaderManager {
 		public long		facesCount;
 		
 	}
+
 	
+//=======================================================================================================================
+// texture loading
 	
 	public static int loadTexture(final Context context, final int resourceId)
 	{
+		long time = System.currentTimeMillis();
 	    final int[] textureHandle = new int[1];
 	 
 	    GLES20.glGenTextures(1, textureHandle, 0);
@@ -376,32 +375,47 @@ public class LoaderManager {
 	        // Bind to the texture in OpenGL
 	        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
 	 
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_NEAREST);
+//	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+//	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+	 	 
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR_MIPMAP_NEAREST);
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
 	        
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
+            GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+            
+	        
 	        // Generate, and load up all of the mipmaps:
-	        for(int level=0, height = bmp.getHeight(), width = bmp.getWidth(); true; level++) {
-	            // Push the bitmap onto the GPU:
-	            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, bmp, 0);
-	            
-	            // We need to stop when the texture is 1x1:
-	            if(height==1 && width==1) break;
-	            
-	            // Resize, and let's go again:
-	            width >>= 1; height >>= 1;
-	            if(width<1)  width = 1;
-	            if(height<1) height = 1;
-	            
-	            Bitmap bmp2 = Bitmap.createScaledBitmap(bmp, width, height, true);
-	            bmp.recycle();
-	            bmp = bmp2;
-	        }
+//	        for(int level=0, height = bmp.getHeight(), width = bmp.getWidth(); true; level++) {
+////	            if(true)break;
+//	            // Push the bitmap onto the GPU:
+//	            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, bmp, 0);
+//	            // We need to stop when the texture is 1x1:
+//	            if(height==1 && width==1) break;
+//	            
+//	            // Resize, and let's go again:
+//	            float oldW = width;
+//	            float oldH = height;
+//	            width >>= 1; height >>= 1;
+//	            if(width<1)  width = 1;
+//	            if(height<1) height = 1;
+//	            Bitmap bmp2 = Bitmap.createScaledBitmap(bmp, width, height, true);
+//	            bmp.recycle();
+//	            bmp = bmp2;
+////	            height = bmp.getHeight();
+////	            width = bmp.getWidth();
+////	            if(width<1)  width = 1;
+////	            if(height<1) height = 1;
+////	            if(height==1 && width==1) break;
+//	        }
 	        
 	        bmp.recycle();	
 	    }
 	 
+	    time = System.currentTimeMillis() - time;
+	    Log.i(TAG, "texture loaded for " + time/1000.0d + " sec.");
 	    if (textureHandle[0] == 0)
 	    {
 	        throw new RuntimeException("loadTexture() - Error loading texture.");

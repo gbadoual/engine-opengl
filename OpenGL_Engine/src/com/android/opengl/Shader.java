@@ -26,7 +26,7 @@ public class Shader {
 //		"attribute 	vec4 "+ATTRIBUTE_COLOR+";														" +
 		"attribute 	vec4 "+ATTRIBUTE_POSITION+";													" +
 		"attribute 	vec3 "+ATTRIBUTE_NORMAL+";														" +
-		"attribute 	vec3 "+ATTRIBUTE_TEXTURE_COORD+";												" +
+		"attribute 	vec2 "+ATTRIBUTE_TEXTURE_COORD+";												" +
 		"																							" +
 //		"varying 	vec4 v_Color; 																	" +
 		"varying 	vec3 v_Position;																" +

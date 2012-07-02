@@ -20,6 +20,11 @@ import com.android.opengl.gameobject.util.LoaderManager;
 public abstract class CommonGameObject {
 	
 	private static final String TAG = CommonGameObject.class.getSimpleName();
+
+	public static final int VERTEX_ELEMENT_SIZE = 3;
+//	protected int colorElementSize = 3;
+	public static final int TEXTURE_ELEMENT_SIZE = 2;
+	public static final int NORMAL_ELEMENT_SIZE = 3;
 	
 	public static long facesCount = 0;
 
@@ -50,10 +55,6 @@ public abstract class CommonGameObject {
 
 	protected boolean isSelected;
 	
-	protected int vertexElementSize = 3;
-	protected int colorElementSize = 3;
-	protected int textureElementSize = 3;
-	protected int normalElementSize = 3;
 	
 	
 	protected LoaderManager meshLoader;
@@ -200,7 +201,7 @@ public abstract class CommonGameObject {
 
 	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
 		GLES20.glEnableVertexAttribArray(positionHandle);
-		GLES20.glVertexAttribPointer(positionHandle, vertexElementSize, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 //		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboColorHandle);
 //		GLES20.glEnableVertexAttribArray(colorHandle);
@@ -208,11 +209,11 @@ public abstract class CommonGameObject {
 		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboNormalHandle);
 		GLES20.glEnableVertexAttribArray(normalHandle);
-		GLES20.glVertexAttribPointer(normalHandle, normalElementSize, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
 		GLES20.glEnableVertexAttribArray(textureCoordHandle);
-		GLES20.glVertexAttribPointer(textureCoordHandle, textureElementSize, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 		
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboDataHandler.vboIndexHandle);
@@ -321,10 +322,6 @@ public abstract class CommonGameObject {
 	public abstract int 	getMeshResource();
 	
 
-	public final int getVertexElementSize() {
-		return vertexElementSize;
-	}
-	
 	public final float[] getVertexData(){
 		return vboDataHandlerMap.get(getClass().getSimpleName()).vertexData;
 	}
