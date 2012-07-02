@@ -111,8 +111,8 @@ public class ObjectOuterCube {
 
 		Plane trPlane = planesData[planeIndex];
 
-		Point3D pointOnPlane = trPlane.getIntersectionPoint(ray);
-		if (pointOnPlane == null || pointOnPlane.z > ray.position.z){
+		Point3D pointOnPlane = trPlane.getRayIntersectionPoint(ray);
+		if (pointOnPlane == null){
 			// the ray has no intersection with the plane or the point is behind the ray
 			return false;
 		}

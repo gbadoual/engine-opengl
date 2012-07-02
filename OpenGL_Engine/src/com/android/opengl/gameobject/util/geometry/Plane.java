@@ -130,7 +130,7 @@ public class Plane {
 		return vectorToIntersect.getTargetPoint(s);
 		
 	}
-	public Point3D getIntersectionPoint(Vector3D vector){
+	public Point3D getRayIntersectionPoint(Vector3D vector){
 		float dotProduct = - normal.dotProduct(vector);
 		if(Math.abs(dotProduct) < EPSILON){
 			Log.d(TAG, "vector is parallel to the plane. No intersection");
@@ -154,6 +154,9 @@ public class Plane {
 		}
 						
 		float s =  (a + b +c)/dotProduct;
+		if(s < 0 ){
+			return null;
+		}
 		return vector.getTargetPoint(s);
 		
 	}

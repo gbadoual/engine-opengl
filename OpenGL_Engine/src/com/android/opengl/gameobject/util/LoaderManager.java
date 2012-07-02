@@ -93,11 +93,11 @@ public class LoaderManager {
 			objData = loadOBJ(objectRawId);
 
 		}catch (NotFoundException e) {
-			Log.e("tag", TAG + ":loadFromRes() " + e);
+			Log.e(TAG, TAG + ":loadFromRes() " + e);
 		} catch (IOException e) {
-			Log.e("tag", TAG + ":loadFromRes() " + e);
+			Log.e(TAG, TAG + ":loadFromRes() " + e);
 		}
-		Log.d("tag", "loadRes time = " + (System.currentTimeMillis() - startTime)/1000.0 +" sec. (" + commonGameObject +")");
+		Log.d(TAG, "loadRes time = " + (System.currentTimeMillis() - startTime)/1000.0 +" sec. (" + commonGameObject +")");
 		return objData;
 	}
 	
@@ -132,7 +132,7 @@ public class LoaderManager {
 		vnf.trimToSize();
 		vtf.trimToSize();
 		
-		Log.d("tag", "parsing file time = " + (System.currentTimeMillis() - startTime)/1000.0 +" sec. (" + commonGameObject +")");
+		Log.d(TAG, "parsing file time = " + (System.currentTimeMillis() - startTime)/1000.0 +" sec. (" + commonGameObject +")");
 		maxTextureCoordX = Float.MIN_VALUE;
 		maxTextureCoordY = Float.MIN_VALUE;
 			
@@ -209,10 +209,11 @@ public class LoaderManager {
 
 
 	private void fillMeshData(MeshData objData) {
-//		Log.i("tag", "v.size() before copying = " + v.size() / 3);
+		int beforeCopying = v.size() / 3;
 		cloneVertexWithDifferentTextureOrNormalCoords();
-//		Log.i("tag", "v.size() after copying = " + v.size() / 3);
-//		Log.i("tag", "faces count = " + vf.size() / 3);
+		int afterCopying = v.size() / 3;
+		Log.i(TAG, "vertex count after copying = " + afterCopying + " (copied " + (afterCopying - beforeCopying)+" vertecies)");
+		Log.i(TAG, "faces count = " + vf.size() / 3);
 		objData.facesCount = facesCount;
 		int vertCount = v.size();
 		objData.vertexData = new float[vertCount];
