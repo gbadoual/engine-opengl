@@ -1,7 +1,10 @@
 package com.android.opengl.view;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -9,9 +12,41 @@ import android.view.MotionEvent;
 import android.widget.TextView;
 
 public class WorldView extends GLSurfaceView implements OnGestureListener{
+
+	public static final int DIALOG_LOADING_SHOW = 0;
+	public static final int DIALOG_LOADING_DISMISS = 1;
+	
 	private WorldRenderer worldRenderer;
 	private TextView textView;
 	private GestureDetector gestureDetector;
+	
+	private ProgressDialog progressDialog;
+	
+	private Handler handler = new Handler(){
+		@Override
+		public void dispatchMessage(Message msg) {
+			switch (msg.what) {
+			case DIALOG_LOADING_SHOW:
+				if(progressDialog == null){
+					progressDialog = new ProgressDialog(getContext());
+					progressDialog.setMessage("Loading world...");
+				}
+				progressDialog.show();
+				break;
+			case DIALOG_LOADING_DISMISS:
+				if(progressDialog.isShowing()){
+					progressDialog.dismiss();
+				}
+
+			default:
+				break;
+			}
+			
+			super.dispatchMessage(msg);
+		}
+		
+	};
+
 
 	public WorldView(Context context) {
 		super(context);
@@ -23,7 +58,7 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	}
 	private void init() {
 		gestureDetector = new GestureDetector(this);
-		worldRenderer = new WorldRenderer(this);
+		worldRenderer = new WorldRenderer(this, handler);
 		setEGLContextClientVersion(2);
 		setRenderer(worldRenderer);
 	}
@@ -53,6 +88,7 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 		if(worldRenderer != null){
 			worldRenderer.deinit();
 		}
+		handler.sendEmptyMessage(DIALOG_LOADING_DISMISS);
 	}
 	
 	@Override

@@ -11,6 +11,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.GLU;
 import android.opengl.Matrix;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -28,10 +29,11 @@ public class WorldRenderer implements Renderer {
 
 
 	private long currentFrame = 0;
+	private Handler callbackHandler;
 //	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
 	private GameObject cube1;
 	private GameObject cube2;
-//	private GameObject bmw1;
+	private GameObject bmw1;
 //	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
@@ -50,14 +52,16 @@ public class WorldRenderer implements Renderer {
 	private float[] screenXYZ = new float[16];
 	
 
-	public WorldRenderer(WorldView worldView) {
+	public WorldRenderer(WorldView worldView, Handler handler) {
 		this.worldView = worldView;
+		this.callbackHandler = handler;
 	}
 
 
 	@Override
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
 		// Use culling to remove back faces.
+		callbackHandler.sendEmptyMessage(WorldView.DIALOG_LOADING_SHOW);
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
 		// Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
@@ -67,6 +71,7 @@ public class WorldRenderer implements Renderer {
 		
 		initGameObjects();
 		initFpsCount();
+		callbackHandler.sendEmptyMessage(WorldView.DIALOG_LOADING_DISMISS);
 	}
 
 
@@ -93,7 +98,7 @@ public class WorldRenderer implements Renderer {
 	private void initGameObjects() {
 		CommonGameObject.facesCount = 0;
 		scene = new Scene(worldView.getContext(), programHandle, calculateProjectionMatrix(0, 0));
-//		bmw1 = new BMW(scene);
+		bmw1 = new BMW(scene);
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
 		cube2 = new Cube(scene);
@@ -191,6 +196,9 @@ public class WorldRenderer implements Renderer {
 		cube2.translate(4, 2, 4);
 		cube2.drawFrame();
 
+	bmw1.translate(-8, 4, -7);
+	bmw1.drawFrame();
+
 //		float step = 7;
 //		int size = gameObjectList.size();
 //		int iSize = (int)Math.sqrt(size);
@@ -222,14 +230,11 @@ public class WorldRenderer implements Renderer {
 ////			i = i/2;
 //		}
 
-		earth.translate(-8, 5, 3);
+		earth.translate(-6, 5, 3);
 		earth.drawFrame();
 
 		scene.setRendingFinished(true);
 	}
-
-
-	private long lastFrame;
 
 
 	private void countFPS() {

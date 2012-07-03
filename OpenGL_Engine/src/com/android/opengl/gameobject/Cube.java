@@ -1,7 +1,5 @@
 package com.android.opengl.gameobject;
 
-import android.opengl.Matrix;
-
 import com.android.opengl.R;
 import com.android.opengl.gameobject.base.GameObject;
 import com.android.opengl.gameobject.base.Scene;

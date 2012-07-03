@@ -11,7 +11,7 @@ abstract public class GameObject extends CommonGameObject{
 	protected ObjectOuterCube outerCube;
 	
 	public GameObject(Scene parentScene) {
-		super(parentScene.programHandle, parentScene.context);
+		super(parentScene.programHandle, parentScene.getResources());
 		this.parentScene = parentScene;
 		this.parentScene.addGameObject(this);
 		outerCube = new ObjectOuterCube(this);

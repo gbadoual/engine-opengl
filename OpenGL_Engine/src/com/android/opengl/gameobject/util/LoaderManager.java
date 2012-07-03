@@ -8,6 +8,7 @@ import java.util.Arrays;
 import org.apache.commons.io.IOUtils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,9 +29,8 @@ public class LoaderManager {
 	private static final char[] typeVt = new char[]{'v', 't'};
 	private static final char[] typeF = new char[]{'f', ' '};
 	
-	private long startTime;
 	
-	private CommonGameObject commonGameObject;
+//	private CommonGameObject commonGameObject;
 	private int facesCount = 0;
 	char[] lineSeparator = System.getProperty("line.separator").toCharArray();
 	char[] potentialLineSeparator = new char[lineSeparator.length];
@@ -52,34 +52,19 @@ public class LoaderManager {
 	float maxTextureCoordX = Float.MIN_VALUE;
 	float maxTextureCoordY = Float.MIN_VALUE;
 
-//	private ProgressDialog progressDialog;
-//	private Handler handler = new Handler(){
-//		@Override
-//		public void dispatchMessage(Message msg) {
-//			switch (msg.what) {
-//			case 0:
-//				progressDialog.show();
-//				break;
-//			case 1:
-//				progressDialog.dismiss();
-//
-//			default:
-//				break;
-//			}
-//			
-//			super.dispatchMessage(msg);
-//		}
-//		
-//	};
+
+	private Resources resources;
+
 	
-	public LoaderManager(CommonGameObject commonGameObject) {
-		this.commonGameObject = commonGameObject;
-//		progressDialog = new ProgressDialog(context);
-//		progressDialog.setTitle("Loading objects...");
+	public LoaderManager(Context context) {
+		this.resources = context.getResources();
+	}
+	public LoaderManager(Resources resources) {
+		this.resources = resources;
 	}
 
 	public MeshData loadFromRes(int objectRawId) {
-		startTime = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 		MeshData objData = null;
 		try {
 			
@@ -97,13 +82,14 @@ public class LoaderManager {
 		} catch (IOException e) {
 			Log.e(TAG, TAG + ":loadFromRes() " + e);
 		}
-		Log.d(TAG, "loadRes time = " + (System.currentTimeMillis() - startTime)/1000.0 +" sec. (" + commonGameObject +")");
+		time = System.currentTimeMillis() - time;
+		Log.d(TAG, "loadRes time = " + time/1000.0d +" sec.");
 		return objData;
 	}
 	
 	private MeshData loadOBJ(int objectRawId) throws IOException{
 
-		InputStream meshStream = commonGameObject.getContext().getResources().openRawResource(objectRawId);
+		InputStream meshStream = resources.openRawResource(objectRawId);
 		charBuf = IOUtils.toCharArray(meshStream) ;
 		meshStream.close();
 		meshStream = null;
@@ -132,7 +118,7 @@ public class LoaderManager {
 		vnf.trimToSize();
 		vtf.trimToSize();
 		
-		Log.d(TAG, "parsing file time = " + (System.currentTimeMillis() - startTime)/1000.0 +" sec. (" + commonGameObject +")");
+//		Log.d(TAG, "parsing file time = " + (System.currentTimeMillis() - startTime)/1000.0 +" sec. (" + commonGameObject +")");
 		maxTextureCoordX = Float.MIN_VALUE;
 		maxTextureCoordY = Float.MIN_VALUE;
 			
@@ -354,7 +340,7 @@ public class LoaderManager {
 //=======================================================================================================================
 // texture loading
 	
-	public static int loadTexture(final Context context, final int resourceId)
+	public int loadTexture(final int resourceId)
 	{
 		long time = System.currentTimeMillis();
 	    final int[] textureHandle = new int[1];
@@ -369,7 +355,7 @@ public class LoaderManager {
 	        options.inScaled = false;   // No pre-scaling
 	 
 	        // Read in the resource
-	        final Bitmap temp = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+	        final Bitmap temp = BitmapFactory.decodeResource(resources, resourceId, options);
 	        
 	        Bitmap bmp = Bitmap.createBitmap(temp, 0, 0, temp.getWidth(), temp.getHeight(), flip, true);
 	        temp.recycle();
