@@ -8,7 +8,7 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.content.Context;
+import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -32,9 +32,6 @@ public abstract class CommonGameObject {
 	public int mvpMatrixHandle;
 	public int positionHandle;
 	
-	protected int textureCoordHandle;
-	protected int textureUniformHandle;
-	protected int textureDataHandler;
 
 	public int normalHandle;
 	public int textureHandle;
@@ -58,7 +55,7 @@ public abstract class CommonGameObject {
 	
 	
 	protected LoaderManager meshLoader;
-	protected Context context;
+	protected Resources resources;
 	protected LoaderManager.MeshData meshData;
 
 	public static class VboDataHandler{
@@ -68,14 +65,25 @@ public abstract class CommonGameObject {
 		public int vboIndexHandle;
 		public float[] vertexData;
 		public int [] indexData;
+
+		
+		public int textureCoordHandle;
+		public int textureUniformHandle;
+		public int textureDataHandler;
+
 		public long facesCount;
 	}
 	
-	public CommonGameObject(int programHandle, Context context) {
+	public CommonGameObject(int programHandle, Resources resources) {
+		Log.d(TAG, "init " + getClass().getSimpleName());
+		long time = System.currentTimeMillis(); 
+		this.resources = resources;
 		this.programHandle = programHandle;
-		this.context = context;
-		meshLoader = new LoaderManager(this);
+		meshLoader = new LoaderManager(resources);
 		initData();
+		time = System.currentTimeMillis() - time;
+		Log.d(TAG, getClass().getSimpleName() + " loaded for " + time / 1000.0d + " sec.");
+		
 	}
 	
 	private void initData() {
@@ -89,13 +97,13 @@ public abstract class CommonGameObject {
 //		colorHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_COLOR);
 		normalHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_NORMAL);
 
-		textureUniformHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_TEXTURE);
-		textureCoordHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_TEXTURE_COORD);
-		GLES20.glEnable(GLES20.GL_TEXTURE_2D);
-		textureDataHandler = LoaderManager.loadTexture(context, R.raw.worldmap); 
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		if (vboDataHandler == null){
 			vboDataHandler = new VboDataHandler();
+			vboDataHandler.textureUniformHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_TEXTURE);
+			vboDataHandler.textureCoordHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_TEXTURE_COORD);
+			GLES20.glEnable(GLES20.GL_TEXTURE_2D);
+			vboDataHandler.textureDataHandler = meshLoader.loadTexture(R.raw.world_map); 
 			vboDataHandlerMap.put(getClass().getSimpleName(), vboDataHandler);
 			meshData = meshLoader.loadFromRes(getMeshResource());
 			if(meshData == null){
@@ -161,11 +169,6 @@ public abstract class CommonGameObject {
 		facesCount+=vboDataHandler.facesCount;
 		
 
-//		vboVertexHandle = getVboBuffer(vertexBuffer, vertexData);
-//		vboColorHandle = getVboBuffer(colorBuffer, meshData.textureData);
-//		vboNormalHandle = getVboBuffer(normalBuffer, meshData.normalData);
-//		vboIndexHandle = getVboBuffer(indexBuffer, indexData);
-		
 	}
 
 	public void dealloc() {
@@ -196,10 +199,15 @@ public abstract class CommonGameObject {
 //		-----------------------------------------------------
 // using VBOs		
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureDataHandler);
-	    GLES20.glUniform1i(textureUniformHandle, 0);
+	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, vboDataHandler.textureDataHandler);
+	    GLES20.glUniform1i(vboDataHandler.textureUniformHandle, 0);
 
-	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
+		GLES20.glEnableVertexAttribArray(vboDataHandler.textureCoordHandle);
+		GLES20.glVertexAttribPointer(vboDataHandler.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+
+		
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
 		GLES20.glEnableVertexAttribArray(positionHandle);
 		GLES20.glVertexAttribPointer(positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
@@ -211,9 +219,6 @@ public abstract class CommonGameObject {
 		GLES20.glEnableVertexAttribArray(normalHandle);
 		GLES20.glVertexAttribPointer(normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
-		GLES20.glEnableVertexAttribArray(textureCoordHandle);
-		GLES20.glVertexAttribPointer(textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 		
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboDataHandler.vboIndexHandle);
@@ -326,9 +331,6 @@ public abstract class CommonGameObject {
 		return vboDataHandlerMap.get(getClass().getSimpleName()).vertexData;
 	}
 
-	public Context getContext() {
-		return context;
-	}
 
 
 

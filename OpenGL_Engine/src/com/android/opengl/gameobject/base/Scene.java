@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 
 import com.android.opengl.R;
-import com.android.opengl.gameobject.base.CommonGameObject.VboDataHandler;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 
@@ -34,7 +34,7 @@ public class Scene extends CommonGameObject{
 	private boolean isRendingFinished = true;
 	
 	public Scene(Context context, int programHandle, float[] projectionMatrix) {
-		super(programHandle, context);
+		super(programHandle, context.getResources());
 		this.projectionMatrix = projectionMatrix;
 		setupModelMatrix(modelMatrix);
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
@@ -77,12 +77,18 @@ public class Scene extends CommonGameObject{
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
 
 // using VBOs		
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureDataHandler);
-	    GLES20.glUniform1i(textureUniformHandle, 0);
 
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, vboDataHandler.textureDataHandler);
+	    GLES20.glUniform1i(vboDataHandler.textureUniformHandle, 0);
+
+	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
+		GLES20.glEnableVertexAttribArray(vboDataHandler.textureCoordHandle);
+		GLES20.glVertexAttribPointer(vboDataHandler.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+
+		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
 		GLES20.glEnableVertexAttribArray(positionHandle);
 		GLES20.glVertexAttribPointer(positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
@@ -92,9 +98,6 @@ public class Scene extends CommonGameObject{
 		GLES20.glEnableVertexAttribArray(normalHandle);
 		GLES20.glVertexAttribPointer(normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
-		GLES20.glEnableVertexAttribArray(textureCoordHandle);
-		GLES20.glVertexAttribPointer(textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 		IntBuffer indexBuffer;
 		ArrayList<Integer> indexList = (ArrayList<Integer>) sceneQuad2D.getIndexToDrawList().clone();
@@ -233,9 +236,9 @@ public class Scene extends CommonGameObject{
 			boolean res = sceneQuad2D.intersectionTest(ray);
 			time = System.currentTimeMillis() - time;
 			if(res){
-				Log.d("tag", "intersection point with scene: " + ray.getTargetPoint()+", time = " + time/1000.0f +" sec.");
+				Log.d(TAG, "intersection point with scene: " + ray.getTargetPoint()+", time = " + time/1000.0f +" sec.");
 			} else{
-				Log.d("tag", "no intersection with scene detected, time = " + time/1000.0f +" sec.");
+				Log.d(TAG, "no intersection with scene detected, time = " + time/1000.0f +" sec.");
 			}
 		}
 	}
@@ -243,13 +246,17 @@ public class Scene extends CommonGameObject{
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.scene;//landscape;
+		return R.raw.scene;
 	}
 
 
 	public void deinit() {
 		Log.d(TAG, "deinit");
 		vboDataHandlerMap.clear();		
+	}
+	
+	public Resources getResources(){
+		return resources;
 	}
 
 }
