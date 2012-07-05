@@ -103,12 +103,19 @@ public class WorldRenderer implements Renderer {
 	private void initGameObjects() {
 		CommonGameObject.facesCount = 0;
 		scene = new Scene(worldView.getContext(), programHandle, calculateProjectionMatrix(0, 0));
-		bmw1 = new BMW(scene);
+//		bmw1 = new BMW(scene);
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
-		cube2 = new Cube(scene);
+		cube1.setPosition(0, 3, -6);
 		cube1.moveTo(new Point3D(-5, 0, 0));
+
+		
+		cube2 = new Cube(scene);
+		cube2.setPosition(4, 2, 4);
+
 		earth = new Earth(scene);
+		earth.setPosition(-6, 5, 3);
+		
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));
 //		}
@@ -196,14 +203,12 @@ public class WorldRenderer implements Renderer {
 
 	private void drawWorld() {
 		scene.drawFrame();
-		cube1.translate(0, 3, -6);
 		cube1.drawFrame();
 		
-		cube2.translate(4, 2, 4);
 		cube2.drawFrame();
 
-	bmw1.translate(-8, 4, -7);
-	bmw1.drawFrame();
+//	bmw1.translate(-8, 4, -7);
+//	bmw1.drawFrame();
 
 //		float step = 7;
 //		int size = gameObjectList.size();
@@ -236,7 +241,6 @@ public class WorldRenderer implements Renderer {
 ////			i = i/2;
 //		}
 
-		earth.translate(-6, 5, 3);
 		earth.drawFrame();
 
 		scene.setRendingFinished(true);

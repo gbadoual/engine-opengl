@@ -16,6 +16,7 @@ import android.util.Log;
 import com.android.opengl.R;
 import com.android.opengl.Shader;
 import com.android.opengl.gameobject.util.LoaderManager;
+import com.android.opengl.gameobject.util.geometry.Point3D;
 
 public abstract class CommonGameObject {
 	
@@ -44,7 +45,7 @@ public abstract class CommonGameObject {
 	protected float[] modelMatrix = new float[16];
 	protected float[] mvpMatrix = new float[16];
 
-	protected float[] centerXYZ = new float[3];
+//	protected float[] centerXYZ = new float[3];
 	protected float[] angleXYZ = new float[3];
 	
 //	protected float[] vertexData;
@@ -255,9 +256,9 @@ public abstract class CommonGameObject {
 		rotate(new float[]{angleX, angleY, angleZ});
 	}
 	
-	public void translate(float centerX, float centerY, float centerZ){
-		translate(new float[]{centerX, centerY, centerZ});
-	}
+//	public void translate(float centerX, float centerY, float centerZ){
+//		translate(new float[]{centerX, centerY, centerZ});
+//	}
 	
 	public void rotate(float [] newAngleXYZ){
 		this.angleXYZ = newAngleXYZ;
@@ -269,19 +270,19 @@ public abstract class CommonGameObject {
 //		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
 	}
 	
-	public void translate(float[] newCenterXYZ){
-		Matrix.translateM(modelMatrix, 0, -centerXYZ[0], -centerXYZ[1], -centerXYZ[2]);
-		this.centerXYZ = newCenterXYZ;
-		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
-	}
-
-	public void translateIncrement(float[] incrementXYZ){
-		Matrix.translateM(modelMatrix, 0, -centerXYZ[0], -centerXYZ[1], -centerXYZ[2]);
-		this.centerXYZ[0] += incrementXYZ[0]/10;
-		this.centerXYZ[1] += incrementXYZ[1];
-		this.centerXYZ[2] += incrementXYZ[2];
-		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
-	}
+//	public void translate(float[] newCenterXYZ){
+//		Matrix.translateM(modelMatrix, 0, -centerXYZ[0], -centerXYZ[1], -centerXYZ[2]);
+//		this.centerXYZ = newCenterXYZ;
+//		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
+//	}
+//
+//	public void translateIncrement(float[] incrementXYZ){
+//		Matrix.translateM(modelMatrix, 0, -centerXYZ[0], -centerXYZ[1], -centerXYZ[2]);
+//		this.centerXYZ[0] += incrementXYZ[0];
+//		this.centerXYZ[1] += incrementXYZ[1];
+//		this.centerXYZ[2] += incrementXYZ[2];
+//		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
+//	}
 	
 	
 	
@@ -311,15 +312,28 @@ public abstract class CommonGameObject {
 		return angleXYZ;
 	}
 
-	public void setCenterXYZ(float centerX, float centerY, float centerZ){
-		setCenterXYZ(new float[]{centerX, centerY, centerZ});
-	}
-	public void setCenterXYZ(float[] centerXYZ) {
-		this.centerXYZ = centerXYZ;
+	public void setPosition(float x, float y, float z) {
+		modelMatrix[12] = x;
+		modelMatrix[13] = y;
+		modelMatrix[14] = z;
 	}
 
-	public float[] getCenterXYZ() {
-		return centerXYZ;
+	public void incPosition(Point3D inc) {
+		Point3D position = getPosition();
+		setPosition(position.x + inc.x, position.y + inc.y, position.z + inc.z);
+	}
+
+	
+	public void setPosition(Point3D position) {
+		setPosition(position.x, position.y, position.z);
+	}
+	
+	public void setPosition(float[] position){
+		setPosition(position[0], position[1], position[2]);
+	}
+
+	public Point3D getPosition() {
+		return new Point3D(modelMatrix[12], modelMatrix[13], modelMatrix[14]);
 	}
 
 	public void setSelected(boolean isSelected) {

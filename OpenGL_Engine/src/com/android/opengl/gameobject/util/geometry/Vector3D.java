@@ -5,6 +5,7 @@ import android.opengl.Matrix;
 public class Vector3D {
 	public static final int P0_OFFSET = 0;
 	public static final int P1_OFFSET = 3;
+	private static final float EPSILON = 0.000001f;
 
 	public Point3D position;
 	public Point3D direction;
@@ -90,7 +91,7 @@ public class Vector3D {
 		
 		length = (float) Math.sqrt(x * x + y * y + z * z);
 		
-		if (length != 1.0f && length != 0.0f) {
+		if (length != 1.0f && Math.abs(length) > EPSILON) {
 			direction.x = x / length;
 			direction.y = y / length;
 			direction.z = z / length;
