@@ -15,6 +15,7 @@ import android.util.Log;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
+import com.android.opengl.logic.Movable;
 
 public class Scene extends CommonGameObject{
 
@@ -40,7 +41,7 @@ public class Scene extends CommonGameObject{
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
 //		setCenterXYZ(modelMatrix[12],modelMatrix[13], modelMatrix[14]);
-		rotate(40, 30, 0);
+		rotate(60, -30, 0);
 	}
 	
 
@@ -155,14 +156,14 @@ public class Scene extends CommonGameObject{
 	}
 	
 	@Override
-	public void translate(float centerX, float centerY, float centerZ) {
-		super.translate(centerX, centerY, centerZ);
+	public void setPosition(float centerX, float centerY, float centerZ) {
+		super.setPosition(centerX, centerY, centerZ);
 		notifyVPMatrixChanged();
 	}
 	
 	@Override
-	public void translate(float[] newCenterXYZ) {
-		super.translate(newCenterXYZ);
+	public void setPosition(float[] newCenterXYZ) {
+		super.setPosition(newCenterXYZ);
 		notifyVPMatrixChanged();
 	}
 	
@@ -227,6 +228,13 @@ public class Scene extends CommonGameObject{
 	
 	public void setIsSelected(Vector3D ray) {
 		boolean isAnyGameObgectSelected = false;
+		Movable selectedObjectToMove = null;
+		for(GameObject gameObject: gameObjectList){
+			if(gameObject.isSelected() && gameObject instanceof Movable){
+				selectedObjectToMove = (Movable)gameObject;
+				break;
+			};
+		}
 		for(GameObject gameObject: gameObjectList){
 			isAnyGameObgectSelected |= gameObject.setIsSelected(ray);
 		}
@@ -237,6 +245,10 @@ public class Scene extends CommonGameObject{
 			time = System.currentTimeMillis() - time;
 			if(res){
 				Log.d(TAG, "intersection point with scene: " + ray.getTargetPoint()+", time = " + time/1000.0f +" sec.");
+				if(selectedObjectToMove != null){
+					Log.d(TAG, "moving " +selectedObjectToMove.getClass().getSimpleName());
+					selectedObjectToMove.moveTo(ray.getTargetPoint());					
+				}
 			} else{
 				Log.d(TAG, "no intersection with scene detected, time = " + time/1000.0f +" sec.");
 			}

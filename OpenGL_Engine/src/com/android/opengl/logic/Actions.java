@@ -15,13 +15,13 @@ public class Actions {
 
 	public static void moveTo(GameObject objectToMove, Point3D destination) {
 		MovingThread movingTread = movingThreadMap.get(objectToMove);
-		if(movingTread == null){
-			movingTread = new MovingThread(objectToMove, destination);
-			movingThreadMap.put(objectToMove, movingTread);
-		}
-		if(Thread.State.NEW != movingTread.getState()){
+
+		if(movingTread != null){
 			movingTread.interrupt();
 		}
+		movingTread = new MovingThread(objectToMove, destination);
+		movingThreadMap.put(objectToMove, movingTread);
+
 		movingTread.start();
 	}
 	
@@ -34,30 +34,42 @@ public class Actions {
 		
 		
 		public MovingThread(GameObject objectToMove, Point3D destination) {
+			super("MovingThread");
 			this.objectToMove = objectToMove;
 			this.destination = destination;
-			float[] position = objectToMove.getCenterXYZ();
-			speedVector = new Vector3D(destination.x - position[0], 
-									destination.y - position[1],
-									destination.z - position[2]).normalize();
+			Point3D startPoint  = objectToMove.getPosition();
+			speedVector = new Vector3D(startPoint, destination).normalize();
+			Log.i("tag", "destination = " + destination);
+			Log.i("tag", "startPoint = " + startPoint);
+			Log.i("tag", "speedVector = " + speedVector);
 			speedVector.setLength(10);
+			setPriority(MIN_PRIORITY);
 		}
 
 		@Override
 		public void run() {
 			long time = System.currentTimeMillis();
-			while(true){
-				Point3D targetPoint = speedVector.getDirection();//getTargetPoint(0.0000000001f);
-				Log.i("tag", "targetPoint = " + targetPoint);
-				objectToMove.translateIncrement(targetPoint.asFloatArray());
-				if(Point3D.getmaxNorma(targetPoint, destination) < 1f){
+			float scale = 0.1f;
+			while(!isInterrupted()){
+				Point3D incPoint = speedVector.getDirection().clone();//getTargetPoint(0.0000000001f);
+				incPoint.x = incPoint.x * scale;
+				incPoint.y = incPoint.y * scale;
+				incPoint.z = incPoint.z * scale;
+				objectToMove.incPosition(incPoint);
+				
+				float norma = Point3D.getmaxNorma(objectToMove.getPosition(), destination);
+//				Log.i("tag", "curPosition" + objectToMove.getPosition());
+//				Log.i("tag", "maxNorma = " + norma);
+				if( norma < 1f){
+					Log.i("tag", objectToMove.getClass().getSimpleName()+" destination has reached");
 					// destination has reached
 					break;
 				}
 				try {
-					Thread.sleep(500);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 					Log.e("tag", "moving thread: " + e.toString());
+					break;
 				}
 			}
 			
