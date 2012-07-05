@@ -21,5 +21,11 @@ public class BMW extends AbstractVehicle{
 	public int getMeshResource() {
 		return R.raw.bmw;
 	}
+	
+	@Override
+	public int getTextureResource() {
+		// TODO Auto-generated method stub
+		return R.raw.bmw_texture;
+	}
 
 }

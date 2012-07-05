@@ -3,9 +3,12 @@ package com.android.opengl.gameobject;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.base.GameObject;
 import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.util.geometry.Point3D;
+import com.android.opengl.logic.Actions;
+import com.android.opengl.logic.IMovable;
 
-public class Cube extends GameObject{
-	
+public class Cube extends GameObject implements IMovable{
+		
 
 	public Cube(Scene parentScene) {
 		super(parentScene);
@@ -21,6 +24,17 @@ public class Cube extends GameObject{
 	@Override
 	public int getMeshResource() {
 		return R.raw.cube;
+	}
+	
+	@Override
+	public int getTextureResource() {
+		return R.raw.smile;
+	}
+
+	@Override
+	public void moveTo(Point3D destination) {
+		Actions.moveTo(this, destination);
+		
 	}
 
 }

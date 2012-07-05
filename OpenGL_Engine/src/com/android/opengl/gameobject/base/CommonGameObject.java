@@ -103,7 +103,7 @@ public abstract class CommonGameObject {
 			vboDataHandler.textureUniformHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_TEXTURE);
 			vboDataHandler.textureCoordHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_TEXTURE_COORD);
 			GLES20.glEnable(GLES20.GL_TEXTURE_2D);
-			vboDataHandler.textureDataHandler = meshLoader.loadTexture(R.raw.world_map); 
+			vboDataHandler.textureDataHandler = meshLoader.loadTexture(getTextureResource()); 
 			vboDataHandlerMap.put(getClass().getSimpleName(), vboDataHandler);
 			meshData = meshLoader.loadFromRes(getMeshResource());
 			if(meshData == null){
@@ -274,6 +274,16 @@ public abstract class CommonGameObject {
 		this.centerXYZ = newCenterXYZ;
 		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
 	}
+
+	public void translateIncrement(float[] incrementXYZ){
+		Matrix.translateM(modelMatrix, 0, -centerXYZ[0], -centerXYZ[1], -centerXYZ[2]);
+		this.centerXYZ[0] += incrementXYZ[0]/10;
+		this.centerXYZ[1] += incrementXYZ[1];
+		this.centerXYZ[2] += incrementXYZ[2];
+		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
+	}
+	
+	
 	
 
 	public void setModelMatrix(float[] modelMatrix) {
@@ -320,11 +330,11 @@ public abstract class CommonGameObject {
 		return isSelected;
 	}
 	
-//	public abstract float[] getVertexData();
-//	public abstract float[] getColorData();
-//	public abstract float[] getNormalData();
-//	public abstract int[] 	getIndexData();
-	public abstract int 	getMeshResource();
+	public abstract int getMeshResource();
+	
+	public int getTextureResource(){
+		return R.raw.world_map;
+	};
 	
 
 	public final float[] getVertexData(){

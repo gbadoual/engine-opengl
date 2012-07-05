@@ -22,18 +22,20 @@ import com.android.opengl.gameobject.Earth;
 import com.android.opengl.gameobject.base.CommonGameObject;
 import com.android.opengl.gameobject.base.GameObject;
 import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 import com.android.opengl.gameobject.vehicle.BMW;
 
 public class WorldRenderer implements Renderer {
 
 
+	private static final String TAG = WorldRenderer.class.getSimpleName();
 	private long currentFrame = 0;
 	private Handler callbackHandler;
 //	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
-	private GameObject cube1;
-	private GameObject cube2;
-	private GameObject bmw1;
+	private Cube cube1;
+	private Cube cube2;
+	private BMW bmw1;
 //	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
@@ -60,8 +62,9 @@ public class WorldRenderer implements Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
-		// Use culling to remove back faces.
+		long time = System.currentTimeMillis();
 		callbackHandler.sendEmptyMessage(WorldView.DIALOG_LOADING_SHOW);
+		// Use culling to remove back faces.
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
 		// Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
@@ -72,6 +75,8 @@ public class WorldRenderer implements Renderer {
 		initGameObjects();
 		initFpsCount();
 		callbackHandler.sendEmptyMessage(WorldView.DIALOG_LOADING_DISMISS);
+		time = System.currentTimeMillis() - time;
+		Log.i(TAG, "world loaded for " + time / 1000.0f + " sec.");
 	}
 
 
@@ -102,6 +107,7 @@ public class WorldRenderer implements Renderer {
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
 		cube2 = new Cube(scene);
+		cube1.moveTo(new Point3D(-5, 0, 0));
 		earth = new Earth(scene);
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));

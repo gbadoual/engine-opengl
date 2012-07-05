@@ -20,7 +20,11 @@ public class Vector3D {
 		this.direction = direction;
 		this.position = new Point3D();
 	}
-
+	public Vector3D(float directionX, float directionY, float directionZ) {
+		this.direction = new Point3D(directionX, directionY, directionZ);
+		this.position = new Point3D();
+		
+	}
 	public Vector3D(Point3D startPoint, Point3D endPoint) {
 		super();
 		this.position = startPoint;
@@ -38,6 +42,8 @@ public class Vector3D {
 				fEndPoint[2] - fStartPoint[2]);
 	}
 	
+
+
 	public Point3D getTargetPoint(){
 		return getTargetPoint(length);
 	}	
