@@ -34,7 +34,7 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 				progressDialog.show();
 				break;
 			case DIALOG_LOADING_DISMISS:
-				if(progressDialog.isShowing()){
+				if(progressDialog!= null && progressDialog.isShowing()){
 					progressDialog.dismiss();
 				}
 

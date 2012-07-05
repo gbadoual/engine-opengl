@@ -47,6 +47,9 @@ public class Point3D extends Point2D{
 		this.w = w;
 	}
 
+	public static float getmaxNorma(Point3D one, Point3D two){
+		return Math.max(Math.abs(one.x - two.x), Math.max(Math.abs(one.y - two.y), Math.abs(one.z - two.z)));
+	}
 	public float[] asFloatArray(){
 		return new float[]{x, y, z, w};
 	}
