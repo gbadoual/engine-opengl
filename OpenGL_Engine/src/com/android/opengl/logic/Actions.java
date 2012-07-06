@@ -5,6 +5,7 @@ import java.util.HashMap;
 import android.util.Log;
 
 import com.android.opengl.gameobject.base.GameObject;
+import com.android.opengl.gameobject.base.Scene;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 
@@ -55,8 +56,12 @@ public class Actions {
 				incPoint.x = incPoint.x * scale;
 				incPoint.y = incPoint.y * scale;
 				incPoint.z = incPoint.z * scale;
+				Scene scene = objectToMove.getParentScene();
+				Point3D position = objectToMove.getPosition();
+				float y = scene.getAltitude(position.x, position.z);
+				Log.i("tag", "alt = " + y);
 				objectToMove.incPosition(incPoint);
-				
+				objectToMove.setAltitude(y);
 				float norma = Point3D.getmaxNorma(objectToMove.getPosition(), destination);
 //				Log.i("tag", "curPosition" + objectToMove.getPosition());
 //				Log.i("tag", "maxNorma = " + norma);

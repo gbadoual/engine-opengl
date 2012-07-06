@@ -503,6 +503,51 @@ public class MeshQuadNode2D {
 		return true;		
 	}
 
+	public float getAltitude(float x, float z) {
+		MeshQuadNode2D curQuad = null;
+		MeshQuadNode2D nextQuad = this;
+		while(nextQuad != null){
+			curQuad = nextQuad;
+			if(x < (curQuad.left + curQuad.right) / 2){
+				if(z < (curQuad.near + curQuad.far) / 2 ){
+					nextQuad = curQuad.treeSons[LEFT_FAR_SON_INDEX];
+				}else {
+					nextQuad = curQuad.treeSons[LEFT_NEAR_SON_INDEX];
+				}
+			}else{
+				if(z < (curQuad.near + curQuad.far) / 2 ){
+					nextQuad = curQuad.treeSons[RIGHT_FAR_SON_INDEX];
+				}else {
+					nextQuad = curQuad.treeSons[RIGHT_NEAR_SON_INDEX];
+				}
+			}
+		}
+
+		Vector3D ray = new Vector3D(x, 0, z, x, 1, z);
+		
+		if (checkIntersection(curQuad.indexData, ray)){
+			return ray.getTargetPoint().y;
+		};
+		
+		for(int i = 0; i < NEIGHBOURS_COUNT; ++i){
+			MeshQuadNode2D neighbourQuad = curQuad.neighboringQuads[i];
+			if(neighbourQuad != null && checkIntersection(neighbourQuad.indexData, ray)){
+				return ray.getTargetPoint().y;
+			}
+		}
+		//		int[] triangle = new int[VERTEX_PER_FACE];
+//		while (i < curQuad.indexData.length){
+//			for(int j = 0; j < VERTEX_PER_FACE; j++){
+//				triangle[j] = curQuad.indexData[i+j];
+//			}
+//			if(rayTriangleIntersectionTest(ray, triangle)){
+//				break;
+//			}
+//			i += VERTEX_PER_FACE;
+//		}
+		return ray.getTargetPoint().y;
+	}
+
 
 
 
