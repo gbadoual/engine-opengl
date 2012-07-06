@@ -255,10 +255,14 @@ public class Scene extends CommonGameObject{
 		}
 	}
 
+	public float getAltitude(float x, float z) {
+		
+		return sceneQuad2D.getAltitude(x, z);
+	}
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.scene;
+		return R.raw.landscape;
 	}
 
 
@@ -270,5 +274,7 @@ public class Scene extends CommonGameObject{
 	public Resources getResources(){
 		return resources;
 	}
+
+
 
 }

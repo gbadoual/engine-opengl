@@ -322,6 +322,10 @@ public abstract class CommonGameObject {
 		Point3D position = getPosition();
 		setPosition(position.x + inc.x, position.y + inc.y, position.z + inc.z);
 	}
+	
+	public void setAltitude(float alt){
+		modelMatrix[13] = alt;
+	}
 
 	
 	public void setPosition(Point3D position) {
