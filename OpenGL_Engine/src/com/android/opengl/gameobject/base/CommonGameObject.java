@@ -311,23 +311,21 @@ public abstract class CommonGameObject {
 	public float[] getAngleXYZ() {
 		return angleXYZ;
 	}
-
 	public void setPosition(float x, float y, float z) {
 		modelMatrix[12] = x;
 		modelMatrix[13] = y;
 		modelMatrix[14] = z;
 	}
 
+	public Point3D getPosition() {
+		return new Point3D(modelMatrix[12], modelMatrix[13], modelMatrix[14]);
+	}
+
 	public void incPosition(Point3D inc) {
 		Point3D position = getPosition();
 		setPosition(position.x + inc.x, position.y + inc.y, position.z + inc.z);
 	}
-	
-	public void setAltitude(float alt){
-		modelMatrix[13] = alt;
-	}
 
-	
 	public void setPosition(Point3D position) {
 		setPosition(position.x, position.y, position.z);
 	}
@@ -335,11 +333,7 @@ public abstract class CommonGameObject {
 	public void setPosition(float[] position){
 		setPosition(position[0], position[1], position[2]);
 	}
-
-	public Point3D getPosition() {
-		return new Point3D(modelMatrix[12], modelMatrix[13], modelMatrix[14]);
-	}
-
+	
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}

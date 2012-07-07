@@ -32,6 +32,10 @@ public class Actions {
 		private GameObject objectToMove;
 		private Point3D destination;
 		private Vector3D speedVector;
+		private float speed = 1f;
+		
+		private static final float CHECK_INTERVAL = 100; // ms
+		private static final long SLEEP_INTERVAL = (long) (CHECK_INTERVAL / 20); // ms
 		
 		
 		public MovingThread(GameObject objectToMove, Point3D destination) {
@@ -43,41 +47,43 @@ public class Actions {
 			Log.i("tag", "destination = " + destination);
 			Log.i("tag", "startPoint = " + startPoint);
 			Log.i("tag", "speedVector = " + speedVector);
-			speedVector.setLength(10);
+			speedVector.setLength(speed);
 			setPriority(MIN_PRIORITY);
 		}
 
 		@Override
 		public void run() {
-			long time = System.currentTimeMillis();
-			float scale = 0.1f;
+			long time;
+			float newX, newY, newZ;
 			while(!isInterrupted()){
-				Point3D incPoint = speedVector.getDirection().clone();//getTargetPoint(0.0000000001f);
-				incPoint.x = incPoint.x * scale;
-				incPoint.y = incPoint.y * scale;
-				incPoint.z = incPoint.z * scale;
-				Scene scene = objectToMove.getParentScene();
 				Point3D position = objectToMove.getPosition();
-				float y = scene.getAltitude(position.x, position.z);
-				Log.i("tag", "alt = " + y);
-				objectToMove.incPosition(incPoint);
-				objectToMove.setAltitude(y);
-				float norma = Point3D.getmaxNorma(objectToMove.getPosition(), destination);
-//				Log.i("tag", "curPosition" + objectToMove.getPosition());
-//				Log.i("tag", "maxNorma = " + norma);
-				if( norma < 1f){
-					Log.i("tag", objectToMove.getClass().getSimpleName()+" destination has reached");
-					// destination has reached
-					break;
-				}
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					Log.e("tag", "moving thread: " + e.toString());
-					break;
+				
+				newX = position.x + speedVector.getLength() * speedVector.getDirection().x;
+				newZ = position.z + speedVector.getLength() * speedVector.getDirection().z;
+				newY = objectToMove.getParentScene().getAltitude(newX, newZ);
+				Log.d("tag", "y = " + newY);
+				Point3D endPoint = new Point3D(newX, newY, newZ);
+				speedVector = new Vector3D(position, endPoint).normalize();
+				speedVector.setLength(speed);
+				float curStep = 0;
+				time = System.currentTimeMillis();
+				while(curStep < 1){
+					Log.d("tag", "speedVector = " + speedVector);
+					objectToMove.setPosition(speedVector.getTargetPoint(speedVector.getLength() * curStep));
+					float norma = Point3D.getmaxNorma(objectToMove.getPosition(), destination);
+					if( norma < speed / 2){
+						Log.i("tag", objectToMove.getClass().getSimpleName()+" destination has reached");
+						return;
+					}
+					curStep = ((float)(System.currentTimeMillis() - time))/CHECK_INTERVAL;
+					try {
+						Thread.sleep(SLEEP_INTERVAL);
+					} catch (InterruptedException e) {
+						Log.e("tag", "moving thread: " + e.toString());
+						return;
+					}
 				}
 			}
-			
 		}
 	}
 
