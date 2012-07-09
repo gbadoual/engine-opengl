@@ -36,8 +36,8 @@ public class Shader {
 		"																							" +
 		"void main(){																				" +
 //		"	v_Color = "+ATTRIBUTE_COLOR+";															" +
-		"	v_Position = vec3("+UNIFORM_MVP_MATRIX+" * "+ ATTRIBUTE_POSITION +");					" +
-		"	v_Normal = vec3("+UNIFORM_MVP_MATRIX+" * vec4("+ ATTRIBUTE_NORMAL +", 0.0));			" +
+		"	v_Position = vec3("+UNIFORM_MV_MATRIX+" * "+ ATTRIBUTE_POSITION +");					" +
+		"	v_Normal = vec3("+UNIFORM_MV_MATRIX+" * vec4("+ ATTRIBUTE_NORMAL +", 0.0));				" +
 		"	v_isSelected = "+UNIFORM_IS_SELECTED+";													" +
 		"	v_TexCoord = vec2("+ATTRIBUTE_TEXTURE_COORD+".x, "+ATTRIBUTE_TEXTURE_COORD+".y);													" +
 		"	gl_Position = "+UNIFORM_MVP_MATRIX+" * "+ATTRIBUTE_POSITION+";							" +
