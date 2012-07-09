@@ -68,7 +68,7 @@ public class Actions {
 				float curStep = 0;
 				time = System.currentTimeMillis();
 				while(curStep < 1){
-					Log.d("tag", "speedVector = " + speedVector);
+//					Log.d("tag", "speedVector = " + speedVector);
 					objectToMove.setPosition(speedVector.getTargetPoint(speedVector.getLength() * curStep));
 					float norma = Point3D.getmaxNorma(objectToMove.getPosition(), destination);
 					if( norma < speed / 2){

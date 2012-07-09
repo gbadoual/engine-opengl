@@ -62,6 +62,7 @@ public class Scene extends CommonGameObject{
 		isRendingFinished = false;
 //		rotate(0, -0.5f, 0);
 		mvpMatrix = vpMatrix;
+		mvMatrix = modelMatrix;
 		super.drawFrame();
 //		localDraw();
 
@@ -218,6 +219,10 @@ public class Scene extends CommonGameObject{
 			return vpMatrix;
 	}
 
+	public float[] getVieMatrix() {
+		return modelMatrix;
+	}
+
 	public void setRendingFinished(boolean isRendingFinished) {
 		this.isRendingFinished = isRendingFinished;
 	}
@@ -274,6 +279,8 @@ public class Scene extends CommonGameObject{
 	public Resources getResources(){
 		return resources;
 	}
+
+
 
 
 

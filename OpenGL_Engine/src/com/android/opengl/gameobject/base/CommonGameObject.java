@@ -30,12 +30,12 @@ public abstract class CommonGameObject {
 	public static long facesCount = 0;
 
 	final protected int programHandle;
-	public int mvpMatrixHandle;
-	public int positionHandle;
-	
+	protected int mvpMatrixHandle;
+	protected int mvMatrixHandle;
+	protected int positionHandle;
 
-	public int normalHandle;
-	public int textureHandle;
+	protected int normalHandle;
+	protected int textureHandle;
 	protected int isSelectedHandle;
 	
 	protected static Map<String, VboDataHandler> vboDataHandlerMap = new HashMap<String, VboDataHandler>();
@@ -44,6 +44,7 @@ public abstract class CommonGameObject {
 	
 	protected float[] modelMatrix = new float[16];
 	protected float[] mvpMatrix = new float[16];
+	protected float[] mvMatrix = new float[16];
 
 //	protected float[] centerXYZ = new float[3];
 	protected float[] angleXYZ = new float[3];
@@ -58,6 +59,7 @@ public abstract class CommonGameObject {
 	protected LoaderManager meshLoader;
 	protected Resources resources;
 	protected LoaderManager.MeshData meshData;
+
 
 	public static class VboDataHandler{
 		public int vboVertexHandle;
@@ -93,6 +95,7 @@ public abstract class CommonGameObject {
 	    
 		Matrix.setIdentityM(modelMatrix, 0);
 		mvpMatrixHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_MVP_MATRIX);
+		mvMatrixHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_MV_MATRIX);
 		isSelectedHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_IS_SELECTED);
 		positionHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_POSITION);
 //		colorHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_COLOR);
@@ -183,6 +186,7 @@ public abstract class CommonGameObject {
 		GLES20.glUseProgram(programHandle);
 		GLES20.glUniform1f(isSelectedHandle, isSelected?1:0);
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
+        GLES20.glUniformMatrix4fv(mvMatrixHandle, 1, false, mvMatrix, 0);
 
 //		vertexBuffer.position(0);
 //		GLES20.glVertexAttribPointer(positionHandle, vertexElementSize , GLES20.GL_FLOAT, false, 0, vertexBuffer);

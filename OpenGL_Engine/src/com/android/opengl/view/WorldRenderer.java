@@ -35,7 +35,7 @@ public class WorldRenderer implements Renderer {
 //	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
 	private Cube cube1;
 	private Cube cube2;
-	private BMW bmw1;
+//	private BMW bmw1;
 //	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
@@ -82,12 +82,19 @@ public class WorldRenderer implements Renderer {
 
 	private float[] calculateProjectionMatrix(int width, int height) {
 		float ratio = (float) width / height;
-		float left = -ratio;
-		float right = ratio;
+		float left = -1;
+		float right = 1;
 		float bottom = -1;
 		float top = 1;
 		float near = 1;
 		float far = 55;
+		if(ratio > 1){
+			top = 1/ratio;
+			bottom = -1/ratio;
+		} else{
+			left = -ratio;
+			right = ratio;
+		}
 		float [] projectionMatrix = new float[16];
 		Matrix.frustumM(projectionMatrix, 0, left, right, bottom, top, near,
 				far);
@@ -103,20 +110,20 @@ public class WorldRenderer implements Renderer {
 	private void initGameObjects() {
 		CommonGameObject.facesCount = 0;
 		scene = new Scene(worldView.getContext(), programHandle, calculateProjectionMatrix(0, 0));
-		bmw1 = new BMW(scene);
-		bmw1.setPosition(-8, 4, -7);
+//		bmw1 = new BMW(scene);
+//		bmw1.setPosition(-8, -7);
 
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
-		cube1.setPosition(0, 3, -6);
+		cube1.setPosition(0, -6);
 //		cube1.moveTo(new Point3D(-5, 0, 0));
 
 		
 		cube2 = new Cube(scene);
-		cube2.setPosition(4, 2, 4);
+		cube2.setPosition(4, 4);
 
 		earth = new Earth(scene);
-		earth.setPosition(-6, 5, 3);
+		earth.setPosition(-6, 3);
 		
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));
@@ -138,7 +145,7 @@ public class WorldRenderer implements Renderer {
 		if(currentFrame <0){currentFrame = 0;}
 		clearScreen();
 		
-		drawRayWithScreen();
+//		drawRayWithScreen();
 		drawWorld();
 
 		countFPS();
@@ -146,56 +153,56 @@ public class WorldRenderer implements Renderer {
 
 
 
-	private void drawRayWithScreen() {
-		float lineVertices[] = { resXYZ0[0], resXYZ0[1], resXYZ0[2], resXYZ1[0], resXYZ1[1], resXYZ1[2]};
-		ByteBuffer bb = ByteBuffer.allocateDirect(lineVertices.length * 4);
-		bb.order(ByteOrder.nativeOrder());
-		FloatBuffer line = bb.asFloatBuffer();
-		line.put(lineVertices);
-		line.position(0);
-		GLES20.glVertexAttribPointer(scene.positionHandle, 3 , GLES20.GL_FLOAT, false, 0, line);
-		GLES20.glEnableVertexAttribArray(scene.positionHandle);
-
-		float lineColor[] = { 0, 0, 1, 1, 1f, 0f, 0f, 1};
-		bb = ByteBuffer.allocateDirect(lineColor.length * 4);
-		bb.order(ByteOrder.nativeOrder());
-		FloatBuffer color = bb.asFloatBuffer();
-		color.put(lineColor);
-		color.position(0);
-//		GLES20.glVertexAttribPointer(scene.colorHandle, 4 , GLES20.GL_FLOAT, false, 0, color);
-//		GLES20.glEnableVertexAttribArray(scene.colorHandle);
-		
-		GLES20.glUniformMatrix4fv(scene.mvpMatrixHandle, 1, false, scene.getVpMatrix(), 0);		
-		GLES20.glDrawArrays(GLES20.GL_LINES, 0, lineVertices.length/3);
-
-		
-		
-		
-		
-		float screenVertices[] = screenXYZ.clone();
-		bb = ByteBuffer.allocateDirect(screenVertices.length * 4);
-		bb.order(ByteOrder.nativeOrder());
-		FloatBuffer screen = bb.asFloatBuffer();
-		screen.put(screenVertices);
-		screen.position(0);
-		GLES20.glVertexAttribPointer(scene.positionHandle, 4 , GLES20.GL_FLOAT, false, 0, screen);
-		GLES20.glEnableVertexAttribArray(scene.positionHandle);
-
-		float screenColor[] = { 1, 1, 1, 1, 
-				1, 1, 1, 1, 
-				1, 1, 1, 1, 
-				1, 1, 1, 1};
-		bb = ByteBuffer.allocateDirect(screenColor.length * 4);
-		bb.order(ByteOrder.nativeOrder());
-		FloatBuffer screenColorBuffer = bb.asFloatBuffer();
-		screenColorBuffer.put(screenColor);
-		screenColorBuffer.position(0);
-//		GLES20.glVertexAttribPointer(scene.colorHandle, 4 , GLES20.GL_FLOAT, false, 0, screenColorBuffer);
-//		GLES20.glEnableVertexAttribArray(scene.colorHandle);
-//		GLES20.g
-		GLES20.glDrawArrays(GLES20.GL_LINE_LOOP, 0, screenVertices.length/4);
-		
-	}
+//	private void drawRayWithScreen() {
+//		float lineVertices[] = { resXYZ0[0], resXYZ0[1], resXYZ0[2], resXYZ1[0], resXYZ1[1], resXYZ1[2]};
+//		ByteBuffer bb = ByteBuffer.allocateDirect(lineVertices.length * 4);
+//		bb.order(ByteOrder.nativeOrder());
+//		FloatBuffer line = bb.asFloatBuffer();
+//		line.put(lineVertices);
+//		line.position(0);
+//		GLES20.glVertexAttribPointer(scene.positionHandle, 3 , GLES20.GL_FLOAT, false, 0, line);
+//		GLES20.glEnableVertexAttribArray(scene.positionHandle);
+//
+//		float lineColor[] = { 0, 0, 1, 1, 1f, 0f, 0f, 1};
+//		bb = ByteBuffer.allocateDirect(lineColor.length * 4);
+//		bb.order(ByteOrder.nativeOrder());
+//		FloatBuffer color = bb.asFloatBuffer();
+//		color.put(lineColor);
+//		color.position(0);
+////		GLES20.glVertexAttribPointer(scene.colorHandle, 4 , GLES20.GL_FLOAT, false, 0, color);
+////		GLES20.glEnableVertexAttribArray(scene.colorHandle);
+//		
+//		GLES20.glUniformMatrix4fv(scene.mvpMatrixHandle, 1, false, scene.getVpMatrix(), 0);		
+//		GLES20.glDrawArrays(GLES20.GL_LINES, 0, lineVertices.length/3);
+//
+//		
+//		
+//		
+//		
+//		float screenVertices[] = screenXYZ.clone();
+//		bb = ByteBuffer.allocateDirect(screenVertices.length * 4);
+//		bb.order(ByteOrder.nativeOrder());
+//		FloatBuffer screen = bb.asFloatBuffer();
+//		screen.put(screenVertices);
+//		screen.position(0);
+//		GLES20.glVertexAttribPointer(scene.positionHandle, 4 , GLES20.GL_FLOAT, false, 0, screen);
+//		GLES20.glEnableVertexAttribArray(scene.positionHandle);
+//
+//		float screenColor[] = { 1, 1, 1, 1, 
+//				1, 1, 1, 1, 
+//				1, 1, 1, 1, 
+//				1, 1, 1, 1};
+//		bb = ByteBuffer.allocateDirect(screenColor.length * 4);
+//		bb.order(ByteOrder.nativeOrder());
+//		FloatBuffer screenColorBuffer = bb.asFloatBuffer();
+//		screenColorBuffer.put(screenColor);
+//		screenColorBuffer.position(0);
+////		GLES20.glVertexAttribPointer(scene.colorHandle, 4 , GLES20.GL_FLOAT, false, 0, screenColorBuffer);
+////		GLES20.glEnableVertexAttribArray(scene.colorHandle);
+////		GLES20.g
+//		GLES20.glDrawArrays(GLES20.GL_LINE_LOOP, 0, screenVertices.length/4);
+//		
+//	}
 
 
 	private void clearScreen() {
@@ -209,7 +216,7 @@ public class WorldRenderer implements Renderer {
 		
 		cube2.drawFrame();
 
-	bmw1.drawFrame();
+//		bmw1.drawFrame();
 
 //		float step = 7;
 //		int size = gameObjectList.size();

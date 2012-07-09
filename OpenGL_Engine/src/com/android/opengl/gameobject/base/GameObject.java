@@ -1,5 +1,6 @@
 package com.android.opengl.gameobject.base;
 
+import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -19,7 +20,6 @@ abstract public class GameObject extends CommonGameObject{
 		this.parentScene = parentScene;
 		this.parentScene.addGameObject(this);
 		outerCube = new ObjectOuterCube(this);
-
 	}
 
 	
@@ -28,6 +28,8 @@ abstract public class GameObject extends CommonGameObject{
 			throw new IllegalStateException("Scene shoud be rendered before rendering object of this scene");
 		}
         Matrix.multiplyMM(mvpMatrix, 0, parentScene.getVpMatrix(), 0, modelMatrix, 0);
+        Matrix.multiplyMM(mvMatrix, 0, parentScene.getVieMatrix(), 0, modelMatrix, 0);
+
 		super.drawFrame();
 		
 	}
