@@ -347,6 +347,13 @@ public class WorldRenderer implements Renderer {
 			
 			
 		}
+
+
+		public void scaleScene(float scaleFactor) {
+			
+			getScene().scale(scaleFactor);
+			
+		}
 		
 
 

@@ -1,14 +1,16 @@
 package com.android.opengl.view;
 
+import com.android.opengl.view.GestureDetector.OnGestureListener;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.widget.TextView;
 
 public class WorldView extends GLSurfaceView implements OnGestureListener{
@@ -57,7 +59,7 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 		init();
 	}
 	private void init() {
-		gestureDetector = new GestureDetector(this);
+		gestureDetector = new GestureDetector(getContext(), this);
 		worldRenderer = new WorldRenderer(this, handler);
 		setEGLContextClientVersion(2);
 		setRenderer(worldRenderer);
@@ -101,6 +103,7 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
 		worldRenderer.rotateScene(-distanceY, -distanceX ,0);
+		Log.i("tag", "scroll");
 		return true;
 	}
 	
@@ -130,6 +133,12 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	public void onShowPress(MotionEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	@Override
+	public boolean onPinch(ScaleGestureDetector detector) {
+		worldRenderer.scaleScene(detector.getScaleFactor());
+		Log.i("tag", "pinch");
+		return true;
 	}
 
 }
