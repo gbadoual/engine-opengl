@@ -22,6 +22,10 @@ public class Scene extends CommonGameObject{
 	
 	private static final float MIN_ANGLE = -90;
 	private static final float MAX_ANGLE = 90;
+
+	private static final float MAX_SCALE = 5;
+	private static final float MIN_SCALE = 0.3f;
+	
 	private static final String TAG = Scene.class.getSimpleName();
 	
 	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
@@ -33,6 +37,8 @@ public class Scene extends CommonGameObject{
 	private float[] vpMatrix = new float[16];
 	
 	private boolean isRendingFinished = true;
+	private float scale = 1;
+
 	
 	public Scene(Context context, int programHandle, float[] projectionMatrix) {
 		super(programHandle, context.getResources());
@@ -129,8 +135,17 @@ public class Scene extends CommonGameObject{
 			GLES20.glUseProgram(0);
 	}
 	
-	
-	
+
+	public void scale(float scaleFactor) {
+		scale *= scaleFactor;
+		float borderedScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
+		if(scale == borderedScale){
+			Matrix.scaleM(modelMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
+			notifyVPMatrixChanged();
+		}
+		scale = borderedScale;
+	}
+
 	@Override
 	public void rotate(float dx, float dy, float dz){
 		rotate(new float[]{dx, dy, dz});
@@ -153,6 +168,7 @@ public class Scene extends CommonGameObject{
 		if(angleXYZ[0] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[0], 1, 0, 0);
 		if(angleXYZ[1] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[1], 0, 1, 0);
 		if(angleXYZ[2] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[2], 0, 0, 1);
+		Matrix.scaleM(localViewMatrix, 0, scale, scale, scale);
 		this.setModelMatrix(localViewMatrix);
 	}
 	
@@ -279,6 +295,8 @@ public class Scene extends CommonGameObject{
 	public Resources getResources(){
 		return resources;
 	}
+
+
 
 
 
