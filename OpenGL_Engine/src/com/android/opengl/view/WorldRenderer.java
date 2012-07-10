@@ -354,6 +354,16 @@ public class WorldRenderer implements Renderer {
 			getScene().scale(scaleFactor);
 			
 		}
+
+
+		public void translateScene(float dx, float dy, float dz) {
+			float[] position = getScene().getPosition().asFloatArray();
+			float[] rotation = getScene().getAngleXYZ();
+			position[0] += -dx / 2;
+			position[1] +=  dz * Math.sin(rotation[0] * Math.PI / 180);
+			position[2] += -dz * Math.cos(rotation[0] * Math.PI / 180);
+			getScene().setPosition(position);
+		}
 		
 
 
