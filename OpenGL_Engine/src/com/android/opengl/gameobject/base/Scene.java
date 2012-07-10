@@ -143,10 +143,10 @@ public class Scene extends CommonGameObject{
 		if(scale == borderedScale){
 			Matrix.scaleM(modelMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
 			float[] position = getPosition().asFloatArray();
-			position[0] = position[0] * scaleFactor; 
-//			position[1] = position[1] * scaleFactor;// * Math.sin(angleXYZ[0] * Math.PI / 180);
+			position[0] = position[0] + position[0] * scaleFactor - position[0]; 
+			position[1] = position[1] + (position[1] * scaleFactor - position[1]) * (float)Math.sin(angleXYZ[0] * Math.PI / 180);
+			position[2] = position[2] - (position[1] * scaleFactor - position[1]) * (float)Math.cos(angleXYZ[0] * Math.PI / 180);
 //			position[2] = position[2] * scaleFactor; 
-//			position[2] *= 1 - scaleFactor * Math.cos(angleXYZ[0] * Math.PI / 180);
 			setPosition(position);
 			Log.i("tag", "position = " + getPosition());
 			notifyVPMatrixChanged();
@@ -192,6 +192,7 @@ public class Scene extends CommonGameObject{
 	public void setPosition(float[] newCenterXYZ) {
 		super.setPosition(newCenterXYZ);
 		positionXYZ = getPosition().asFloatArray();
+		Log.i("tag", "position = " + getPosition());
 		notifyVPMatrixChanged();
 	}
 	
