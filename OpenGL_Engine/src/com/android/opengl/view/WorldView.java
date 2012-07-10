@@ -102,8 +102,7 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
-		worldRenderer.rotateScene(-distanceY, -distanceX ,0);
-		Log.i("tag", "scroll");
+		worldRenderer.translateScene(distanceX/10, 0, distanceY/10);//worldRenderer.rotateScene(-distanceY, -distanceX ,0);
 		return true;
 	}
 	
@@ -137,7 +136,6 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	@Override
 	public boolean onPinch(ScaleGestureDetector detector) {
 		worldRenderer.scaleScene(detector.getScaleFactor());
-		Log.i("tag", "pinch");
 		return true;
 	}
 
