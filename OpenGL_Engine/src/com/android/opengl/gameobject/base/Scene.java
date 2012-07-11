@@ -13,6 +13,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.android.opengl.R;
+import com.android.opengl.gameobject.util.LoaderManager;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 import com.android.opengl.logic.Movable;
@@ -73,16 +74,17 @@ public class Scene extends CommonGameObject{
 		super.drawFrame();
 //		localDraw();
 
-//		for(GameObject gameObject: gameObjectList){
-//			gameObject.drawFrame();
-//		}
+		for(GameObject gameObject: gameObjectList){
+			gameObject.drawFrame();
+		}
+		isRendingFinished = true;
 	}
 	
 	private void localDraw(){
 		GLES20.glUseProgram(programHandle);
 
 			
-			GLES20.glUniform1f(isSelectedHandle, isSelected?1:0);
+		GLES20.glUniform1f(isSelectedHandle, isSelected?1:0);
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
 
 // using VBOs		
@@ -149,6 +151,7 @@ public class Scene extends CommonGameObject{
 //			position[2] = position[2] * scaleFactor; 
 			setPosition(position);
 			Log.i("tag", "position = " + getPosition());
+			Log.i("tag", "scaleFactor = " + scaleFactor);
 			notifyVPMatrixChanged();
 		}
 		scale = borderedScale;
@@ -251,9 +254,6 @@ public class Scene extends CommonGameObject{
 		return modelMatrix;
 	}
 
-	public void setRendingFinished(boolean isRendingFinished) {
-		this.isRendingFinished = isRendingFinished;
-	}
 
 	public boolean isRendingFinished() {
 		return isRendingFinished;
@@ -299,9 +299,14 @@ public class Scene extends CommonGameObject{
 	}
 
 
-	public void deinit() {
+	@Override
+	public void release() {
+		super.release();
 		Log.d(TAG, "deinit");
-		vboDataHandlerMap.clear();		
+		vboDataHandlerMap.clear();
+		if(meshLoader != null){
+			meshLoader.release();
+		}
 	}
 	
 	public Resources getResources(){

@@ -35,7 +35,7 @@ public class WorldRenderer implements Renderer {
 //	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
 	private Cube cube1;
 	private Cube cube2;
-//	private BMW bmw1;
+	private BMW bmw1;
 //	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
@@ -145,9 +145,8 @@ public class WorldRenderer implements Renderer {
 		if(currentFrame <0){currentFrame = 0;}
 		clearScreen();
 		
-//		drawRayWithScreen();
-		drawWorld();
-
+		scene.drawFrame();
+		
 		countFPS();
 	}
 
@@ -211,11 +210,11 @@ public class WorldRenderer implements Renderer {
 
 
 	private void drawWorld() {
-		scene.drawFrame();
-		cube1.drawFrame();
-		
-		cube2.drawFrame();
 
+//		cube1.drawFrame();
+//		
+//		cube2.drawFrame();
+//
 //		bmw1.drawFrame();
 
 //		float step = 7;
@@ -249,9 +248,8 @@ public class WorldRenderer implements Renderer {
 ////			i = i/2;
 //		}
 
-		earth.drawFrame();
+//		earth.drawFrame();
 
-		scene.setRendingFinished(true);
 	}
 
 
@@ -340,12 +338,10 @@ public class WorldRenderer implements Renderer {
 		}
 
 
-		public void deinit() {
+		public void release() {
 			if(scene != null){
-				scene.deinit();				
+				scene.release();				
 			} 
-			
-			
 		}
 
 
