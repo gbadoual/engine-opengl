@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
@@ -18,17 +23,20 @@ import android.opengl.GLUtils;
 import android.util.Log;
 
 import com.android.opengl.gameobject.base.CommonGameObject;
+import com.android.opengl.gameobject.base.CommonGameObject.VboDataHandler;
 
 public class LoaderManager {
 	
 	private static final String TAG = LoaderManager.class.getSimpleName();
 
-	
+
 	private static final char[] typeV = new char[]{'v', ' '};
 	private static final char[] typeVn = new char[]{'v', 'n'};
 	private static final char[] typeVt = new char[]{'v', 't'};
 	private static final char[] typeF = new char[]{'f', ' '};
 	
+	private Map<Integer, MeshData> meashDataCache = new HashMap<Integer, MeshData>();
+	private Map<Integer, Integer> textureHandlerCache = new HashMap<Integer, Integer>();
 	
 //	private CommonGameObject commonGameObject;
 	private int facesCount = 0;
@@ -55,11 +63,40 @@ public class LoaderManager {
 
 	private Resources resources;
 
+	private static LoaderManager mInstanse;
+
 	
-	public LoaderManager(Context context) {
+	public static LoaderManager getInstance(Context context){
+		if(mInstanse == null){
+			mInstanse = new LoaderManager(context);
+		}
+		return mInstanse;
+	}	
+
+	public static LoaderManager getInstance(Resources resources){
+		if(mInstanse == null){
+			mInstanse = new LoaderManager(resources);
+		}
+		return mInstanse;
+	}
+	
+	public void release(){
+		Set<Entry<Integer, Integer>> entries = textureHandlerCache.entrySet();
+		int[] textureIDs = new int[entries.size()];
+		int i = 0;
+		for(Entry<Integer,  Integer> entry: entries){
+			textureIDs[i] = entry.getKey();
+			i++;
+		}
+		GLES20.glDeleteTextures(textureIDs.length, textureIDs, 0);
+		textureHandlerCache.clear();
+		mInstanse = null;
+	};
+	
+	private LoaderManager(Context context) {
 		this.resources = context.getResources();
 	}
-	public LoaderManager(Resources resources) {
+	private LoaderManager(Resources resources) {
 		this.resources = resources;
 	}
 
@@ -74,6 +111,16 @@ public class LoaderManager {
 			vf = new ArrayList<Integer>(fCapacity); // vertex indices
 			vtf = new ArrayList<Integer>(fCapacity); // texture indices
 			vnf = new ArrayList<Integer>(fCapacity); // normals indices
+			curIndex = 0;
+			charBuf = null;
+			maxTextureCoordX = Float.MIN_VALUE;
+			maxTextureCoordY = Float.MIN_VALUE;
+			facesCount = 0;
+			vCapacity = 100;
+			vtCapacity = 100;
+			vnCapacity = 100;
+			fCapacity = 100;
+			capacityStep = 100;
 
 			objData = loadOBJ(objectRawId);
 
@@ -342,6 +389,11 @@ public class LoaderManager {
 	
 	public int loadTexture(final int resourceId)
 	{
+		Integer textureHandleInt = textureHandlerCache.get(resourceId);
+		if(textureHandleInt != null){
+			Log.i(TAG, "reusing cached texture");
+			return textureHandleInt;
+		}
 		long time = System.currentTimeMillis();
 	    final int[] textureHandle = new int[1];
 	 
@@ -407,7 +459,7 @@ public class LoaderManager {
 	    {
 	        throw new RuntimeException("loadTexture() - Error loading texture.");
 	    }
-	 
+	    textureHandlerCache.put(resourceId, textureHandle[0]);	 
 	    return textureHandle[0];
 	}
 	

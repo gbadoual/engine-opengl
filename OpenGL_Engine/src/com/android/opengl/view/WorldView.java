@@ -88,7 +88,7 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	public void onPause() {
 		super.onPause();
 		if(worldRenderer != null){
-			worldRenderer.deinit();
+			worldRenderer.release();
 		}
 		handler.sendEmptyMessage(DIALOG_LOADING_DISMISS);
 	}

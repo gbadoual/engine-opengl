@@ -82,7 +82,7 @@ public abstract class CommonGameObject {
 		long time = System.currentTimeMillis(); 
 		this.resources = resources;
 		this.programHandle = programHandle;
-		meshLoader = new LoaderManager(resources);
+		meshLoader = LoaderManager.getInstance(resources);
 		initData();
 		time = System.currentTimeMillis() - time;
 		Log.d(TAG, getClass().getSimpleName() + " loaded for " + time / 1000.0d + " sec.");
@@ -175,7 +175,7 @@ public abstract class CommonGameObject {
 
 	}
 
-	public void dealloc() {
+	public void release() {
 		// TODO Auto-generated method stub
 		
 	}
