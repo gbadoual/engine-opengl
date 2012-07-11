@@ -35,6 +35,7 @@ public class Scene extends CommonGameObject{
 	
 	
 	protected float[] projectionMatrix = new float[16];
+	protected float[] viewMatrix = new float[16];
 	private float[] vpMatrix = new float[16];
 	
 	private boolean isRendingFinished = true;
@@ -45,10 +46,9 @@ public class Scene extends CommonGameObject{
 	public Scene(Context context, int programHandle, float[] projectionMatrix) {
 		super(programHandle, context.getResources());
 		this.projectionMatrix = projectionMatrix;
-		setupModelMatrix(modelMatrix);
+		setupViewMatrix(viewMatrix);
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
-//		setCenterXYZ(modelMatrix[12],modelMatrix[13], modelMatrix[14]);
 		rotate(45, -30, 0);
 	}
 	
@@ -69,8 +69,8 @@ public class Scene extends CommonGameObject{
 	public void drawFrame() {
 		isRendingFinished = false;
 //		rotate(0, -0.5f, 0);
-		mvpMatrix = vpMatrix;
-		mvMatrix = modelMatrix;
+		Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);//mvMatrix = viewMatrix;
+		Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvMatrix, 0);//mvMatrix = viewMatrix;
 		super.drawFrame();
 //		localDraw();
 
@@ -79,6 +79,7 @@ public class Scene extends CommonGameObject{
 		}
 		isRendingFinished = true;
 	}
+	
 	
 	private void localDraw(){
 		GLES20.glUseProgram(programHandle);
@@ -139,24 +140,58 @@ public class Scene extends CommonGameObject{
 	}
 	
 
+	private float[] scalingPosition;
+	private float scalingScale = 1;
 	public void scale(float scaleFactor) {
 		scale *= scaleFactor;
+		scalingScale *= scaleFactor;
 		float borderedScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
 		if(scale == borderedScale){
 			Matrix.scaleM(modelMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
-			float[] position = getPosition().asFloatArray();
-			position[0] = position[0] + position[0] * scaleFactor - position[0]; 
-			position[1] = position[1] + (position[1] * scaleFactor - position[1]) * (float)Math.sin(angleXYZ[0] * Math.PI / 180);
-			position[2] = position[2] - (position[1] * scaleFactor - position[1]) * (float)Math.cos(angleXYZ[0] * Math.PI / 180);
+			float[] newposition = getPosition().asFloatArray();
+			float sinY = (float)Math.sin(angleXYZ[1] * Math.PI / 180);
+			float cosY = 1 - sinY*sinY;
+			float dx = scalingPosition[0] * scalingScale - scalingPosition[0];
+			float dz = scalingPosition[2] * scalingScale - scalingPosition[2];
+			newposition[0] = scalingPosition[0] + dx * cosY - dz * sinY;
+			newposition[2] = scalingPosition[2] + dx * sinY + dz * cosY;
+
+			//			newposition[0] = scalingPosition[0] + scalingPosition[0] * scalingScale - scalingPosition[0]; 
+//			newposition[1] = scalingPosition[1] + (scalingPosition[1] * scalingScale - scalingPosition[1]) * (float)Math.sin(angleXYZ[0] * Math.PI / 180);
+//			newposition[2] = scalingPosition[2] - (scalingPosition[1] * scalingScale - scalingPosition[1]) * (float)Math.cos(angleXYZ[0] * Math.PI / 180);
 //			position[2] = position[2] * scaleFactor; 
-			setPosition(position);
-			Log.i("tag", "position = " + getPosition());
 			Log.i("tag", "scaleFactor = " + scaleFactor);
+			Log.i("tag", "newposition = " + newposition[0] + ", " + newposition[1] + ", " + newposition[2]);
+			setPosition(newposition, true);
 			notifyVPMatrixChanged();
 		}
 		scale = borderedScale;
 	}
 
+	@Override
+	public void setPosition(float centerX, float centerY, float centerZ) {
+		super.setPosition(centerX, centerY, centerZ);
+		positionXYZ = getPosition().asFloatArray();
+		notifyVPMatrixChanged();
+	}
+
+	@Override
+	public void setPosition(float[] newCenterXYZ) {
+		setPosition(newCenterXYZ, false);
+	}
+	
+	private void setPosition(float[] newCenterXYZ, boolean isScaling){
+		super.setPosition(newCenterXYZ);
+		positionXYZ = getPosition().asFloatArray();
+		if(!isScaling){
+			scalingPosition = positionXYZ;
+			scalingScale = 1;
+			Log.i("tag", "position = " + getPosition());
+		}
+		notifyVPMatrixChanged();
+
+	}
+	
 	@Override
 	public void rotate(float dx, float dy, float dz){
 		rotate(new float[]{dx, dy, dz});
@@ -175,31 +210,18 @@ public class Scene extends CommonGameObject{
 		}
 		float [] localViewMatrix = new float[16];
 		Matrix.setIdentityM(localViewMatrix, 0);
-		setupModelMatrix(localViewMatrix);
+		setupViewMatrix(localViewMatrix);
 		if(angleXYZ[0] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[0], 1, 0, 0);
 		if(angleXYZ[1] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[1], 0, 1, 0);
 		if(angleXYZ[2] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[2], 0, 0, 1);
 		Matrix.scaleM(localViewMatrix, 0, scale, scale, scale);
 		setPosition(positionXYZ);
-		this.setModelMatrix(localViewMatrix);
+		setViewMatrix(localViewMatrix);
 	}
 	
-	@Override
-	public void setPosition(float centerX, float centerY, float centerZ) {
-		super.setPosition(centerX, centerY, centerZ);
-		positionXYZ = getPosition().asFloatArray();
-		notifyVPMatrixChanged();
-	}
 	
-	@Override
-	public void setPosition(float[] newCenterXYZ) {
-		super.setPosition(newCenterXYZ);
-		positionXYZ = getPosition().asFloatArray();
-		Log.i("tag", "position = " + getPosition());
-		notifyVPMatrixChanged();
-	}
 	
-	private void setupModelMatrix(float[] localViewMatrix) {
+	private void setupViewMatrix(float[] localViewMatrix) {
 
 		final float eyeX = 0.0f;
 		final float eyeY = 0.0f;
@@ -224,7 +246,7 @@ public class Scene extends CommonGameObject{
 
 	
 	public void notifyVPMatrixChanged(){
-			Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, modelMatrix, 0);
+			Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 	}
 
 	public void setProjectionMatrix(float[] projectionMatrix) {
@@ -232,9 +254,8 @@ public class Scene extends CommonGameObject{
 		notifyVPMatrixChanged();
 	}
 
-	@Override
-	public void setModelMatrix(float[] modelMatrix) {
-		super.setModelMatrix(modelMatrix);
+	public void setViewMatrix(float[] viewMatrix) {
+		this.viewMatrix = viewMatrix;
 		notifyVPMatrixChanged();
 	}
 
@@ -251,7 +272,7 @@ public class Scene extends CommonGameObject{
 	}
 
 	public float[] getViewMatrix() {
-		return modelMatrix;
+		return viewMatrix;
 	}
 
 
@@ -307,6 +328,13 @@ public class Scene extends CommonGameObject{
 		if(meshLoader != null){
 			meshLoader.release();
 		}
+	}
+	
+	public float[] getMVMatrix(){
+		return mvMatrix;
+	}
+	public float[] getMVPMatrix(){
+		return mvpMatrix;
 	}
 	
 	public Resources getResources(){
