@@ -33,11 +33,19 @@ public class Camera {
 		angleZ = (angleZ + dz) % 360;
 		float[] locaViewMatrix = new float[16];
 		Matrix.setIdentityM(locaViewMatrix, 0);
+		locaViewMatrix[12] = position.x;
+		locaViewMatrix[13] = position.y;
+		locaViewMatrix[14] = position.z;
 		Matrix.rotateM(locaViewMatrix, 0, angleX, 1, 0, 0);
 		Matrix.rotateM(locaViewMatrix, 0, angleY, 0, 1, 0);
 		Matrix.rotateM(locaViewMatrix, 0, angleZ, 0, 0, 1);
 		viewMatrix = locaViewMatrix;
-		setPosition(position);		
+//		float[] pos = position.asFloatArray();
+//		float[] matr = new float[16];
+//		Matrix.setRotateEulerM(matr, 0, dx, dy, -dz);
+//		Matrix.multiplyMV(pos, 0, matr, 0, pos, 0);
+//		setPosition(new Point3D(pos));		
+		setPosition(position);
 	}
 	
 	public void moveForward(float distance){
@@ -81,8 +89,8 @@ public class Camera {
 	
 	private void initViewMatrix(float[] viewatrix) {
 
-		final float eyeX = 25.0f;
-		final float eyeY = -10.0f;
+		final float eyeX = 0.0f;
+		final float eyeY = 0.0f;
 		final float eyeZ = 18.5f;
 
 		// We are looking toward the distance
