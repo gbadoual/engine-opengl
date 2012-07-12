@@ -47,8 +47,6 @@ public class WorldRenderer implements Renderer {
 	private int fps;
 	private long prevTime;
 	private WorldView worldView;
-	private float x;
-	private float y;
 	private float[] resXYZ0 = new float[4];
 	private float[] resXYZ1 = new float[4];
 	private float[] screenXYZ = new float[16];
@@ -265,41 +263,27 @@ public class WorldRenderer implements Renderer {
 
 	
 
-	public void rotateScene(float angleX, float angleY, float angleZ) {
-		angleX = angleX%360;
-		angleY = angleY%360;
-		angleZ = angleZ%360;
-		if(scene != null){
-			scene.rotate(angleX, angleY, angleZ);
-		}
-	}
 
 	public Scene getScene() {
 		return scene;
 	}
 
 
-	public void onSingleTap(MotionEvent event, int w, int h) {
-		onSingleTap(event.getX(), event.getY(), w, h);
-	}
-		private void onSingleTap(float x, float y, int w, int h) {
+	public void onSingleTap(float x, float y) {
 			
-		this.x = x;
-		this.y = h-y;
-//		this.w = w;
-//		this.h = h;		
-//		float [] resXYZ0 = new float[]{0, 0, 0, 0};
-//		float [] resXYZ1 = new float[]{0, 0, 0, 0};
+		int w = worldView.getWidth();
+		int h = worldView.getHeight();
+		y = h - y;
 
 		if(scene == null){
 			return;
 		}
-		GLU.gluUnProject(this.x, this.y, 0.01f, scene.getModelMatrix(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, resXYZ0, 0);
+		GLU.gluUnProject(x, y, 0, scene.getMVMatrix(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, resXYZ0, 0);
 		resXYZ0[0] = resXYZ0[0]/resXYZ0[3];
 		resXYZ0[1] = resXYZ0[1]/resXYZ0[3];
 		resXYZ0[2] = resXYZ0[2]/resXYZ0[3];
 		resXYZ0[3] = 1;
-		GLU.gluUnProject(this.x, this.y, 1, scene.getModelMatrix(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, resXYZ1, 0);
+		GLU.gluUnProject(x, y, 1, scene.getMVMatrix(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, resXYZ1, 0);
 		resXYZ1[0] = resXYZ1[0]/resXYZ1[3];
 		resXYZ1[1] = resXYZ1[1]/resXYZ1[3];
 		resXYZ1[2] = resXYZ1[2]/resXYZ1[3];
@@ -313,26 +297,26 @@ public class WorldRenderer implements Renderer {
 //		}
 		
 		screenXYZ = new float[16];
-		int offset = 0;
-		GLU.gluUnProject(0, 0, -0.01f, scene.getModelMatrix().clone(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, screenXYZ, offset);
-		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
-		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
-		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
-		offset+=4;
-		GLU.gluUnProject(0, h, -0.01f, scene.getModelMatrix().clone(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, screenXYZ, offset);
-		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
-		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
-		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
-		offset+=4;
-		GLU.gluUnProject(w, h, -0.01f, scene.getModelMatrix().clone(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, screenXYZ, offset);
-		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
-		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
-		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
-		offset+=4;
-		GLU.gluUnProject(w, 0, -0.01f, scene.getModelMatrix().clone(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, screenXYZ, offset);
-		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
-		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
-		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
+//		int offset = 0;
+//		GLU.gluUnProject(0, 0, -0.01f, scene.getMVMatrix().clone(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, screenXYZ, offset);
+//		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
+//		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
+//		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
+//		offset+=4;
+//		GLU.gluUnProject(0, h, -0.01f, scene.getMVMatrix().clone(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, screenXYZ, offset);
+//		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
+//		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
+//		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
+//		offset+=4;
+//		GLU.gluUnProject(w, h, -0.01f, scene.getModelMatrix().clone(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, screenXYZ, offset);
+//		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
+//		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
+//		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
+//		offset+=4;
+//		GLU.gluUnProject(w, 0, -0.01f, scene.getModelMatrix().clone(), 0, scene.getProjectionMatrix(), 0, new int[]{0, 0, w, h}, 0, screenXYZ, offset);
+//		screenXYZ[0+offset] = screenXYZ[0+offset]/screenXYZ[3+offset];
+//		screenXYZ[1+offset] = screenXYZ[1+offset]/screenXYZ[3+offset];
+//		screenXYZ[2+offset] = screenXYZ[2+offset]/screenXYZ[3+offset];
 		Log.i("tag", "ray = "+vector);
 		Log.i("tag", "-------------------------------");
 		}
@@ -344,23 +328,31 @@ public class WorldRenderer implements Renderer {
 			} 
 		}
 
+		public void rotateScene(float angleX, float angleY, float angleZ) {
+			if(scene == null){
+				Log.w(TAG, "rotateScene(): scene is null");
+				return;
+			}
+			scene.rotate(angleX, angleY, angleZ);
+		}
+		
 
 		public void scaleScene(float scaleFactor) {
-			
-			getScene().scale(scaleFactor);
+			if(scene == null){
+				Log.w(TAG, "scaleScene: scene is null");
+				return;
+			}
+			scene.scale(scaleFactor);
 			
 		}
 
 
-		public void translateScene(float dx, float dy, float dz) {
-			float[] position = getScene().getPosition().asFloatArray();
-			float[] rotation = getScene().getAngleXYZ();
-			float sinY = (float)Math.sin(rotation[1] * Math.PI / 180);
-			float cosY = 1 - sinY*sinY;
-			position[0] = position[0] + -dx * cosY + dz * sinY;
-			position[2] = position[2] + -dx * sinY - dz * cosY;
-
-			getScene().setPosition(position);
+		public void translateScene(float dx, float dz) {
+			if(scene == null){
+				Log.w(TAG, "translateScene: scene is null");
+				return;
+			}
+			scene.translate(dx, dz);
 		}
 		
 
