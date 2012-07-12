@@ -85,7 +85,7 @@ public class WorldRenderer implements Renderer {
 		float bottom = -1;
 		float top = 1;
 		float near = 1;
-		float far = 55;
+		float far = 105;
 		if(ratio > 1){
 			top = 1/ratio;
 			bottom = -1/ratio;
