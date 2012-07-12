@@ -12,6 +12,7 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.android.opengl.Camera;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.util.LoaderManager;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
@@ -27,6 +28,8 @@ public class Scene extends CommonGameObject{
 	private static final float MAX_SCALE = 5;
 	private static final float MIN_SCALE = 0.3f;
 	
+	private static final float SCALING_STEP = 10;
+	
 	private static final String TAG = Scene.class.getSimpleName();
 	
 	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
@@ -35,18 +38,17 @@ public class Scene extends CommonGameObject{
 	
 	
 	protected float[] projectionMatrix = new float[16];
-	protected float[] viewMatrix = new float[16];
-	private float[] vpMatrix = new float[16];
+	protected Camera camera;
+
 	
 	private boolean isRendingFinished = true;
-	private float scale = 1;
 	private float[] positionXYZ = new float[4];
 
 	
 	public Scene(Context context, int programHandle, float[] projectionMatrix) {
 		super(programHandle, context.getResources());
 		this.projectionMatrix = projectionMatrix;
-		setupViewMatrix(viewMatrix);
+		camera = new Camera();
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
 		rotate(45, -30, 0);
@@ -69,7 +71,7 @@ public class Scene extends CommonGameObject{
 	public void drawFrame() {
 		isRendingFinished = false;
 //		rotate(0, -0.5f, 0);
-		Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);//mvMatrix = viewMatrix;
+		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);//mvMatrix = viewMatrix;
 		Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvMatrix, 0);//mvMatrix = viewMatrix;
 		super.drawFrame();
 //		localDraw();
@@ -140,57 +142,47 @@ public class Scene extends CommonGameObject{
 	}
 	
 
-	private float[] scalingPosition;
-	private float scalingScale = 1;
-	public void scale(float scaleFactor) {
-		scale *= scaleFactor;
-		scalingScale *= scaleFactor;
-		float borderedScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
-		if(scale == borderedScale){
-			Matrix.scaleM(modelMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
-			float[] newposition = getPosition().asFloatArray();
-			float sinY = (float)Math.sin(angleXYZ[1] * Math.PI / 180);
-			float cosY = 1 - sinY*sinY;
-			float dx = scalingPosition[0] * scalingScale - scalingPosition[0];
-			float dz = scalingPosition[2] * scalingScale - scalingPosition[2];
-			newposition[0] = scalingPosition[0] + dx * cosY - dz * sinY;
-			newposition[2] = scalingPosition[2] + dx * sinY + dz * cosY;
 
-			//			newposition[0] = scalingPosition[0] + scalingPosition[0] * scalingScale - scalingPosition[0]; 
-//			newposition[1] = scalingPosition[1] + (scalingPosition[1] * scalingScale - scalingPosition[1]) * (float)Math.sin(angleXYZ[0] * Math.PI / 180);
-//			newposition[2] = scalingPosition[2] - (scalingPosition[1] * scalingScale - scalingPosition[1]) * (float)Math.cos(angleXYZ[0] * Math.PI / 180);
-//			position[2] = position[2] * scaleFactor; 
-			Log.i("tag", "scaleFactor = " + scaleFactor);
-			Log.i("tag", "newposition = " + newposition[0] + ", " + newposition[1] + ", " + newposition[2]);
-			setPosition(newposition, true);
-			notifyVPMatrixChanged();
-		}
-		scale = borderedScale;
+	
+	public void scale(float scaleFactor) {
+		float distacne = SCALING_STEP * (1 - 1/scaleFactor);
+		camera.moveForward(distacne);
+		notifyMVPMatrixChanged();
+//		if(Math.abs(1 - scaleFactor) < EPSILON){
+//			scaleFactor = 1;
+//		}
+//		scale *= scaleFactor;
+//		float borderedScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
+//		if(scale == borderedScale){
+//			Matrix.scaleM(modelMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
+//			float[] newposition = getPosition().asFloatArray();
+//			float dx = newposition[0] * scaleFactor - newposition[0];
+//			float dz = newposition[2] * scaleFactor - newposition[2];
+//			newposition[0] = newposition[0] + dx;
+//			newposition[2] = newposition[2] + dz;
+//
+//			Log.i("tag", "scaleFactor = " + scaleFactor);
+//			Log.i("tag", "newposition = " + newposition[0] + ", " + newposition[1] + ", " + newposition[2]);
+//			setPosition(newposition);
+//			notifyMVPMatrixChanged();
+//		}
+//		scale = borderedScale;
 	}
 
 	@Override
 	public void setPosition(float centerX, float centerY, float centerZ) {
 		super.setPosition(centerX, centerY, centerZ);
 		positionXYZ = getPosition().asFloatArray();
-		notifyVPMatrixChanged();
+		notifyMVPMatrixChanged();
 	}
 
 	@Override
 	public void setPosition(float[] newCenterXYZ) {
-		setPosition(newCenterXYZ, false);
-	}
-	
-	private void setPosition(float[] newCenterXYZ, boolean isScaling){
 		super.setPosition(newCenterXYZ);
 		positionXYZ = getPosition().asFloatArray();
-		if(!isScaling){
-			scalingPosition = positionXYZ;
-			scalingScale = 1;
-			Log.i("tag", "position = " + getPosition());
-		}
-		notifyVPMatrixChanged();
-
+		notifyMVPMatrixChanged();
 	}
+	
 	
 	@Override
 	public void rotate(float dx, float dy, float dz){
@@ -199,64 +191,24 @@ public class Scene extends CommonGameObject{
 	
 	@Override
 	public void rotate(float[] dAngleXYZ) {
-		angleXYZ[0] = (angleXYZ[0] + dAngleXYZ[0])%360;
-		angleXYZ[1] = (angleXYZ[1] + dAngleXYZ[1])%360;
-		angleXYZ[2] = (angleXYZ[2] + dAngleXYZ[2])%360;
-		if(angleXYZ[0]<MIN_ANGLE ){
-			angleXYZ[0] = MIN_ANGLE;
-		}
-		if(angleXYZ[0]>MAX_ANGLE ){
-			angleXYZ[0] = MAX_ANGLE;
-		}
-		float [] localViewMatrix = new float[16];
-		Matrix.setIdentityM(localViewMatrix, 0);
-		setupViewMatrix(localViewMatrix);
-		if(angleXYZ[0] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[0], 1, 0, 0);
-		if(angleXYZ[1] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[1], 0, 1, 0);
-		if(angleXYZ[2] != 0) Matrix.rotateM(localViewMatrix, 0, angleXYZ[2], 0, 0, 1);
-		Matrix.scaleM(localViewMatrix, 0, scale, scale, scale);
-		setPosition(positionXYZ);
-		setViewMatrix(localViewMatrix);
-	}
-	
-	
-	
-	private void setupViewMatrix(float[] localViewMatrix) {
-
-		final float eyeX = 0.0f;
-		final float eyeY = 0.0f;
-		final float eyeZ = 18.5f;
-
-		// We are looking toward the distance
-		final float lookX = 0.0f;
-		final float lookY = 0.0f;
-		final float lookZ = 5.0f;
-
-		// Set our up vector. This is where our head would be pointing were we holding the camera.
-		final float upX = 0.0f;
-		final float upY = 1.0f;
-		final float upZ = 0.0f;
-
-		// Set the view matrix. This matrix can be said to represent the camera position.
-		// NOTE: In OpenGL 1, a ModelView matrix is used, which is a combination of a model and
-		// view matrix. In OpenGL 2, we can keep track of these matrices separately if we choose.
-		
-		Matrix.setLookAtM(localViewMatrix , 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
+		camera.rotate(dAngleXYZ[0], dAngleXYZ[1], dAngleXYZ[2]);
+		notifyMVPMatrixChanged();
 	}
 
 	
-	public void notifyVPMatrixChanged(){
-			Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+	public void notifyMVPMatrixChanged(){
+		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);
+		Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvMatrix, 0);
 	}
 
 	public void setProjectionMatrix(float[] projectionMatrix) {
 		this.projectionMatrix = projectionMatrix;
-		notifyVPMatrixChanged();
+		notifyMVPMatrixChanged();
 	}
 
 	public void setViewMatrix(float[] viewMatrix) {
-		this.viewMatrix = viewMatrix;
-		notifyVPMatrixChanged();
+		camera.setViewMatrix(viewMatrix);
+		notifyMVPMatrixChanged();
 	}
 
 
@@ -266,13 +218,8 @@ public class Scene extends CommonGameObject{
 	}
 
 
-
-	public float[] getVpMatrix() {
-			return vpMatrix;
-	}
-
 	public float[] getViewMatrix() {
-		return viewMatrix;
+		return camera.getViewMatrix();
 	}
 
 
@@ -339,6 +286,18 @@ public class Scene extends CommonGameObject{
 	
 	public Resources getResources(){
 		return resources;
+	}
+
+
+	public void translate(float dx, float dz) {
+		camera.translate(dx, dz);
+//		float[] position = getPosition().asFloatArray();
+//		float[] rotation = getAngleXYZ();
+//		float sinY = (float)Math.sin(rotation[1] * Math.PI / 180);
+//		float cosY = 1 - sinY*sinY;
+//		position[0] = position[0] + -dx * cosY + dz * sinY;
+//		position[2] = position[2] + -dx * sinY - dz * cosY;
+//		setPosition(position);
 	}
 
 
