@@ -292,9 +292,9 @@ public class Scene extends CommonGameObject{
 	public void translate(float dx, float dz) {
 //		camera.translate(dx, dz);
 		float[] position = getPosition().asFloatArray();
-		float[] rotation = getAngleXYZ();
-		float sinY = (float)Math.sin(rotation[1] * Math.PI / 180);
-		float cosY = 1 - sinY*sinY;
+		float[] rotation = camera.getAngleXYZ();
+		float sinY = (float)Math.sin(Math.toRadians(rotation[1]));
+		float cosY = (float)Math.cos(Math.toRadians(rotation[1]));
 		position[0] = position[0] + -dx * cosY + dz * sinY;
 		position[2] = position[2] + -dx * sinY - dz * cosY;
 		setPosition(position);
