@@ -104,7 +104,6 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
 		worldRenderer.translateScene(distanceX / TRANSLATE_FACTOR, distanceY / TRANSLATE_FACTOR);
-//		worldRenderer.rotateScene(-distanceY, -distanceX ,0);
 		return true;
 	}
 
@@ -116,13 +115,14 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	}
 	@Override
 	public boolean onDoubleSlide(float distanceX, float distanceY) {
-		worldRenderer.rotateScene(distanceX, 0 ,0);
-		Log.i("tag", "onDoubleSlide: distanceX = " + distanceX);
+		worldRenderer.rotateScene(distanceY, 0 ,0);
+		Log.i("tag", "onDoubleSlide: distanceY = " + distanceY);
 		return true;
 	}	
 	@Override
 	public boolean onPinch(float centerX, float centerY, float scaleFactor) {
 		worldRenderer.scaleScene(scaleFactor);
+		Log.i("tag", "onPinch: scaleFactor = " + scaleFactor);
 		return true;
 	}
 	
@@ -137,6 +137,7 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
