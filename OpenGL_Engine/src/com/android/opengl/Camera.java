@@ -10,6 +10,9 @@ public class Camera {
 	private static final int MATRIX_Y_OFFSET = 13;
 	private static final int MATRIX_Z_OFFSET = 14;
 	
+	private static final float CAMERA_MIN_DISTANCE = -80;
+	private static final float CAMERA_MAX_DISTANCE = -5;
+	
 	public static final double DEGREE_TO_RADIAN_RATIO = Math.PI / 180; 
 	
 	private float[] viewMatrix = new float[16];
@@ -50,6 +53,7 @@ public class Camera {
 	
 	public void moveForward(float distance){
 		viewMatrix[MATRIX_Z_OFFSET] += distance;
+		viewMatrix[MATRIX_Z_OFFSET] = Math.min(CAMERA_MAX_DISTANCE, Math.max(CAMERA_MIN_DISTANCE, viewMatrix[MATRIX_Z_OFFSET]));
 	}
 	
 	public void translate(float dx, float dz){
