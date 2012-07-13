@@ -110,4 +110,11 @@ public class Camera {
 		Matrix.setLookAtM(viewatrix , 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
 	}
 
+
+
+	public float[] getAngleXYZ() {
+		// TODO Auto-generated method stub
+		return new float[]{angleX, angleY, angleZ};
+	}
+
 }

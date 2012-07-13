@@ -1,9 +1,5 @@
 package com.android.opengl.view;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -14,15 +10,12 @@ import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.MotionEvent;
 
 import com.android.opengl.Shader;
 import com.android.opengl.gameobject.Cube;
 import com.android.opengl.gameobject.Earth;
 import com.android.opengl.gameobject.base.CommonGameObject;
-import com.android.opengl.gameobject.base.GameObject;
 import com.android.opengl.gameobject.base.Scene;
-import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 import com.android.opengl.gameobject.vehicle.BMW;
 

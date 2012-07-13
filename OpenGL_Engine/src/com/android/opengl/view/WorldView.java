@@ -103,14 +103,26 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 			float distanceY) {
-//		worldRenderer.translateScene(distanceX / TRANSLATE_FACTOR, distanceY / TRANSLATE_FACTOR);
-		worldRenderer.rotateScene(-distanceY, -distanceX ,0);
+		worldRenderer.translateScene(distanceX / TRANSLATE_FACTOR, distanceY / TRANSLATE_FACTOR);
+//		worldRenderer.rotateScene(-distanceY, -distanceX ,0);
 		return true;
 	}
-	
+
 	@Override
-	public boolean onPinch(ScaleGestureDetector detector) {
-		worldRenderer.scaleScene(detector.getScaleFactor());
+	public boolean onRotate(float centerX, float centerY, float angle) {
+		worldRenderer.rotateScene(0, angle ,0);
+		Log.i("tag", "onRotate: angle = " + angle);
+		return true;
+	}
+	@Override
+	public boolean onDoubleSlide(float distanceX, float distanceY) {
+		worldRenderer.rotateScene(distanceX, 0 ,0);
+		Log.i("tag", "onDoubleSlide: distanceX = " + distanceX);
+		return true;
+	}	
+	@Override
+	public boolean onPinch(float centerX, float centerY, float scaleFactor) {
+		worldRenderer.scaleScene(scaleFactor);
 		return true;
 	}
 	
@@ -128,9 +140,9 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
-		worldRenderer.translateScene((e2.getX() - e1.getX()) / TRANSLATE_FACTOR, 
-				(e2.getY() - e1.getY()) / TRANSLATE_FACTOR);
-		return true;
+//		worldRenderer.translateScene((e2.getX() - e1.getX()) / TRANSLATE_FACTOR, 
+//				(e2.getY() - e1.getY()) / TRANSLATE_FACTOR);
+		return false;
 	}
 	@Override
 	public void onLongPress(MotionEvent e) {
@@ -142,6 +154,8 @@ public class WorldView extends GLSurfaceView implements OnGestureListener{
 		// TODO Auto-generated method stub
 		
 	}
+
+
 
 
 }
