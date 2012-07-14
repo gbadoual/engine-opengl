@@ -3,9 +3,10 @@ package com.android.opengl.view;
 import java.util.Arrays;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 
-public class GestureDetector extends android.view.GestureDetector{
+public class GestureDetector{
 
 	private enum GESTURE_STATE{
 		ROTATE,
@@ -24,26 +25,25 @@ public class GestureDetector extends android.view.GestureDetector{
 	private static final double EPSILON = 0.000001f;
 
 	private OnGestureListener gestureListener;
+	private android.view.GestureDetector defaultGesturedetector;
 	
-	
+	public boolean isMultitouchOccourred;
+
 	private GESTURE_STATE currentState = GESTURE_STATE.NONE;
 
 	private float prevX1, prevY1, prevX2, prevY2;
 	private int[] pointerIds; 
 	private float centerX, centerY;
 
-	private long pointer2ReleaseTime;
-
 	
 	public GestureDetector(Context context, OnGestureListener listener) {
-		super(context, listener);
+		defaultGesturedetector = new android.view.GestureDetector(context, dispatcherGestureListener);
 		gestureListener = listener;
 		pointerIds = new int[2];
 		Arrays.fill(pointerIds, INVALID_ID);
 	}
 
-	
-	@Override
+
 	public boolean onTouchEvent(MotionEvent ev) {
 		
 		if(ev.getPointerCount() == 1){
@@ -54,6 +54,7 @@ public class GestureDetector extends android.view.GestureDetector{
 		switch (ev.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:
 			currentState = GESTURE_STATE.NONE;
+			isMultitouchOccourred = false;
 			pointerIds[0] = ev.getPointerId(ev.getActionIndex());
 			prevX1 = ev.getX(pointerIds[0]);
 			prevY1 = ev.getY(pointerIds[0]);
@@ -64,6 +65,7 @@ public class GestureDetector extends android.view.GestureDetector{
 			prevY2 = ev.getY(pointerIds[1]);
 			centerX = (prevX1 + prevX2) / 2;
 			centerY = (prevY1 + prevY2) / 2;
+			isMultitouchOccourred = true;
 			break;
 		case MotionEvent.ACTION_MOVE:
 			if(pointerIds[0] != INVALID_ID && pointerIds[1] != INVALID_ID && 
@@ -120,19 +122,19 @@ public class GestureDetector extends android.view.GestureDetector{
 					prevY1 = prevY2;
 				}
 				pointerIds[1] = INVALID_ID;
-				pointer2ReleaseTime = System.currentTimeMillis();
 			}
 			break;
 		case MotionEvent.ACTION_CANCEL:
 			Arrays.fill(pointerIds, INVALID_ID);
 			currentState = GESTURE_STATE.NONE;
+			isMultitouchOccourred = false;
 			break;				
 
 		default:
 			break;
 		}
 		
-		return super.onTouchEvent(ev);
+		return defaultGesturedetector.onTouchEvent(ev);
 
 	}
 	
@@ -199,5 +201,48 @@ public class GestureDetector extends android.view.GestureDetector{
 		public boolean onDoubleSlide(float distanceX,	float distanceY);
 		public boolean onRotate(float centerX, float centerY, float angle);
 	}
+	
+	
+	// this is workaroud for android 2.3.3 firing osSingleTapUp if multitouch event occurred 
+	private android.view.GestureDetector.OnGestureListener dispatcherGestureListener = new android.view.GestureDetector.OnGestureListener() {
+		
+		@Override
+		public boolean onSingleTapUp(MotionEvent arg0) {
+			if(!isMultitouchOccourred){
+				return gestureListener.onSingleTapUp(arg0);
+			}
+			return false;
+		}
+		
+		@Override
+		public void onShowPress(MotionEvent arg0) {
+			gestureListener.onShowPress(arg0);
+			
+		}
+		
+		@Override
+		public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2,
+				float arg3) {
+			return gestureListener.onScroll(arg0, arg1, arg2, arg3);
+		}
+		
+		@Override
+		public void onLongPress(MotionEvent arg0) {
+			gestureListener.onLongPress(arg0);				
+		}
+		
+		@Override
+		public boolean onFling(MotionEvent arg0, MotionEvent arg1, float arg2,
+				float arg3) {
+			return gestureListener.onFling(arg0, arg1, arg2, arg3);
+		}
+		
+		@Override
+		public boolean onDown(MotionEvent arg0) {
+			return gestureListener.onDown(arg0);
+		}
+		
+	};
+	
 	
 }
