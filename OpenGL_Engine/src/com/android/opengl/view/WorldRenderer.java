@@ -54,6 +54,7 @@ public class WorldRenderer implements Renderer {
 	@Override
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
 		long time = System.currentTimeMillis();
+		Log.i("tag", "surfce Created: show dialog");
 		callbackHandler.sendEmptyMessage(WorldView.DIALOG_LOADING_SHOW);
 		// Use culling to remove back faces.
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
@@ -65,6 +66,7 @@ public class WorldRenderer implements Renderer {
 		
 		initGameObjects();
 		initFpsCount();
+		Log.i("tag", "surfce Created: dismiss dialog");
 		callbackHandler.sendEmptyMessage(WorldView.DIALOG_LOADING_DISMISS);
 		time = System.currentTimeMillis() - time;
 		Log.i(TAG, "world loaded for " + time / 1000.0f + " sec.");
