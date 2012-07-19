@@ -1,7 +1,7 @@
 package com.android.opengl.gameobject.building;
 
-import com.android.opengl.gameobject.base.GameObject;
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.GameObject;
+import com.android.opengl.gameobject.Scene;
 
 public abstract class AbstractBuilding extends GameObject {
 

@@ -1,4 +1,4 @@
-package com.android.opengl.gameobject.base;
+package com.android.opengl.gameobject;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,10 +14,8 @@ import android.util.Log;
 
 import com.android.opengl.Camera;
 import com.android.opengl.R;
-import com.android.opengl.gameobject.util.LoaderManager;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
-import com.android.opengl.logic.Movable;
 
 public class Scene extends CommonGameObject{
 
@@ -229,10 +227,10 @@ public class Scene extends CommonGameObject{
 	
 	public void setIsSelected(Vector3D ray) {
 		boolean isAnyGameObgectSelected = false;
-		Movable selectedObjectToMove = null;
+		GameObject selectedObjectToMove = null;
 		for(GameObject gameObject: gameObjectList){
-			if(gameObject.isSelected() && gameObject instanceof Movable){
-				selectedObjectToMove = (Movable)gameObject;
+			if(gameObject.isSelected()){
+				selectedObjectToMove = gameObject;
 				break;
 			};
 		}

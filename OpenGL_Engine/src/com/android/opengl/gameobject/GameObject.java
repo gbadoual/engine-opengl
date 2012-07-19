@@ -1,9 +1,12 @@
-package com.android.opengl.gameobject.base;
+package com.android.opengl.gameobject;
 
-import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.android.opengl.gameobject.tools.attacking.AttackingTool;
+import com.android.opengl.gameobject.tools.attacking.EmptyAttackingTool;
+import com.android.opengl.gameobject.tools.moving.EmptyMovingTool;
+import com.android.opengl.gameobject.tools.moving.MovingTool;
 import com.android.opengl.gameobject.util.ObjectOuterCube;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
@@ -14,12 +17,19 @@ abstract public class GameObject extends CommonGameObject{
 	protected Scene parentScene;
 	protected ObjectOuterCube outerCube;
 	
+	protected float curSpeed;
+	protected float curHealthLevel;
+	protected MovingTool movingTool;
+	protected AttackingTool attackingTool;
+	
 	public GameObject(Scene parentScene) {
 		super(parentScene.programHandle, parentScene.getResources());
 		TAG = getClass().getSimpleName();
 		this.parentScene = parentScene;
 		this.parentScene.addGameObject(this);
 		outerCube = new ObjectOuterCube(this);
+		movingTool = new EmptyMovingTool();
+		attackingTool = new EmptyAttackingTool();
 	}
 
 	
@@ -74,7 +84,36 @@ abstract public class GameObject extends CommonGameObject{
 	}
 
 	
+	
+	public void moveTo(Point3D destination) {
+		movingTool.moveTo(destination);
+	}
+	
+	public float getCurSpeed() {
+		return curSpeed;
+	}
 
+
+	public MovingTool getMovingTool() {
+		return movingTool;
+	}
+
+
+	public void setMovingTool(MovingTool movingTool) {
+		this.movingTool = movingTool;
+	}
+
+
+	public AttackingTool getAttackingTool() {
+		return attackingTool;
+	}
+
+
+	public void setAttackingTool(AttackingTool attackingTool) {
+		this.attackingTool = attackingTool;
+	}
+	
+	
 
 	
 
