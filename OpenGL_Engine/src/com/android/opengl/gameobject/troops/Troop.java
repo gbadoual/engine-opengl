@@ -1,6 +1,6 @@
-package com.android.opengl.gameobject.troops;
+package com.android.opengl.gameobject.unit.troops;
 
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.Scene;
 
 public class Troop extends AbstractTroops{
 

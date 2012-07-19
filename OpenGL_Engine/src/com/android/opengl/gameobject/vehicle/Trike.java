@@ -1,6 +1,6 @@
-package com.android.opengl.gameobject.vehicle;
+package com.android.opengl.gameobject.unit.vehicle;
 
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.Scene;
 
 public class Trike extends AbstractVehicle{
 
