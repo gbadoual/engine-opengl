@@ -50,6 +50,8 @@ public class GestureDetector{
 			prevX1 = ev.getX();
 			prevY1 = ev.getY();				
 		}
+		Log.i("tag", "cur pointer id = " + ev.getPointerId(ev.getActionIndex()));
+		Log.i("tag", "cur action id = " + ev.getActionIndex());
 
 		switch (ev.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:
@@ -68,6 +70,7 @@ public class GestureDetector{
 			isMultitouchOccourred = true;
 			break;
 		case MotionEvent.ACTION_MOVE:
+			pointerIds[1] = Math.min(pointerIds[1], ev.getPointerCount() -1);
 			if(pointerIds[0] != INVALID_ID && pointerIds[1] != INVALID_ID && 
 			 pointerIds[0] != pointerIds[1] && ev.getPointerCount() == 2){
 				float curX1 = ev.getX(pointerIds[0]);
