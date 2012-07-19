@@ -1,9 +1,9 @@
-package com.android.opengl.gameobject.vehicle;
+package com.android.opengl.gameobject.unit.vehicle;
 
 import android.opengl.Matrix;
 
 import com.android.opengl.R;
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.Scene;
 
 public class BMW extends AbstractVehicle{
 
