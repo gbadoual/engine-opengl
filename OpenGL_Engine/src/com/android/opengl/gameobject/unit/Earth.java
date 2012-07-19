@@ -1,13 +1,15 @@
-package com.android.opengl.gameobject;
+package com.android.opengl.gameobject.unit;
 
 import com.android.opengl.R;
-import com.android.opengl.gameobject.base.GameObject;
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.GameObject;
+import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.tools.moving.Wheels;
 
 public class Earth extends GameObject{
 
 	public Earth(Scene parentScene) {
 		super(parentScene);
+		setMovingTool(new Wheels(this));
 	}
 
 	@Override

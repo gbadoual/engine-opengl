@@ -1,6 +1,6 @@
 package com.android.opengl.gameobject.building;
 
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.Scene;
 
 public class Basement extends AbstractBuilding{
 

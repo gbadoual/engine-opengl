@@ -4,8 +4,7 @@ import java.util.HashMap;
 
 import android.util.Log;
 
-import com.android.opengl.gameobject.base.GameObject;
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 
@@ -61,7 +60,7 @@ public class Actions {
 				newX = position.x + speedVector.getLength() * speedVector.getDirection().x;
 				newZ = position.z + speedVector.getLength() * speedVector.getDirection().z;
 				newY = objectToMove.getParentScene().getAltitude(newX, newZ);
-				Log.d("tag", "y = " + newY);
+//				Log.d("tag", "y = " + newY);
 				Point3D endPoint = new Point3D(newX, newY, newZ);
 				speedVector = new Vector3D(position, endPoint).normalize();
 				speedVector.setLength(speed);

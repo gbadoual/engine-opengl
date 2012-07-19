@@ -1,17 +1,18 @@
-package com.android.opengl.gameobject;
+package com.android.opengl.gameobject.unit;
 
 import com.android.opengl.R;
-import com.android.opengl.gameobject.base.GameObject;
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.GameObject;
+import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.tools.moving.Wheels;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.logic.Actions;
-import com.android.opengl.logic.Movable;
 
-public class Cube extends GameObject implements Movable{
+public class Cube extends GameObject{
 		
 
 	public Cube(Scene parentScene) {
 		super(parentScene);
+		movingTool = new Wheels(this);
 	}
 
 	@Override
@@ -31,10 +32,6 @@ public class Cube extends GameObject implements Movable{
 		return R.raw.smile;
 	}
 
-	@Override
-	public void moveTo(Point3D destination) {
-		Actions.moveTo(this, destination);
-		
-	}
+
 
 }

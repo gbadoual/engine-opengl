@@ -12,12 +12,12 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.android.opengl.Shader;
-import com.android.opengl.gameobject.Cube;
-import com.android.opengl.gameobject.Earth;
-import com.android.opengl.gameobject.base.CommonGameObject;
-import com.android.opengl.gameobject.base.Scene;
+import com.android.opengl.gameobject.CommonGameObject;
+import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.unit.Cube;
+import com.android.opengl.gameobject.unit.Earth;
+import com.android.opengl.gameobject.unit.vehicle.BMW;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
-import com.android.opengl.gameobject.vehicle.BMW;
 
 public class WorldRenderer implements Renderer {
 

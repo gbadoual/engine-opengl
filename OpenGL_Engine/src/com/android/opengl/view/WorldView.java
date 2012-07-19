@@ -103,11 +103,11 @@ public class WorldView extends GLSurfaceView{
 	public void onPause() {
 		Log.d("tag", "onPause");
 		super.onPause();
+		handler.sendEmptyMessage(DIALOG_LOADING_DISMISS);
 		if(worldRenderer != null){
 			worldRenderer.release();
 		}
-		handler.sendEmptyMessage(DIALOG_LOADING_DISMISS);
-		progressDialog = null;
+//		progressDialog = null;
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package com.android.opengl.gameobject.base;
+package com.android.opengl.gameobject;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

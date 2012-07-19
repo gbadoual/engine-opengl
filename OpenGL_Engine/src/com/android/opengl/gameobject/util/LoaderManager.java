@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,8 +21,7 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
 
-import com.android.opengl.gameobject.base.CommonGameObject;
-import com.android.opengl.gameobject.base.CommonGameObject.VboDataHandler;
+import com.android.opengl.gameobject.CommonGameObject;
 
 public class LoaderManager {
 	

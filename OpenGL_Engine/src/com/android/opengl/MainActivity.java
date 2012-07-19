@@ -1,10 +1,10 @@
 package com.android.opengl;
 
-import com.android.opengl.view.WorldView;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
+
+import com.android.opengl.view.WorldView;
 
 public class MainActivity extends Activity {
 	
