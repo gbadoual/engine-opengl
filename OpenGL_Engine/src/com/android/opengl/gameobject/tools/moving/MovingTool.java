@@ -1,11 +1,24 @@
 package com.android.opengl.gameobject.tools.moving;
 
-import com.android.opengl.gameobject.util.geometry.Point3D;
+import android.util.Log;
 
-public interface MovingTool {
+import com.android.opengl.gameobject.GameObject;
+import com.android.opengl.gameobject.util.geometry.Point3D;
+import com.android.opengl.gameobject.util.geometry.Vector3D;
+
+public abstract class MovingTool {
 	
-	public void moveTo(Point3D destination);
-	public void stop();
+	protected BaseMovingThread movingThread;
 	
+	
+	
+	public abstract void moveTo(Point3D destination);
+	public abstract void stop();
+	public abstract float getMaxSpeed();
+	
+	
+	
+
+
 
 }

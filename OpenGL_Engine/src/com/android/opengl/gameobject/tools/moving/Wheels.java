@@ -2,11 +2,10 @@ package com.android.opengl.gameobject.tools.moving;
 
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.gameobject.util.geometry.Point3D;
-import com.android.opengl.logic.Actions;
 
-public class Wheels implements MovingTool{
+public class Wheels extends MovingTool{
 	
-	private static float MAX_SPEED = 120;
+	private static float MAX_SPEED = 80;
 	
 	private GameObject objectToMove;
 	
@@ -17,13 +16,27 @@ public class Wheels implements MovingTool{
 
 	@Override
 	public void moveTo(Point3D destination) {
-		Actions.moveTo(objectToMove, destination);
+		stop();
+		movingThread = new BaseMovingThread(objectToMove, destination);
+		movingThread.start();
 	}
 
 	@Override
 	public void stop() {
+		if(movingThread != null){
+			movingThread.interrupt();
+		}
 		
 	}
+
+
+	@Override
+	public float getMaxSpeed() {
+		return MAX_SPEED;
+	}
+
+
+
 
 
 

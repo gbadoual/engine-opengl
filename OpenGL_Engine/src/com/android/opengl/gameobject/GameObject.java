@@ -112,7 +112,21 @@ abstract public class GameObject extends CommonGameObject{
 	public void setAttackingTool(AttackingTool attackingTool) {
 		this.attackingTool = attackingTool;
 	}
+
+
+	public float getMaxSpeed() {
+		return movingTool.getMaxSpeed();
+	}
 	
+	public float[] getDirection(){
+		throw new UnsupportedOperationException("getDirection() is not supported yet");
+	}
+	
+	@Override
+	public void release() {
+		super.release();
+		movingTool.stop();
+	}
 	
 
 	
