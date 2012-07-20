@@ -261,7 +261,7 @@ public class Scene extends CommonGameObject{
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.landscape;
+		return R.raw.scene;
 	}
 
 
@@ -269,6 +269,9 @@ public class Scene extends CommonGameObject{
 	public void release() {
 		super.release();
 		Log.d(TAG, "deinit");
+		for(GameObject gameObject: gameObjectList){
+			gameObject.release();
+		}
 		vboDataHandlerMap.clear();
 		if(meshLoader != null){
 			meshLoader.release();

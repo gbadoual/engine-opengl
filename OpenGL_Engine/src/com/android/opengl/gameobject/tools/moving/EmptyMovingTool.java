@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.android.opengl.gameobject.util.geometry.Point3D;
 
-public class EmptyMovingTool implements MovingTool{
+public class EmptyMovingTool extends MovingTool{
 
 	@Override
 	public void moveTo(Point3D destination) {
@@ -13,7 +13,12 @@ public class EmptyMovingTool implements MovingTool{
 
 	@Override
 	public void stop() {
-		Log.i("tag", "This onject is unmovable.");
+		Log.i("tag", "This object is unmovable.");
+	}
+
+	@Override
+	public float getMaxSpeed() {
+		return 0;
 	}
 
 }

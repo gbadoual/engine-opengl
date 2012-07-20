@@ -4,8 +4,6 @@ import com.android.opengl.R;
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.gameobject.tools.moving.Wheels;
-import com.android.opengl.gameobject.util.geometry.Point3D;
-import com.android.opengl.logic.Actions;
 
 public class Cube extends GameObject{
 		
