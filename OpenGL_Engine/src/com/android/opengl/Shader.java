@@ -65,7 +65,7 @@ public class Shader {
 			"	float distance = length("+UNIFORM_LIGHT_POSITION+" - v_Position);					" +
 			"	vec3 lightVector = normalize("+ UNIFORM_LIGHT_POSITION+" - v_Position);				" +
 			"	float diffuse = max(dot(v_Normal, lightVector), 0.1);								" +
-			"	diffuse = diffuse * 1.0/(1.0+(0.001*distance*distance));							" +
+			"	diffuse = diffuse * 1.0/(1.0+(0.0001*distance*distance));							" +
 //			"	gl_FragColor = resColor * diffuse * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
 			"	gl_FragColor = diffuse * selectedColor * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
 //			"	gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0) * diffuse * selectedColor;	" +

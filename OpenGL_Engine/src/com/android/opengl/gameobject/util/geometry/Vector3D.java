@@ -1,6 +1,7 @@
 package com.android.opengl.gameobject.util.geometry;
 
 import android.opengl.Matrix;
+import android.util.FloatMath;
 
 public class Vector3D {
 	public static final int P0_OFFSET = 0;
@@ -74,6 +75,23 @@ public class Vector3D {
 		return vector2[0] * vector1[0] +   vector2[1] * vector1[1] +  vector2[2] * vector1[2];
 	}
 
+	
+	public static float normalize(float[] vector){
+		float x = vector[0];
+		float y = vector[1];
+		float z = vector[2];
+		
+		float length = FloatMath.sqrt(x * x + y * y + z * z);
+		
+		if (length != 1.0f && Math.abs(length) > EPSILON) {
+			vector[0] = x / length;
+			vector[1] = y / length;
+			vector[2] = z / length;
+			return length;
+		}
+		return 0;
+	}
+	
 	public static float[] vectorProduct(float[] vector1, float[] vector2){
 		return new float[]{vector2[1] * vector1[2] - vector2[2] * vector1[1], 
 						   vector2[2] * vector1[0] - vector2[0] * vector1[2], 
@@ -94,7 +112,7 @@ public class Vector3D {
 		float y = direction.y;
 		float z = direction.z;
 		
-		length = (float) Math.sqrt(x * x + y * y + z * z);
+		length = FloatMath.sqrt(x * x + y * y + z * z);
 		
 		if (length != 1.0f && Math.abs(length) > EPSILON) {
 			direction.x = x / length;
@@ -142,17 +160,19 @@ public class Vector3D {
 		return position;
 	}
 
-//	public void setPosition(Point3D position) {
-//		this.position = position;
-//	}
+	public void setPosition(Point3D position) {
+		this.position = position;
+	}
 
 	public Point3D getDirection() {
 		return direction;
 	}
 
-//	public void setDirection(Point3D direction) {
-//		this.direction = direction;
-//	}
+	public Vector3D setDirection(Point3D direction) {
+		this.direction = direction;
+		isNormalized = false;
+		return this;
+	}
 
 	public float getLength() {
 		return length;

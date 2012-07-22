@@ -40,6 +40,23 @@ public abstract class CommonGameObject {
 	
 	protected static Map<String, VboDataHandler> vboDataHandlerMap = new HashMap<String, VboDataHandler>();
 
+	/*
+	 * matrix structure
+	 * 
+	 * UpX, UpY, UpZ, 0 
+	 *  Rx,  Ry,  Rz, 0 
+	 *  Vx,  Vy,  Vz, 0 
+	 *  dX,  dY,  dZ, 1 
+	 * 
+	 * 
+	 */
+	private static final int UP_X_OFFSET = 4;
+	private static final int UP_Y_OFFSET = 5;
+	private static final int UP_Z_OFFSET = 6;
+
+	private static final int VIEX_X_OFFSET = 8;
+	private static final int VIEX_Y_OFFSET = 9;
+	private static final int VIEX_Z_OFFSET = 10;
 
 	
 	protected float[] modelMatrix = new float[16];
@@ -355,6 +372,20 @@ public abstract class CommonGameObject {
 
 	public final float[] getVertexData(){
 		return vboDataHandlerMap.get(getClass().getSimpleName()).vertexData;
+	}
+	
+	public Point3D getUpVector() {
+		return new Point3D(
+				modelMatrix[UP_X_OFFSET],
+				modelMatrix[UP_Y_OFFSET],
+				modelMatrix[UP_Z_OFFSET]);
+	}
+
+	public Point3D getDirection(){
+		return new Point3D(
+				modelMatrix[VIEX_X_OFFSET],
+				modelMatrix[VIEX_Y_OFFSET],
+				modelMatrix[VIEX_Z_OFFSET]);
 	}
 
 

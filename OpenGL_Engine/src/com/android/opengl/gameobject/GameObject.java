@@ -14,6 +14,8 @@ import com.android.opengl.gameobject.util.geometry.Vector3D;
 abstract public class GameObject extends CommonGameObject{
 
 	private String TAG;
+	
+	
 	protected Scene parentScene;
 	protected ObjectOuterCube outerCube;
 	
@@ -118,9 +120,6 @@ abstract public class GameObject extends CommonGameObject{
 		return movingTool.getMaxSpeed();
 	}
 	
-	public float[] getDirection(){
-		throw new UnsupportedOperationException("getDirection() is not supported yet");
-	}
 	
 	@Override
 	public void release() {
