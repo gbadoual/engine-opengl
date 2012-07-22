@@ -15,6 +15,7 @@ import android.util.Log;
 import com.android.opengl.Camera;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
+import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 
 public class Scene extends CommonGameObject{
@@ -261,7 +262,7 @@ public class Scene extends CommonGameObject{
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.scene;
+		return R.raw.landscape;
 	}
 
 
@@ -300,6 +301,8 @@ public class Scene extends CommonGameObject{
 		position[2] = position[2] + -dx * sinY - dz * cosY;
 		setPosition(position);
 	}
+
+
 
 
 

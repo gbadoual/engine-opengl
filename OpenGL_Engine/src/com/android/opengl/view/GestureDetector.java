@@ -50,8 +50,8 @@ public class GestureDetector{
 			prevX1 = ev.getX();
 			prevY1 = ev.getY();				
 		}
-		Log.i("tag", "cur pointer id = " + ev.getPointerId(ev.getActionIndex()));
-		Log.i("tag", "cur action id = " + ev.getActionIndex());
+//		Log.i("tag", "cur pointer id = " + ev.getPointerId(ev.getActionIndex()));
+//		Log.i("tag", "cur action id = " + ev.getActionIndex());
 
 		switch (ev.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:

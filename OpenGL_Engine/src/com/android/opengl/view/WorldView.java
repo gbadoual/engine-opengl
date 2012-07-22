@@ -129,19 +129,19 @@ public class WorldView extends GLSurfaceView{
 		@Override
 		public boolean onRotate(float centerX, float centerY, float angle) {
 			worldRenderer.rotateScene(0, angle ,0);
-			Log.i("tag", "onRotate: angle = " + angle);
+//			Log.i("tag", "onRotate: angle = " + angle);
 			return true;
 		}
 		@Override
 		public boolean onDoubleSlide(float distanceX, float distanceY) {
 			worldRenderer.rotateScene(distanceY, 0 ,0);
-			Log.i("tag", "onDoubleSlide: distanceY = " + distanceY);
+//			Log.i("tag", "onDoubleSlide: distanceY = " + distanceY);
 			return true;
 		}	
 		@Override
 		public boolean onPinch(float centerX, float centerY, float scaleFactor) {
 			worldRenderer.scaleScene(scaleFactor);
-			Log.i("tag", "onPinch: scaleFactor = " + scaleFactor);
+//			Log.i("tag", "onPinch: scaleFactor = " + scaleFactor);
 			return true;
 		}
 		
