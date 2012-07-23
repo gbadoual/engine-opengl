@@ -9,9 +9,10 @@ import com.android.opengl.gameobject.util.geometry.Vector3D;
 
 public class BaseMovingThread extends Thread{
 	
+	private static final int MAX_ANGLE_DEVIATION = 20;
 	private static final float SPEED_SCALE_FACTOR = 100;
-	private static final float CHECK_TIME_INTERVAL = 100;
-	private static final long THREAD_SLEEP_INTERVAL = (long) (CHECK_TIME_INTERVAL / 20);
+	private static final float MOVING_TIME_INTERVAL = 100;
+	private static final long THREAD_SLEEP_INTERVAL = 10;
 	private static final float EPSILON = 0.000001f;
 	private static final float TURNING_360_TIME_INTERVAL = 1100 / 360;
 
@@ -47,10 +48,10 @@ public class BaseMovingThread extends Thread{
 				Point3D position = objectToMove.getPosition();
 				turnObject();
 				
-//				newX = position.x + speedVector.getLength() * objectToMove.getDirection().x;
-//				newZ = position.z + speedVector.getLength() * objectToMove.getDirection().z;
-				newX = position.x + speedVector.getLength() * speedVector.getDirection().x;
-				newZ = position.z + speedVector.getLength() * speedVector.getDirection().z;
+				newX = position.x + speedVector.getLength() * objectToMove.getDirection().x;
+				newZ = position.z + speedVector.getLength() * objectToMove.getDirection().z;
+//				newX = position.x + speedVector.getLength() * speedVector.getDirection().x;
+//				newZ = position.z + speedVector.getLength() * speedVector.getDirection().z;
 				newY = objectToMove.getParentScene().getAltitude(newX, newZ);
 	//			Log.d("tag", "y = " + newY);
 				Point3D endPoint = new Point3D(newX, newY, newZ);
@@ -65,8 +66,8 @@ public class BaseMovingThread extends Thread{
 						Log.i("tag", objectToMove.getClass().getSimpleName()+" destination has reached");
 						interrupt();
 					}
-					curStep = ((float)(System.currentTimeMillis() - time))/CHECK_TIME_INTERVAL;
-					sleep(10);
+					curStep = ((float)(System.currentTimeMillis() - time))/MOVING_TIME_INTERVAL;
+					sleep(THREAD_SLEEP_INTERVAL);
 				}
 			} catch (InterruptedException e) {
 				Log.w("tag", "moving thread was interrupted: " + e);
@@ -81,7 +82,8 @@ public class BaseMovingThread extends Thread{
 		float[] pointOnPlane = new float[]{0, 0, 0};
 		float[] normal = objectToMove.getUpVector().asFloatArray();
 		Vector3D vectorToIntersect = new Vector3D(objectToMove.getParentScene().getUpVector());
-		vectorToIntersect.setPosition(speedVector.getDirection());
+		Point3D dest = new Point3D(destination.x - objectToMove.getPosition().x, destination.y - objectToMove.getPosition().y, destination.z - objectToMove.getPosition().z);
+		vectorToIntersect.setPosition(dest);
 		
 		Point3D intersectedPoint = Plane.getIntersectionPoint(pointOnPlane, normal, vectorToIntersect);
 		if(intersectedPoint != null){
@@ -100,7 +102,7 @@ public class BaseMovingThread extends Thread{
 			Log.d("tag", "turnAngle = " + turnAngle);
 			Log.d("tag", "cosA = " + cosA);
 			Log.d("tag", "sinA = " + sinA);
-			if(Math.abs(turnAngle) < 3){
+			if(Math.abs(turnAngle) < MAX_ANGLE_DEVIATION){
 				return;
 			}
 			long time = System.currentTimeMillis();
@@ -114,7 +116,7 @@ public class BaseMovingThread extends Thread{
 				objectToMove.rotate(0, -turnAngle * curStep, 0);				
 				
 				curStep = ((float)(System.currentTimeMillis() - time)) / turningTimeInterval;
-				sleep(10);
+				sleep(THREAD_SLEEP_INTERVAL);
 			}
 			
 		}
