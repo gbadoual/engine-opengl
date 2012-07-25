@@ -1,6 +1,5 @@
 package com.android.opengl.gameobject.util.geometry;
 
-import android.opengl.Matrix;
 import android.util.FloatMath;
 
 public class Vector3D {

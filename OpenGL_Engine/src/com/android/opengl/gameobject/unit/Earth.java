@@ -19,7 +19,7 @@ public class Earth extends GameObject{
 	
 	@Override
 	public void drawFrame() {
-		rotate(0, 0.1f, 0);
+		rotate(0, 0.01f, 0);
 		super.drawFrame();
 	}
 

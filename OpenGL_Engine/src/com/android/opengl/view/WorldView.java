@@ -16,7 +16,6 @@ public class WorldView extends GLSurfaceView{
 
 	public static final int DIALOG_LOADING_SHOW = 0;
 	public static final int DIALOG_LOADING_DISMISS = 1;
-	private static final float TRANSLATE_FACTOR = 10;
 	
 	private WorldRenderer worldRenderer;
 	private TextView textView;
@@ -119,9 +118,11 @@ public class WorldView extends GLSurfaceView{
 	
 	private GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
 
+		private static final float SLIDE_FACTOR = (float) (Math.PI / 180);
+		private static final float TRANSLATE_FACTOR = 10;
+
 		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-				float distanceY) {
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 			worldRenderer.translateScene(distanceX / TRANSLATE_FACTOR, distanceY / TRANSLATE_FACTOR);
 			return true;
 		}
@@ -134,7 +135,7 @@ public class WorldView extends GLSurfaceView{
 		}
 		@Override
 		public boolean onDoubleSlide(float distanceX, float distanceY) {
-			worldRenderer.rotateScene(distanceY, 0 ,0);
+			worldRenderer.rotateScene(distanceY * SLIDE_FACTOR, 0 ,0);
 //			Log.i("tag", "onDoubleSlide: distanceY = " + distanceY);
 			return true;
 		}	
@@ -158,10 +159,8 @@ public class WorldView extends GLSurfaceView{
 		}
 		
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-	//		worldRenderer.translateScene((e2.getX() - e1.getX()) / TRANSLATE_FACTOR, 
-	//				(e2.getY() - e1.getY()) / TRANSLATE_FACTOR);
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			// TODO Auto-generated method stub
 			return false;
 		}
 		@Override

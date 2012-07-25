@@ -15,7 +15,6 @@ public class Cube extends GameObject{
 
 	@Override
 	public void drawFrame() {
-//		Matrix.rotateM(modelMatrix, 0, 0.5f, 0.5f, 1f, 1f);
 		super.drawFrame();
 
 	}

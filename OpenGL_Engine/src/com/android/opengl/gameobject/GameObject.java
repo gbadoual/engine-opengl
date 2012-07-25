@@ -1,6 +1,5 @@
 package com.android.opengl.gameobject;
 
-import android.opengl.Matrix;
 import android.util.Log;
 
 import com.android.opengl.gameobject.tools.attacking.AttackingTool;
@@ -8,6 +7,7 @@ import com.android.opengl.gameobject.tools.attacking.EmptyAttackingTool;
 import com.android.opengl.gameobject.tools.moving.EmptyMovingTool;
 import com.android.opengl.gameobject.tools.moving.MovingTool;
 import com.android.opengl.gameobject.util.ObjectOuterCube;
+import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 
@@ -126,6 +126,9 @@ abstract public class GameObject extends CommonGameObject{
 		super.release();
 		movingTool.stop();
 	}
+
+
+
 	
 
 	
