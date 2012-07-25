@@ -17,7 +17,7 @@ public class GestureDetector{
 
 	private static final int INVALID_ID = -1;
 
-	private static final float MIN_ANGLE_TO_BEGIN_ROTATION = 1.2f;
+	private static final float MIN_ANGLE_TO_BEGIN_ROTATION = (float) Math.toRadians(1.2);
 	private static final float MIN_DISTANCE_TO_BEGIN_PINCH = 1.05f;
 	private static final float MIN_DISTANCE_TO_BEGIN_DOUBLE_SLIDE = 3f;
 
@@ -180,12 +180,12 @@ public class GestureDetector{
 	}
 
 
-	private static final double MAX_ALLOWED_ANGLE = 20;
+	private static final double MAX_ALLOWED_ANGLE = Math.toRadians(20);
 	
 	private float angleBtwLines (float fx1, float fy1, float fx2, float fy2, float sx1, float sy1, float sx2, float sy2){
 		
-	    double angle1 = Math.toDegrees(Math.atan2(fy1 - fy2, fx1 - fx2)) % 360;
-	    double angle2 = Math.toDegrees(Math.atan2(sy1 - sy2, sx1 - sx2)) % 360;
+	    double angle1 = Math.atan2(fy1 - fy2, fx1 - fx2);
+	    double angle2 = Math.atan2(sy1 - sy2, sx1 - sx2);
 	    double res = angle1 - angle2;
 //	    if(res < -180) {res += 360;}
 //	    if(res >  180) {res -= 360;}

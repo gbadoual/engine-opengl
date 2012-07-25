@@ -10,12 +10,12 @@ import java.util.Map;
 
 import android.content.res.Resources;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Log;
 
 import com.android.opengl.R;
 import com.android.opengl.Shader;
 import com.android.opengl.gameobject.util.LoaderManager;
+import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 
 public abstract class CommonGameObject {
@@ -40,16 +40,7 @@ public abstract class CommonGameObject {
 	
 	protected static Map<String, VboDataHandler> vboDataHandlerMap = new HashMap<String, VboDataHandler>();
 
-	/*
-	 * matrix structure
-	 * 
-	 * UpX, UpY, UpZ, 0 
-	 *  Rx,  Ry,  Rz, 0 
-	 *  Vx,  Vy,  Vz, 0 
-	 *  dX,  dY,  dZ, 1 
-	 * 
-	 * 
-	 */
+
 	private static final int UP_X_OFFSET = 4;
 	private static final int UP_Y_OFFSET = 5;
 	private static final int UP_Z_OFFSET = 6;
@@ -283,30 +274,15 @@ public abstract class CommonGameObject {
 	
 	public void rotate(float [] newAngleXYZ){
 		this.angleXYZ = newAngleXYZ;
-//		Matrix.setIdentityM(modelMatrix, 0);
-//		Matrix.rotateM(modelMatrix, 0, 359, angleXYZ[0]/359, angleXYZ[1]/359, angleXYZ[2]/359);
-		Matrix.rotateM(modelMatrix, 0, angleXYZ[0], 1, 0, 0);
-		Matrix.rotateM(modelMatrix, 0, angleXYZ[1], 0, 1, 0);
-		Matrix.rotateM(modelMatrix, 0, angleXYZ[2], 0, 0, 1);
-//		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
+		Matrix.rotateRad(modelMatrix, angleXYZ[0], angleXYZ[1], angleXYZ[2]);
 	}
 	
-//	public void translate(float[] newCenterXYZ){
-//		Matrix.translateM(modelMatrix, 0, -centerXYZ[0], -centerXYZ[1], -centerXYZ[2]);
-//		this.centerXYZ = newCenterXYZ;
-//		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
-//	}
-//
-//	public void translateIncrement(float[] incrementXYZ){
-//		Matrix.translateM(modelMatrix, 0, -centerXYZ[0], -centerXYZ[1], -centerXYZ[2]);
-//		this.centerXYZ[0] += incrementXYZ[0];
-//		this.centerXYZ[1] += incrementXYZ[1];
-//		this.centerXYZ[2] += incrementXYZ[2];
-//		Matrix.translateM(modelMatrix, 0, centerXYZ[0], centerXYZ[1], centerXYZ[2]);
-//	}
-	
-	
-	
+	public void rotateY(float angle) {
+		Matrix.rotateRadY(modelMatrix, angle);
+		
+	}
+
+
 
 	public void setModelMatrix(float[] modelMatrix) {
 		this.modelMatrix = modelMatrix;
@@ -315,18 +291,6 @@ public abstract class CommonGameObject {
 
 	public float[] getModelMatrix() {
 		return modelMatrix;
-	}
-
-
-	public void setAngle(float angleX, float angleY, float angleZ){
-		setAngleXYZ(new float[]{angleX, angleY, angleZ});		
-	}
-	public void setAngleXYZ(float[] angleXYZ) {
-		this.angleXYZ = angleXYZ;
-		this.angleXYZ[0] = this.angleXYZ[0]%360;
-		this.angleXYZ[1] = this.angleXYZ[1]%360;
-		this.angleXYZ[2] = this.angleXYZ[2]%360;
-//		rotate(this.angleXYZ);
 	}
 
 	public float[] getAngleXYZ() {

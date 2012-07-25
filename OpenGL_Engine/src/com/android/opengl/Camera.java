@@ -1,7 +1,7 @@
 package com.android.opengl;
 
-import android.opengl.Matrix;
 
+import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 
 public class Camera {
@@ -13,7 +13,6 @@ public class Camera {
 	private static final float CAMERA_MIN_DISTANCE = -80;
 	private static final float CAMERA_MAX_DISTANCE = -5;
 	
-	public static final double DEGREE_TO_RADIAN_RATIO = Math.PI / 180; 
 	
 	private float[] viewMatrix = new float[16];
 	
@@ -39,15 +38,8 @@ public class Camera {
 		locaViewMatrix[12] = position.x;
 		locaViewMatrix[13] = position.y;
 		locaViewMatrix[14] = position.z;
-		Matrix.rotateM(locaViewMatrix, 0, angleX, 1, 0, 0);
-		Matrix.rotateM(locaViewMatrix, 0, angleY, 0, 1, 0);
-		Matrix.rotateM(locaViewMatrix, 0, angleZ, 0, 0, 1);
+		Matrix.rotateRad(locaViewMatrix, angleX, angleY, angleZ);
 		viewMatrix = locaViewMatrix;
-//		float[] pos = position.asFloatArray();
-//		float[] matr = new float[16];
-//		Matrix.setRotateEulerM(matr, 0, dx, dy, -dz);
-//		Matrix.multiplyMV(pos, 0, matr, 0, pos, 0);
-//		setPosition(new Point3D(pos));		
 		setPosition(position);
 	}
 	
@@ -58,7 +50,7 @@ public class Camera {
 	
 	public void translate(float dx, float dz){
 		float[] position = getPosition().asFloatArray();
-		float sinX = (float)Math.sin(angleX * DEGREE_TO_RADIAN_RATIO);
+		float sinX = (float)Math.sin(angleX);
 		float cosX = 1 - sinX * sinX;
 		position[0] += -dx;
 		position[1] += dz * sinX;

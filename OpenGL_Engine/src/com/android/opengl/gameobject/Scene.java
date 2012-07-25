@@ -9,12 +9,12 @@ import java.util.List;
 import android.content.Context;
 import android.content.res.Resources;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Log;
 
 import com.android.opengl.Camera;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
+import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 
@@ -295,8 +295,8 @@ public class Scene extends CommonGameObject{
 //		camera.translate(dx, dz);
 		float[] position = getPosition().asFloatArray();
 		float[] rotation = camera.getAngleXYZ();
-		float sinY = (float)Math.sin(Math.toRadians(rotation[1]));
-		float cosY = (float)Math.cos(Math.toRadians(rotation[1]));
+		float sinY = (float)Math.sin(rotation[1]);
+		float cosY = (float)Math.cos(rotation[1]);
 		position[0] = position[0] + -dx * cosY + dz * sinY;
 		position[2] = position[2] + -dx * sinY - dz * cosY;
 		setPosition(position);

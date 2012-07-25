@@ -6,7 +6,6 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.GLU;
-import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
@@ -17,6 +16,7 @@ import com.android.opengl.gameobject.Scene;
 import com.android.opengl.gameobject.unit.Cube;
 import com.android.opengl.gameobject.unit.Earth;
 import com.android.opengl.gameobject.unit.vehicle.BMW;
+import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 
 public class WorldRenderer implements Renderer {
@@ -103,8 +103,8 @@ public class WorldRenderer implements Renderer {
 	private void initGameObjects() {
 		CommonGameObject.facesCount = 0;
 		scene = new Scene(worldView.getContext(), programHandle, calculateProjectionMatrix(0, 0));
-//		bmw1 = new BMW(scene);
-//		bmw1.setPosition(-8, -7);
+		bmw1 = new BMW(scene);
+		bmw1.setPosition(-8, -7);
 
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
@@ -128,8 +128,6 @@ public class WorldRenderer implements Renderer {
 	public void onSurfaceChanged(GL10 arg0, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
 		scene.setProjectionMatrix(calculateProjectionMatrix(width, height));
-//		notifyVPMatrixChanged();
-//		Matrix.rotateM(vpMatrix, 0, 35, 1, 0, 0);
 	}
 
 	@Override
@@ -202,48 +200,6 @@ public class WorldRenderer implements Renderer {
 	}
 
 
-	private void drawWorld() {
-
-//		cube1.drawFrame();
-//		
-//		cube2.drawFrame();
-//
-//		bmw1.drawFrame();
-
-//		float step = 7;
-//		int size = gameObjectList.size();
-//		int iSize = (int)Math.sqrt(size);
-//		int x = 0, z = 0;
-//		for(int i = 0; i < size ; ++i){
-//		
-////			i = i*2;
-//			gameObjectList.get(i).translate(-20 +step * x , 4, -20 + step * z);
-//			gameObjectList.get(i).drawFrame();
-//			x++;
-//			if(x > iSize){
-//				x = 0;
-//				z++;
-//			}
-////			bmw1.translate(-10 +step  * i, 4, -9);
-////			bmw1.drawFrame();
-//	
-////			bmw1.translate(0 +step  * i, 8, 0);
-////			bmw1.drawFrame();
-//	
-////			bmw1.translate(10 +step  * i, 8, -9);
-////			bmw1.drawFrame();
-//	
-////			bmw1.translate(0 +step  * i, 12, 0);
-////			bmw1.drawFrame();
-//	
-////			bmw1.translate(-10 +step  * i, 12, -9);
-////			bmw1.drawFrame();
-////			i = i/2;
-//		}
-
-//		earth.drawFrame();
-
-	}
 
 
 	private void countFPS() {
@@ -347,6 +303,7 @@ public class WorldRenderer implements Renderer {
 				Log.w(TAG, "translateScene: scene is null");
 				return;
 			}
+			
 			scene.translate(dx, dz);
 		}
 		
