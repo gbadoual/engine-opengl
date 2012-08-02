@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.android.opengl.Camera;
 import com.android.opengl.R;
+import com.android.opengl.Shader;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
 import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Point3D;
@@ -36,7 +37,7 @@ public class Scene extends CommonGameObject{
 	private MeshQuadNode2D sceneQuad2D;
 	
 	
-	protected float[] projectionMatrix = new float[16];
+//	protected float[] projectionMatrix = new float[16];
 	protected Camera camera;
 
 	
@@ -44,10 +45,9 @@ public class Scene extends CommonGameObject{
 	private float[] positionXYZ = new float[4];
 
 	
-	public Scene(Context context, int programHandle, float[] projectionMatrix) {
-		super(programHandle, context.getResources());
-		this.projectionMatrix = projectionMatrix;
-		camera = new Camera();
+	public Scene(Context context, Shader shader, Camera camera) {
+		super(shader, context.getResources());
+		this.camera = camera;
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
 		rotate(45, -30, 0);
@@ -71,7 +71,7 @@ public class Scene extends CommonGameObject{
 		isRendingFinished = false;
 //		rotate(0, -0.5f, 0);
 		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);//mvMatrix = viewMatrix;
-		Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvMatrix, 0);//mvMatrix = viewMatrix;
+		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);//mvMatrix = viewMatrix;
 		super.drawFrame();
 //		localDraw();
 
@@ -83,33 +83,33 @@ public class Scene extends CommonGameObject{
 	
 	
 	private void localDraw(){
-		GLES20.glUseProgram(programHandle);
+		GLES20.glUseProgram(shader.programHandle);
 
 			
-		GLES20.glUniform1f(isSelectedHandle, isSelected?1:0);
-        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
+		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
+        GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
 
 // using VBOs		
 
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, vboDataHandler.textureDataHandler);
-	    GLES20.glUniform1i(vboDataHandler.textureUniformHandle, 0);
+	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shader.textureDataHandler);
+	    GLES20.glUniform1i(shader.textureUniformHandle, 0);
 
 	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
-		GLES20.glEnableVertexAttribArray(vboDataHandler.textureCoordHandle);
-		GLES20.glVertexAttribPointer(vboDataHandler.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glEnableVertexAttribArray(shader.textureCoordHandle);
+		GLES20.glVertexAttribPointer(shader.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
 		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
-		GLES20.glEnableVertexAttribArray(positionHandle);
-		GLES20.glVertexAttribPointer(positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glEnableVertexAttribArray(shader.positionHandle);
+		GLES20.glVertexAttribPointer(shader.positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboNormalHandle);
-		GLES20.glEnableVertexAttribArray(normalHandle);
-		GLES20.glVertexAttribPointer(normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glEnableVertexAttribArray(shader.normalHandle);
+		GLES20.glVertexAttribPointer(shader.normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
 		
 		IntBuffer indexBuffer;
@@ -197,11 +197,11 @@ public class Scene extends CommonGameObject{
 	
 	public void notifyMVPMatrixChanged(){
 		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);
-		Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvMatrix, 0);
+		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);
 	}
 
-	public void setProjectionMatrix(float[] projectionMatrix) {
-		this.projectionMatrix = projectionMatrix;
+	public void setViewPort(int width, int height) {
+		camera.setViewport(width, height);
 		notifyMVPMatrixChanged();
 	}
 
@@ -213,7 +213,7 @@ public class Scene extends CommonGameObject{
 
 	
 	public float[] getProjectionMatrix() {
-		return projectionMatrix;
+		return camera.getProjectionMatrix();
 	}
 
 

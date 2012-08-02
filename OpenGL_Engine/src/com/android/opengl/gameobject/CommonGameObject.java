@@ -28,26 +28,15 @@ public abstract class CommonGameObject {
 	public static final int NORMAL_ELEMENT_SIZE = 3;
 	
 	public static long facesCount = 0;
+	
+	protected Shader shader;
 
-	final protected int programHandle;
-	protected int mvpMatrixHandle;
-	protected int mvMatrixHandle;
-	protected int positionHandle;
 
-	protected int normalHandle;
-	protected int textureHandle;
-	protected int isSelectedHandle;
 	
 	protected static Map<String, VboDataHandler> vboDataHandlerMap = new HashMap<String, VboDataHandler>();
 
 
-	private static final int UP_X_OFFSET = 4;
-	private static final int UP_Y_OFFSET = 5;
-	private static final int UP_Z_OFFSET = 6;
 
-	private static final int VIEX_X_OFFSET = 8;
-	private static final int VIEX_Y_OFFSET = 9;
-	private static final int VIEX_Z_OFFSET = 10;
 
 	
 	protected float[] modelMatrix = new float[16];
@@ -77,19 +66,15 @@ public abstract class CommonGameObject {
 		public float[] vertexData;
 		public int [] indexData;
 
-		
-		public int textureCoordHandle;
-		public int textureUniformHandle;
-		public int textureDataHandler;
-
 		public long facesCount;
+		public int textureDataHandler;
 	}
 	
-	public CommonGameObject(int programHandle, Resources resources) {
+	public CommonGameObject(Shader shader, Resources resources) {
 		Log.d(TAG, "init " + getClass().getSimpleName());
 		long time = System.currentTimeMillis(); 
 		this.resources = resources;
-		this.programHandle = programHandle;
+		this.shader = shader;
 		meshLoader = LoaderManager.getInstance(resources);
 		initData();
 		time = System.currentTimeMillis() - time;
@@ -102,18 +87,12 @@ public abstract class CommonGameObject {
 //	    GLES20.glBlendFunc (GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 	    
 		Matrix.setIdentityM(modelMatrix, 0);
-		mvpMatrixHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_MVP_MATRIX);
-		mvMatrixHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_MV_MATRIX);
-		isSelectedHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_IS_SELECTED);
-		positionHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_POSITION);
-//		colorHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_COLOR);
-		normalHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_NORMAL);
 
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		if (vboDataHandler == null){
 			vboDataHandler = new VboDataHandler();
-			vboDataHandler.textureUniformHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_TEXTURE);
-			vboDataHandler.textureCoordHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_TEXTURE_COORD);
+//			vboDataHandler.textureUniformHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_TEXTURE);
+//			vboDataHandler.textureCoordHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_TEXTURE_COORD);
 			GLES20.glEnable(GLES20.GL_TEXTURE_2D);
 			vboDataHandler.textureDataHandler = meshLoader.loadTexture(getTextureResource()); 
 			vboDataHandlerMap.put(getClass().getSimpleName(), vboDataHandler);
@@ -191,10 +170,10 @@ public abstract class CommonGameObject {
 	public void drawFrame(){
 		//use program and pass buffers
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
-		GLES20.glUseProgram(programHandle);
-		GLES20.glUniform1f(isSelectedHandle, isSelected?1:0);
-        GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
-        GLES20.glUniformMatrix4fv(mvMatrixHandle, 1, false, mvMatrix, 0);
+		GLES20.glUseProgram(shader.programHandle);
+		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
+        GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
+        GLES20.glUniformMatrix4fv(shader.mvMatrixHandle, 1, false, mvMatrix, 0);
 
 //		vertexBuffer.position(0);
 //		GLES20.glVertexAttribPointer(positionHandle, vertexElementSize , GLES20.GL_FLOAT, false, 0, vertexBuffer);
@@ -213,24 +192,24 @@ public abstract class CommonGameObject {
 // using VBOs		
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, vboDataHandler.textureDataHandler);
-	    GLES20.glUniform1i(vboDataHandler.textureUniformHandle, 0);
+	    GLES20.glUniform1i(shader.textureUniformHandle, 0);
 
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
-		GLES20.glEnableVertexAttribArray(vboDataHandler.textureCoordHandle);
-		GLES20.glVertexAttribPointer(vboDataHandler.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glEnableVertexAttribArray(shader.textureCoordHandle);
+		GLES20.glVertexAttribPointer(shader.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
 		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
-		GLES20.glEnableVertexAttribArray(positionHandle);
-		GLES20.glVertexAttribPointer(positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glEnableVertexAttribArray(shader.positionHandle);
+		GLES20.glVertexAttribPointer(shader.positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 //		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboColorHandle);
 //		GLES20.glEnableVertexAttribArray(colorHandle);
 //		GLES20.glVertexAttribPointer(colorHandle, colorElementSize, GLES20.GL_FLOAT, false, 0, 0);
 		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboNormalHandle);
-		GLES20.glEnableVertexAttribArray(normalHandle);
-		GLES20.glVertexAttribPointer(normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glEnableVertexAttribArray(shader.normalHandle);
+		GLES20.glVertexAttribPointer(shader.normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
 		
 		
@@ -340,16 +319,16 @@ public abstract class CommonGameObject {
 	
 	public Point3D getUpVector() {
 		return new Point3D(
-				modelMatrix[UP_X_OFFSET],
-				modelMatrix[UP_Y_OFFSET],
-				modelMatrix[UP_Z_OFFSET]);
+				modelMatrix[Matrix.UP_X_OFFSET],
+				modelMatrix[Matrix.UP_Y_OFFSET],
+				modelMatrix[Matrix.UP_Z_OFFSET]);
 	}
 
 	public Point3D getDirection(){
 		return new Point3D(
-				modelMatrix[VIEX_X_OFFSET],
-				modelMatrix[VIEX_Y_OFFSET],
-				modelMatrix[VIEX_Z_OFFSET]);
+				modelMatrix[Matrix.VIEX_X_OFFSET],
+				modelMatrix[Matrix.VIEX_Y_OFFSET],
+				modelMatrix[Matrix.VIEX_Z_OFFSET]);
 	}
 
 

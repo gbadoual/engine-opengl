@@ -15,6 +15,7 @@ public class Camera {
 	
 	
 	private float[] viewMatrix = new float[16];
+	private float[] projectionMatrix = new float[16];
 	
 	private float angleX;
 	private float angleY;
@@ -22,10 +23,31 @@ public class Camera {
 	
 
 	
-	public Camera() {
+	public Camera(int width, int height) {
 		initViewMatrix(viewMatrix);
+		setProjectionMatrix(calculateProjectionMatrix(width, height));
 	}
 	
+	private float[] calculateProjectionMatrix(int width, int height) {
+		float ratio = (float) width / height;
+		float left = -1;
+		float right = 1;
+		float bottom = -1;
+		float top = 1;
+		float near = 1;
+		float far = 105;
+		if(ratio > 1){
+			top = 1/ratio;
+			bottom = -1/ratio;
+		} else{
+			left = -ratio;
+			right = ratio;
+		}
+		float [] projectionMatrix = new float[16];
+		Matrix.frustumM(projectionMatrix, 0, left, right, bottom, top, near,
+				far);
+		return projectionMatrix;
+	}
 	
 	
 	public void rotate(float dx, float dy, float dz){
@@ -111,6 +133,18 @@ public class Camera {
 	public float[] getAngleXYZ() {
 		// TODO Auto-generated method stub
 		return new float[]{angleX, angleY, angleZ};
+	}
+
+	public float[] getProjectionMatrix() {
+		return projectionMatrix;
+	}
+
+	public void setProjectionMatrix(float[] projectionMatrix) {
+		this.projectionMatrix = projectionMatrix;
+	}
+
+	public void setViewport(int width, int height) {
+		projectionMatrix = calculateProjectionMatrix(width, height);
 	}
 
 }
