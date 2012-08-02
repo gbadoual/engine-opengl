@@ -28,7 +28,7 @@ public class Point3D extends Point2D{
 		if (this.w != 1 && this.w != 0){
 			this.x/=this.w;
 			this.y/=this.w;
-			this.x/=this.w;
+			this.z/=this.w;
 			this.w= 1;
 		}
 	}

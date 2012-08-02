@@ -13,6 +13,14 @@ public class Matrix extends android.opengl.Matrix{
 	 * 
 	 * 
 	 */
+
+	public static final int UP_X_OFFSET = 4;
+	public static final int UP_Y_OFFSET = 5;
+	public static final int UP_Z_OFFSET = 6;
+
+	public static final int VIEX_X_OFFSET = 8;
+	public static final int VIEX_Y_OFFSET = 9;
+	public static final int VIEX_Z_OFFSET = 10;
 	
 	
 	public static void rotate(float[] m, float angleX, float angleY, float angleZ){

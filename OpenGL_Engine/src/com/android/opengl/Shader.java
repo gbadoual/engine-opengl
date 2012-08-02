@@ -6,6 +6,24 @@ public class Shader {
 
 	private static final String TAG = Shader.class.getSimpleName();
 
+	
+	
+	
+	public final int programHandle;
+	public final int mvpMatrixHandle;
+	public final int mvMatrixHandle;
+	public final int positionHandle;
+
+	public final int normalHandle;
+//	public final int textureHandle;
+	public final int isSelectedHandle;
+	
+	public final int textureCoordHandle;
+	public final int textureUniformHandle;
+	public int textureDataHandler;
+	
+	
+	
 	public static final String UNIFORM_MVP_MATRIX = "u_MVPMatrix";
 	public static final String UNIFORM_MV_MATRIX = "u_MVMatrix";
 	public static final String UNIFORM_IS_SELECTED = "uIsChecked";
@@ -74,6 +92,20 @@ public class Shader {
 	
 
 
+	
+	public Shader() {
+		programHandle = createAndLinkProgram();
+		mvpMatrixHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_MVP_MATRIX);
+		mvMatrixHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_MV_MATRIX);
+		isSelectedHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_IS_SELECTED);
+		positionHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_POSITION);
+//		colorHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_COLOR);
+		normalHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_NORMAL);
+
+		textureUniformHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_TEXTURE);
+		textureCoordHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_TEXTURE_COORD);
+	}
+	
 	public int loadShader(int type, String shaderCode) {
 		int shader = GLES20.glCreateShader(type);
 		GLES20.glShaderSource(shader, shaderCode);

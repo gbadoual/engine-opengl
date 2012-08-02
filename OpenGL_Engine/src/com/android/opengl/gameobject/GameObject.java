@@ -25,7 +25,7 @@ abstract public class GameObject extends CommonGameObject{
 	protected AttackingTool attackingTool;
 	
 	public GameObject(Scene parentScene) {
-		super(parentScene.programHandle, parentScene.getResources());
+		super(parentScene.shader, parentScene.getResources());
 		TAG = getClass().getSimpleName();
 		this.parentScene = parentScene;
 		this.parentScene.addGameObject(this);
