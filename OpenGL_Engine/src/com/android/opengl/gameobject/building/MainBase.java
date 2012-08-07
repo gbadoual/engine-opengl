@@ -12,7 +12,7 @@ public class MainBase extends AbstractBuilding{
 	
 	public MainBase(Scene parentScene) {
 		super(parentScene);
-//		glView = new GLButton();
+		glView = new GLButton();
 	}
 
 
@@ -25,7 +25,7 @@ public class MainBase extends AbstractBuilding{
 	@Override
 	public void drawFrame() {
 		super.drawFrame();
-//		glView.draw();
+		glView.draw();
 	}
 	
 	@Override
