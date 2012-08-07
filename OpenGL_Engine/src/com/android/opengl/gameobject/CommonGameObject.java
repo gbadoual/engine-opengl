@@ -13,23 +13,24 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 import com.android.opengl.R;
-import com.android.opengl.Shader;
 import com.android.opengl.gameobject.util.LoaderManager;
 import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Point3D;
+import com.android.opengl.shader.CommonShader;
+import com.android.opengl.shader.Shader;
 
 public abstract class CommonGameObject {
 	
 	private static final String TAG = CommonGameObject.class.getSimpleName();
 
 	public static final int VERTEX_ELEMENT_SIZE = 3;
-//	protected int colorElementSize = 3;
+	public static final int COLOR_ELEMENT_SIZE = 4;
 	public static final int TEXTURE_ELEMENT_SIZE = 2;
 	public static final int NORMAL_ELEMENT_SIZE = 3;
 	
 	public static long facesCount = 0;
 	
-	protected Shader shader;
+	protected CommonShader shader;
 
 
 	
@@ -60,6 +61,7 @@ public abstract class CommonGameObject {
 
 	public static class VboDataHandler{
 		public int vboVertexHandle;
+		public int vboColorHandle;
 		public int vboTextureHandle;
 		public int vboNormalHandle;
 		public int vboIndexHandle;
@@ -70,7 +72,7 @@ public abstract class CommonGameObject {
 		public int textureDataHandler;
 	}
 	
-	public CommonGameObject(Shader shader, Resources resources) {
+	public CommonGameObject(CommonShader shader, Resources resources) {
 		Log.d(TAG, "init " + getClass().getSimpleName());
 		long time = System.currentTimeMillis(); 
 		this.resources = resources;
@@ -222,25 +224,6 @@ public abstract class CommonGameObject {
         GLES20.glUseProgram(0);
 	};
 
-	protected int getVboBuffer(FloatBuffer buffer, float[] bufferData){
-		buffer.put(bufferData).position(0);
-		return getVboBuffer(buffer);
-	}
-	protected int getVboBuffer(IntBuffer buffer, int[] bufferData) {
-		buffer.put(bufferData).position(0);
-		return getVboBuffer(buffer);
-	}
-
-	private int getVboBuffer(Buffer buffer) {
-		IntBuffer intBuffer = ByteBuffer.allocateDirect(4).order(ByteOrder.nativeOrder()).asIntBuffer();
-		intBuffer.position(0);
-		GLES20.glGenBuffers(1, intBuffer);
-		int vboHandle = intBuffer.get(0);
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboHandle);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, buffer.capacity() * 4, buffer, GLES20.GL_STATIC_DRAW);
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-		return vboHandle;
-	}
 
 
 	public void rotate(float angleX, float angleY, float angleZ){
@@ -259,6 +242,10 @@ public abstract class CommonGameObject {
 	public void rotateY(float angle) {
 		Matrix.rotateRadY(modelMatrix, angle);
 		
+	}
+	
+	public void onSelected(){
+		isSelected = true;
 	}
 
 
@@ -298,9 +285,9 @@ public abstract class CommonGameObject {
 		setPosition(position[0], position[1], position[2]);
 	}
 	
-	public void setSelected(boolean isSelected) {
-		this.isSelected = isSelected;
+	public void onObjectTap() {
 	}
+
 
 	public boolean isSelected() {
 		return isSelected;
@@ -329,6 +316,10 @@ public abstract class CommonGameObject {
 				modelMatrix[Matrix.VIEX_X_OFFSET],
 				modelMatrix[Matrix.VIEX_Y_OFFSET],
 				modelMatrix[Matrix.VIEX_Z_OFFSET]);
+	}
+
+	public CommonShader getShader() {
+		return shader;
 	}
 
 

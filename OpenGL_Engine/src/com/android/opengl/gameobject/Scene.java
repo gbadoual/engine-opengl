@@ -13,11 +13,11 @@ import android.util.Log;
 
 import com.android.opengl.Camera;
 import com.android.opengl.R;
-import com.android.opengl.Shader;
 import com.android.opengl.gameobject.util.MeshQuadNode2D;
 import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
+import com.android.opengl.shader.CommonShader;
 
 public class Scene extends CommonGameObject{
 
@@ -45,7 +45,7 @@ public class Scene extends CommonGameObject{
 	private float[] positionXYZ = new float[4];
 
 	
-	public Scene(Context context, Shader shader, Camera camera) {
+	public Scene(Context context, CommonShader shader, Camera camera) {
 		super(shader, context.getResources());
 		this.camera = camera;
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
@@ -83,7 +83,7 @@ public class Scene extends CommonGameObject{
 	
 	
 	private void localDraw(){
-		GLES20.glUseProgram(shader.programHandle);
+		GLES20.glUseProgram(getShader().programHandle);
 
 			
 		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
@@ -226,32 +226,36 @@ public class Scene extends CommonGameObject{
 		return isRendingFinished;
 	}
 	
-	public void setIsSelected(Vector3D ray) {
+	List<GameObject> selectedObjectToMove = new ArrayList<GameObject>();
+	
+	public void checkObjectRayIntersection(Vector3D ray) {
 		boolean isAnyGameObgectSelected = false;
-		GameObject selectedObjectToMove = null;
+		selectedObjectToMove.clear();		
 		for(GameObject gameObject: gameObjectList){
 			if(gameObject.isSelected()){
-				selectedObjectToMove = gameObject;
-				break;
+				selectedObjectToMove.add(gameObject);
 			};
 		}
 		for(GameObject gameObject: gameObjectList){
-			isAnyGameObgectSelected |= gameObject.setIsSelected(ray);
+			isAnyGameObgectSelected |= gameObject.checkObjectRayIntersection(ray);
 		}
 		if(!isAnyGameObgectSelected){
 			//find intersection point with scene
 			long time = System.currentTimeMillis();
 			boolean res = sceneQuad2D.intersectionTest(ray);
 			time = System.currentTimeMillis() - time;
+			Log.d(TAG, "scene intersection test time = " + time/1000.0f +" sec.");
 			if(res){
-				Log.d(TAG, "intersection point with scene: " + ray.getTargetPoint()+", time = " + time/1000.0f +" sec.");
-				if(selectedObjectToMove != null){
-					Log.d(TAG, "moving " +selectedObjectToMove.getClass().getSimpleName());
-					selectedObjectToMove.moveTo(ray.getTargetPoint());					
-				}
-			} else{
-				Log.d(TAG, "no intersection with scene detected, time = " + time/1000.0f +" sec.");
-			}
+				Log.d(TAG, "intersection point with scene: " + ray.getTargetPoint());
+				onObjectTap(ray.getTargetPoint());
+			} 
+		}
+	}
+	
+	public void onObjectTap(Point3D point) {
+		for(GameObject gameObject: selectedObjectToMove){
+			Log.d(TAG, "moving " +selectedObjectToMove.getClass().getSimpleName());
+			gameObject.moveTo(point);					
 		}
 	}
 
