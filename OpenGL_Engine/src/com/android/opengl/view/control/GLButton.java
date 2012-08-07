@@ -13,6 +13,16 @@ public class GLButton extends GLView{
 //		bkgColorB = 128;
 //		bkgColorA = 128;
 	}
+	
+//	@Override
+//	protected void onMeasure(float width, float height) {
+//		super.onMeasure(1.0f, 1.0f);
+//	}
+	
+//	@Override
+//	protected void onLayout(float leftCoord, float topCoord) {
+//		super.onLayout(-0.5f, -0.5f);
+//	}
 
 	
 

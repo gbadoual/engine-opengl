@@ -28,7 +28,7 @@ public class GLViewShader extends Shader{
 		"																							" +
 		"void main(){																				" +
 		"	v_Color = "+ATTRIBUTE_COLOR+";															" +
-		"	gl_Position = vec4(0.5,0.5,0, 0.0);							" +
+		"	gl_Position = vec4("+ATTRIBUTE_POSITION+", 1.0);							" +
 		"}																							";
 }
 
@@ -39,7 +39,7 @@ public class GLViewShader extends Shader{
 			"precision mediump float;																" +
 			"varying	vec4 v_Color;																" +
 			"void main(){																			" +
-			"		gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);	" +
+			"		gl_FragColor = v_Color;	" +
 			"}																						";	
 		}
 

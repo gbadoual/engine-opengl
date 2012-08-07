@@ -80,7 +80,7 @@ public class EngineRenderer implements Renderer {
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
 		currentEngineState = loadingLevelState;
 		currentEngineState.loadLevel();		
-		glView = new GLButton();
+//		glView = new GLButton();
 	}
 
 	GLView glView;
@@ -95,7 +95,7 @@ public class EngineRenderer implements Renderer {
 		currentFrame++;
 		if(currentFrame <0){currentFrame = 0;}
 		clearScreen();
-		glView.draw();
+//		glView.draw();
 		currentEngineState.onDrawFrame();
 		countFPS();
 	}
@@ -113,7 +113,6 @@ public class EngineRenderer implements Renderer {
 		bmw1 = new BMW(scene);
 		bmw1.setPosition(-8, -7);
 
-		mainBase = new MainBase(scene);
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
 		cube1.setPosition(0, -6);
@@ -125,6 +124,7 @@ public class EngineRenderer implements Renderer {
 
 		earth = new Earth(scene);
 		earth.setPosition(-6, 3);
+		mainBase = new MainBase(scene);
 		
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));
