@@ -13,14 +13,18 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
-import com.android.opengl.Shader;
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.building.MainBase;
 import com.android.opengl.gameobject.unit.Cube;
 import com.android.opengl.gameobject.unit.Earth;
 import com.android.opengl.gameobject.unit.vehicle.BMW;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
+import com.android.opengl.shader.CommonShader;
+import com.android.opengl.shader.Shader;
+import com.android.opengl.view.control.GLButton;
+import com.android.opengl.view.control.GLView;
 import com.android.opengl.view.state.EngineState;
 import com.android.opengl.view.state.GameInProgressState;
 import com.android.opengl.view.state.LoadingLevelState;
@@ -44,11 +48,12 @@ public class EngineRenderer implements Renderer {
 	private Cube cube1;
 	private Cube cube2;
 	private BMW bmw1;
+	private MainBase mainBase;
 //	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
 
-	private Shader shader;
+	private CommonShader shader;
 
 
 	private int fps;
@@ -75,8 +80,10 @@ public class EngineRenderer implements Renderer {
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
 		currentEngineState = loadingLevelState;
 		currentEngineState.loadLevel();		
+		glView = new GLButton();
 	}
 
+	GLView glView;
 	@Override
 	public void onSurfaceChanged(GL10 arg0, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
@@ -88,7 +95,7 @@ public class EngineRenderer implements Renderer {
 		currentFrame++;
 		if(currentFrame <0){currentFrame = 0;}
 		clearScreen();
-		
+		glView.draw();
 		currentEngineState.onDrawFrame();
 		countFPS();
 	}
@@ -106,6 +113,7 @@ public class EngineRenderer implements Renderer {
 		bmw1 = new BMW(scene);
 		bmw1.setPosition(-8, -7);
 
+		mainBase = new MainBase(scene);
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
 		cube1.setPosition(0, -6);
@@ -166,7 +174,7 @@ public class EngineRenderer implements Renderer {
 		Point3D destPoint = new Point3D(resXYZ1);
 
 		Vector3D vector = new Vector3D(srcPoint, destPoint);
-		scene.setIsSelected(vector);
+		scene.checkObjectRayIntersection(vector);
 		Log.i("tag", "ray = "+vector);
 		Log.i("tag", "-------------------------------");
 		}
@@ -263,7 +271,7 @@ public class EngineRenderer implements Renderer {
 		}
 
 
-		public void setShader(Shader shader) {
+		public void setShader(CommonShader shader) {
 			this.shader = shader;
 		}
 

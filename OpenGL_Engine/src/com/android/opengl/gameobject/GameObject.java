@@ -25,7 +25,7 @@ abstract public class GameObject extends CommonGameObject{
 	protected AttackingTool attackingTool;
 	
 	public GameObject(Scene parentScene) {
-		super(parentScene.shader, parentScene.getResources());
+		super(parentScene.getShader(), parentScene.getResources());
 		TAG = getClass().getSimpleName();
 		this.parentScene = parentScene;
 		this.parentScene.addGameObject(this);
@@ -56,11 +56,17 @@ abstract public class GameObject extends CommonGameObject{
 		return outerCube;
 	}
 	
-	public boolean setIsSelected(Vector3D vector) {
-		return isSelected = outerCube.isIntersected(vector);
+	public boolean checkObjectRayIntersection(Vector3D vector) {
+		isSelected = outerCube.isIntersected(vector);
+		if(isSelected){
+			onObjectTap();
+		}
+		return isSelected;
 	}
 	
 	
+
+
 	public void incPosition(float x, float z) {
 		if(parentScene == null){
 			Log.w(TAG, "setPosition(x, z): parentScene is null");

@@ -3,7 +3,8 @@ package com.android.opengl.view.state;
 import android.opengl.GLES20;
 import android.util.Log;
 
-import com.android.opengl.Shader;
+import com.android.opengl.shader.CommonShader;
+import com.android.opengl.shader.Shader;
 import com.android.opengl.view.EngineRenderer;
 import com.android.opengl.view.WorldView;
 
@@ -26,7 +27,7 @@ public class LoadingLevelState extends EngineState{
 		// Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
-		worldRenderer.setShader(new Shader());
+		worldRenderer.setShader(new CommonShader());
 		
 		worldRenderer.initGameObjects();
 		worldRenderer.initFpsCount();
