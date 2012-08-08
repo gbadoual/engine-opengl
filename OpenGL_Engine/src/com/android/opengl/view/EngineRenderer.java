@@ -80,7 +80,6 @@ public class EngineRenderer implements Renderer {
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
 		currentEngineState = loadingLevelState;
 		currentEngineState.loadLevel();		
-//		glView = new GLButton();
 	}
 
 	GLView glView;

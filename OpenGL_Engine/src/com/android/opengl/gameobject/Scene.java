@@ -18,6 +18,8 @@ import com.android.opengl.gameobject.util.geometry.Matrix;
 import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.gameobject.util.geometry.Vector3D;
 import com.android.opengl.shader.CommonShader;
+import com.android.opengl.view.control.GLButton;
+import com.android.opengl.view.control.GLView;
 
 public class Scene extends CommonGameObject{
 
@@ -43,10 +45,51 @@ public class Scene extends CommonGameObject{
 	
 	private boolean isRendingFinished = true;
 	private float[] positionXYZ = new float[4];
+	
+	private Context context;
 
 	
 	public Scene(Context context, CommonShader shader, Camera camera) {
 		super(shader, context.getResources());
+		this.context = context;
+		glView = new GLButton(context){
+			@Override
+			protected void onMeasure(float width, float height) {
+				super.onMeasure(400, 200);
+			}
+			
+			@Override
+			protected void onLayout(float leftCoord, float topCoord) {
+				super.onLayout(10, 10);
+			}			
+		};
+		GLView child = new GLButton(context){
+			@Override
+			protected void onMeasure(float width, float height) {
+				super.onMeasure(150, 80);
+			}
+			@Override
+			protected void onLayout(float leftCoord, float topCoord) {
+				super.onLayout(100, 50);
+			}
+		};
+		child.setOnTapListener(new GLView.OnTapListener() {
+			
+			@Override
+			public boolean onTap(GLView glView) {
+				Log.i("tag", "another glview tapped: " + glView);
+				return true;
+			}
+		});
+		glView.addChild(child);
+		glView.setOnTapListener(new GLView.OnTapListener() {
+			
+			@Override
+			public boolean onTap(GLView glView) {
+				Log.i("tag", "glview tapped: " + glView);
+				return true;
+			}
+		});
 		this.camera = camera;
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
@@ -78,6 +121,7 @@ public class Scene extends CommonGameObject{
 		for(GameObject gameObject: gameObjectList){
 			gameObject.drawFrame();
 		}
+		glView.onDraw();
 		isRendingFinished = true;
 	}
 	
@@ -199,10 +243,14 @@ public class Scene extends CommonGameObject{
 		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);
 		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);
 	}
+	private GLView glView;
 
 	public void setViewPort(int width, int height) {
 		camera.setViewport(width, height);
 		notifyMVPMatrixChanged();
+		glView.invalidate();
+
+		
 	}
 
 	public void setViewMatrix(float[] viewMatrix) {
@@ -304,6 +352,26 @@ public class Scene extends CommonGameObject{
 		position[0] = position[0] + -dx * cosY + dz * sinY;
 		position[2] = position[2] + -dx * sinY - dz * cosY;
 		setPosition(position);
+	}
+
+
+	public Context getContext() {
+		return context;
+	}
+
+
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
+
+	public GLView getGlView() {
+		return glView;
+	}
+
+
+	public void setGlView(GLView glView) {
+		this.glView = glView;
 	}
 
 

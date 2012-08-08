@@ -4,8 +4,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.crypto.spec.IvParameterSpec;
+
+import android.content.Context;
 import android.opengl.GLES20;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.MotionEvent;
 
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
@@ -14,8 +22,10 @@ import com.android.opengl.shader.GLViewShader;
 
 public abstract class GLView {
 	
+	private static final int SIZE_INT = 4;
+	private static final int SIZE_FLOAT = 4;
 	protected float leftCoord;
-	protected float topCoord;
+	protected float bottomCoord;
 	protected float width;
 	protected float height;
 	protected float bkgColorR;
@@ -25,28 +35,32 @@ public abstract class GLView {
 	
 	private GLViewShader shader;
 	private VboDataHandler vboDataHandler;
+	private OnTapListener onTapListener;
+	
+	private GLView mParent;
+	private List<GLView> mChildren = new ArrayList<GLView>();
+	
+	private static DisplayMetrics displayMetrics;
 	
 	float[] vertexData;
-	
 	private boolean isVisible = true;
 	
 	int[] indexData = new int[]{0, 2, 3, 0, 1, 2};
 	
-	public GLView() {
+	public GLView(Context context) {
+		if(displayMetrics == null){
+			displayMetrics = context.getResources().getDisplayMetrics();
+		}
 		this.shader = new GLViewShader();
 		vboDataHandler = new VboDataHandler();
-		onLayout(0.6f, -1.0f);
-		onMeasure(0.4f, 2.0f);
+		invalidate();
 		
-		vertexData = new float[]{leftCoord, topCoord, 0, 
-				 leftCoord + width, topCoord, 0,
-				 leftCoord + width, topCoord + height, 0,
-				 leftCoord, topCoord + height, 0};
+
 
 		bkgColorR = 128 / 255.0f;
 		bkgColorG = 128 / 255.0f;
 		bkgColorB = 128 / 255.0f;
-		bkgColorA = 128 / 255.0f;
+		bkgColorA = 196 / 255.0f;
 
 		float[] colorData = new float[]{bkgColorR, bkgColorG, bkgColorB, bkgColorA,
 				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
@@ -54,50 +68,54 @@ public abstract class GLView {
 				bkgColorR, bkgColorG, bkgColorB, bkgColorA				};
 		
 
-		FloatBuffer vertexBuffer;
-		IntBuffer indexBuffer;
-		FloatBuffer colorBuffer;
-
-		vertexBuffer = ByteBuffer.allocateDirect(vertexData.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		vertexBuffer.put(vertexData).position(0);
-		colorBuffer = ByteBuffer.allocateDirect(colorData.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		colorBuffer.put(colorData).position(0);
-		indexBuffer = ByteBuffer.allocateDirect(indexData.length * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
-		indexBuffer.put(indexData).position(0);
-		
 		
 		int[] vboBufs = new int[3];
 		GLES20.glGenBuffers(vboBufs.length, vboBufs, 0);
 
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboBufs[0]);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexBuffer.capacity() * 4, vertexBuffer, GLES20.GL_STATIC_DRAW);
 		vboDataHandler.vboVertexHandle = vboBufs[0];
-			
-		
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboBufs[1]);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, colorBuffer.capacity() * 4, colorBuffer, GLES20.GL_STATIC_DRAW);
 		vboDataHandler.vboColorHandle = vboBufs[1];
-		
-		
-		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboBufs[2]);
-		GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.capacity() * 4, indexBuffer, GLES20.GL_STATIC_DRAW);
 		vboDataHandler.vboIndexHandle = vboBufs[2];
+
+		attachArrayToHandler(vertexData, vboDataHandler.vboVertexHandle);
+		attachArrayToHandler(colorData, vboDataHandler.vboColorHandle);
+		attachIndeciesToHandler(indexData, vboDataHandler.vboIndexHandle);
 		
 		
-		vertexBuffer.limit(0);
-		colorBuffer.limit(0);
-		indexBuffer.limit(0);
-		
-		
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 		
 	}
 	
-	public void draw(){
+	private void attachArrayToHandler(float[] data, int handler){
+		FloatBuffer floatBuffer;
+		floatBuffer = ByteBuffer.allocateDirect(data.length * SIZE_FLOAT).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		floatBuffer.put(data).position(0);
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, handler);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, floatBuffer.capacity() * SIZE_FLOAT, floatBuffer, GLES20.GL_STATIC_DRAW);
+		floatBuffer.limit(0);
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+	}
+	
+	private void attachIndeciesToHandler(int[] indexData, int handler){
+		IntBuffer indexBuffer;
+		indexBuffer = ByteBuffer.allocateDirect(indexData.length * SIZE_INT).order(ByteOrder.nativeOrder()).asIntBuffer();
+		indexBuffer.put(indexData).position(0);
+		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, handler);
+		GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.capacity() * SIZE_INT, indexBuffer, GLES20.GL_STATIC_DRAW);
+		indexBuffer.limit(0);
+		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
+	}	
+	
+	public void onDraw(){
 		if(isVisible){
+			boolean isDepthTestEnabled = GLES20.glIsEnabled(GLES20.GL_DEPTH_TEST);
+			boolean isCulingTestEnabled = GLES20.glIsEnabled(GLES20.GL_CULL_FACE);
+			if(isDepthTestEnabled){
+				GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+			}
+			if(isCulingTestEnabled){
+				GLES20.glDisable(GLES20.GL_CULL_FACE);
+			}
 			GLES20.glEnable(GLES20.GL_BLEND);
-		    GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		    GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
 			GLES20.glUseProgram(shader.programHandle);
 
@@ -121,6 +139,15 @@ public abstract class GLView {
 	        
 	        GLES20.glUseProgram(0);		
 			GLES20.glDisable(GLES20.GL_BLEND);
+			if(isDepthTestEnabled){
+				GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+			}
+			if(isCulingTestEnabled){
+				GLES20.glEnable(GLES20.GL_CULL_FACE);
+			}
+			for(GLView glView: mChildren){
+				glView.onDraw();
+			}
 
 		}				
 	}
@@ -134,14 +161,123 @@ public abstract class GLView {
 	}
 	
 
-	protected void onLayout(float leftCoord, float topCoord){
+	protected void onLayout(float leftCoord, float bottomCoord){
 		this.leftCoord = leftCoord;
-		this.topCoord = topCoord;
+		this.bottomCoord = bottomCoord;
+		if(mParent != null){
+			this.leftCoord += mParent.leftCoord;
+			this.bottomCoord += mParent.bottomCoord;
+		}
+		notifyBoundsChange();
 	}
 
 	protected void onMeasure(float width, float height) {
 		this.width = width;
 		this.height = height;
+		notifyBoundsChange();
 	} 
+	
+	private void notifyBoundsChange(){
+		float scaledLeftCoord = leftCoord / displayMetrics.widthPixels * 2 - 1;
+		float scaledBottomCoord =  bottomCoord / displayMetrics.heightPixels * 2 - 1;
+		float scaledWidth = width / displayMetrics.widthPixels * 2;
+		float scaledHeight =  height / displayMetrics.heightPixels * 2;
+		
+		vertexData = new float[]{scaledLeftCoord, scaledBottomCoord, 0, 
+				scaledLeftCoord + scaledWidth, scaledBottomCoord, 0,
+				scaledLeftCoord + scaledWidth, scaledBottomCoord + scaledHeight, 0,
+				scaledLeftCoord, scaledBottomCoord + scaledHeight, 0};		
+		attachArrayToHandler(vertexData, vboDataHandler.vboVertexHandle);
+	}
+	
+	public void invalidate(){
+		onLayout(leftCoord, bottomCoord);
+		for(GLView glView: mChildren){
+			glView.reMeasure();
+			glView.reLayout();
+		}
+		onMeasure(width, height);
+		Log.i("tag", "GLView invalidate");
+	}
+	
+	private void reMeasure(){
+		for(GLView glView: mChildren){
+			glView.reMeasure();
+		}
+		onMeasure(width, height);
+	}
+	private void reLayout(){
+		onLayout(leftCoord, bottomCoord);
+		for(GLView glView: mChildren){
+			glView.reLayout();
+		}		
+	}
+	
+	public void addChild(GLView child){
+		mChildren.add(child);
+		child.setParent(this);
+		invalidate();
+	}
+
+	public GLView getParent() {
+		return mParent;
+	}
+
+	public void setParent(GLView parent) {
+		this.mParent = parent;
+	}
+	
+	public GLView removeChildAt(int index){
+		if(index < mChildren.size()){
+			GLView glView = mChildren.remove(index);
+			if(glView != null){
+				glView.setParent(null);
+			}
+			return glView;
+		}
+		return null;
+	}
+	public boolean removeChild(GLView child) {
+		if(mChildren.remove(child)){
+			child.setParent(null);
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean onTouchEvent(MotionEvent event){
+		for(GLView glView: mChildren){
+			if(glView.onTouchEvent(event)){
+				return true;
+			}
+		}
+		
+		float y = event.getY();
+		if(displayMetrics != null){
+			y = displayMetrics.heightPixels - y;
+		}
+		Log.i("tag", "x/y = " + event.getX() +"/" + event.getY());
+		Log.i("tag", "left/bottom = " + leftCoord +"/" + bottomCoord);
+		if(event.getX() >= leftCoord && event.getX() <= leftCoord + width &&
+			y >= bottomCoord && y <= bottomCoord + height){
+			if(onTapListener != null){
+				return onTapListener.onTap(this);
+			}
+		}
+		
+		return false;
+	}
+	
+	public OnTapListener getOnTapListener() {
+		return onTapListener;
+	}
+
+	public void setOnTapListener(OnTapListener onTapListener) {
+		this.onTapListener = onTapListener;
+	}
+
+	public static interface OnTapListener{
+		public boolean onTap(GLView glView);
+	}
 	
 }
