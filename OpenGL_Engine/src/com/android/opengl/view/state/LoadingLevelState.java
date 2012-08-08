@@ -24,7 +24,7 @@ public class LoadingLevelState extends EngineState{
 		worldRenderer.getCallbackHandler().sendEmptyMessage(WorldView.DIALOG_LOADING_SHOW);
 		// Use culling to remove back faces.
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
-		// Enable depth testing
+//		// Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
 		worldRenderer.setShader(new CommonShader());

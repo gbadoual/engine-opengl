@@ -23,7 +23,9 @@ public class GameInProgressState extends EngineState{
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		gestureDetector.onTouchEvent(event);
+		if(!worldRenderer.getScene().getGlView().onTouchEvent(event)){
+			gestureDetector.onTouchEvent(event);
+		}
 		return true;
 	}
 	
