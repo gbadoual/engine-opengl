@@ -17,8 +17,8 @@ import android.view.MotionEvent;
 
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
-import com.android.opengl.gameobject.util.geometry.Point2D;
 import com.android.opengl.shader.GLViewShader;
+import com.android.opengl.util.geometry.Point2D;
 
 public abstract class GLView {
 	

@@ -2,7 +2,7 @@ package com.android.opengl.gameobject.tools.moving;
 
 import android.util.Log;
 
-import com.android.opengl.gameobject.util.geometry.Point3D;
+import com.android.opengl.util.geometry.Point3D;
 
 public class EmptyMovingTool extends MovingTool{
 

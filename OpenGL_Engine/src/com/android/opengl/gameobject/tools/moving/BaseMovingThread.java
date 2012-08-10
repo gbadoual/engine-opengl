@@ -5,10 +5,10 @@ import java.util.Random;
 import android.util.Log;
 
 import com.android.opengl.gameobject.GameObject;
-import com.android.opengl.gameobject.util.geometry.Matrix;
-import com.android.opengl.gameobject.util.geometry.Plane;
-import com.android.opengl.gameobject.util.geometry.Point3D;
-import com.android.opengl.gameobject.util.geometry.Vector3D;
+import com.android.opengl.util.geometry.Matrix;
+import com.android.opengl.util.geometry.Plane;
+import com.android.opengl.util.geometry.Point3D;
+import com.android.opengl.util.geometry.Vector3D;
 
 public class BaseMovingThread extends Thread{
 	

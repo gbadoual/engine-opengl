@@ -1,7 +1,7 @@
 package com.android.opengl.gameobject.tools.moving;
 
 import com.android.opengl.gameobject.GameObject;
-import com.android.opengl.gameobject.util.geometry.Point3D;
+import com.android.opengl.util.geometry.Point3D;
 
 public class Wheels extends MovingTool{
 	

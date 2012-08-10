@@ -1,4 +1,4 @@
-package com.android.opengl.gameobject.util.geometry;
+package com.android.opengl.util.geometry;
 
 public class Point3D extends Point2D{
 	public float z, w = 1;

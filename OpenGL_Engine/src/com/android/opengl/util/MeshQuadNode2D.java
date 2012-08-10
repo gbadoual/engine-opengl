@@ -1,10 +1,10 @@
-package com.android.opengl.gameobject.util;
+package com.android.opengl.util;
 
 import java.util.ArrayList;
 
 import android.util.Log;
 
-import com.android.opengl.gameobject.util.geometry.Vector3D;
+import com.android.opengl.util.geometry.Vector3D;
 
 public class MeshQuadNode2D {
 	
