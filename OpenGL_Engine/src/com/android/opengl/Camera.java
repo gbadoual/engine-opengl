@@ -1,8 +1,8 @@
 package com.android.opengl;
 
 
-import com.android.opengl.gameobject.util.geometry.Matrix;
-import com.android.opengl.gameobject.util.geometry.Point3D;
+import com.android.opengl.util.geometry.Matrix;
+import com.android.opengl.util.geometry.Point3D;
 
 public class Camera {
 	

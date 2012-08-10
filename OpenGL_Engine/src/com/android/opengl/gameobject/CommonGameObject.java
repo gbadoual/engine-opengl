@@ -13,11 +13,11 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 import com.android.opengl.R;
-import com.android.opengl.gameobject.util.LoaderManager;
-import com.android.opengl.gameobject.util.geometry.Matrix;
-import com.android.opengl.gameobject.util.geometry.Point3D;
 import com.android.opengl.shader.CommonShader;
 import com.android.opengl.shader.Shader;
+import com.android.opengl.util.LoaderManager;
+import com.android.opengl.util.geometry.Matrix;
+import com.android.opengl.util.geometry.Point3D;
 
 public abstract class CommonGameObject {
 	

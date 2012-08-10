@@ -13,11 +13,11 @@ import android.util.Log;
 
 import com.android.opengl.Camera;
 import com.android.opengl.R;
-import com.android.opengl.gameobject.util.MeshQuadNode2D;
-import com.android.opengl.gameobject.util.geometry.Matrix;
-import com.android.opengl.gameobject.util.geometry.Point3D;
-import com.android.opengl.gameobject.util.geometry.Vector3D;
 import com.android.opengl.shader.CommonShader;
+import com.android.opengl.util.MeshQuadNode2D;
+import com.android.opengl.util.geometry.Matrix;
+import com.android.opengl.util.geometry.Point3D;
+import com.android.opengl.util.geometry.Vector3D;
 import com.android.opengl.view.control.GLButton;
 import com.android.opengl.view.control.GLView;
 

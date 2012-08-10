@@ -1,4 +1,4 @@
-package com.android.opengl.gameobject.util;
+package com.android.opengl.util;
 
 import java.io.IOException;
 import java.io.InputStream;
