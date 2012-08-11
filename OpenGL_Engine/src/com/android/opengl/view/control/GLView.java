@@ -7,83 +7,85 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.crypto.spec.IvParameterSpec;
-
 import android.content.Context;
 import android.opengl.GLES20;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.android.opengl.Camera;
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
 import com.android.opengl.shader.GLViewShader;
-import com.android.opengl.util.geometry.Point2D;
+import com.android.opengl.util.LoaderManager;
+import com.android.opengl.view.Touchable;
 
-public abstract class GLView {
+public abstract class GLView implements Touchable{
 	
 	private static final int SIZE_INT = 4;
 	private static final int SIZE_FLOAT = 4;
-	protected float leftCoord;
-	protected float bottomCoord;
-	protected float width;
-	protected float height;
+	private static final String TAG = GLView.class.getSimpleName();
+	
+	private float mParentShiftX = 0;
+	private float mParentShiftY = 0;
+	protected float mLeftCoord;
+	protected float mTopCoord;
+	protected float mWidth;
+	protected float mHeight;
 	protected float bkgColorR;
 	protected float bkgColorG;
 	protected float bkgColorB;
 	protected float bkgColorA;
+
+	private GLViewShader mShader;
+	private VboDataHandler mVboDataHandler;
+	private OnTapListener mOnTapListener;
+
+	protected GLView mFocusedView;
+
+	protected GLView mParent;
+	protected List<GLView> mChildren = new ArrayList<GLView>();
 	
-	private GLViewShader shader;
-	private VboDataHandler vboDataHandler;
-	private OnTapListener onTapListener;
+	private Camera camera;
 	
-	private GLView mParent;
-	private List<GLView> mChildren = new ArrayList<GLView>();
-	
-	private static DisplayMetrics displayMetrics;
-	
-	float[] vertexData;
 	private boolean isVisible = true;
 	
 	int[] indexData = new int[]{0, 2, 3, 0, 1, 2};
+	float[] textureCoord = new float[]{0, 1,
+									   1, 1, 
+									   1, 0, 
+									   0, 0};
 	
-	public GLView(Context context) {
-		if(displayMetrics == null){
-			displayMetrics = context.getResources().getDisplayMetrics();
-		}
-		this.shader = new GLViewShader();
-		vboDataHandler = new VboDataHandler();
-		invalidate();
-		
-
-
-		bkgColorR = 128 / 255.0f;
-		bkgColorG = 128 / 255.0f;
-		bkgColorB = 128 / 255.0f;
-		bkgColorA = 196 / 255.0f;
-
-		float[] colorData = new float[]{bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-				bkgColorR, bkgColorG, bkgColorB, bkgColorA				};
-		
-
-		
-		int[] vboBufs = new int[3];
-		GLES20.glGenBuffers(vboBufs.length, vboBufs, 0);
-
-		vboDataHandler.vboVertexHandle = vboBufs[0];
-		vboDataHandler.vboColorHandle = vboBufs[1];
-		vboDataHandler.vboIndexHandle = vboBufs[2];
-
-		attachArrayToHandler(vertexData, vboDataHandler.vboVertexHandle);
-		attachArrayToHandler(colorData, vboDataHandler.vboColorHandle);
-		attachIndeciesToHandler(indexData, vboDataHandler.vboIndexHandle);
-		
-		
-		
+	public GLView(Camera camera) {
+		this.camera = camera;
+		init();
+	}
+	public GLView(Camera camera, float left, float top, float width, float height) {
+		this.camera = camera;
+		this.mLeftCoord = left;
+		this.mTopCoord = top;
+		this.mWidth = width;
+		this.mHeight = height;
+		init();
 	}
 	
+	private void init() {
+		this.mShader = new GLViewShader();
+		mVboDataHandler = new VboDataHandler();
+
+		int[] vboBufs = new int[4];
+		GLES20.glGenBuffers(vboBufs.length, vboBufs, 0);
+
+		mVboDataHandler.vboVertexHandle = vboBufs[0];
+		mVboDataHandler.vboColorHandle = vboBufs[1];
+		mVboDataHandler.vboIndexHandle = vboBufs[2];
+		mVboDataHandler.vboTextureCoordHandle = vboBufs[3];
+
+		setColor(128, 128, 128, 192);
+		invalidate();
+		attachArrayToHandler(textureCoord, mVboDataHandler.vboTextureCoordHandle);
+		attachIndeciesToHandler(indexData, mVboDataHandler.vboIndexHandle);
+	}
+
 	private void attachArrayToHandler(float[] data, int handler){
 		FloatBuffer floatBuffer;
 		floatBuffer = ByteBuffer.allocateDirect(data.length * SIZE_FLOAT).order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -117,25 +119,36 @@ public abstract class GLView {
 			GLES20.glEnable(GLES20.GL_BLEND);
 		    GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
-			GLES20.glUseProgram(shader.programHandle);
+			GLES20.glUseProgram(mShader.programHandle);
+			GLES20.glUniform1f(mShader.isPressedHandle, getFocusedView() == this?1:0);
 
+			GLES20.glUniform1f(mShader.isTextureEnabledHandle, isBackgroundEnabled()? 1 : 0);
+			if(isBackgroundEnabled()){
+				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+			    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mVboDataHandler.textureDataHandler);
+			    GLES20.glUniform1i(mShader.textureHandle, 0);
+
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVboDataHandler.vboTextureCoordHandle);
+				GLES20.glEnableVertexAttribArray(mShader.textureCoordHandle);
+				GLES20.glVertexAttribPointer(mShader.textureCoordHandle, CommonGameObject.TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+			}
 			
 			
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVboDataHandler.vboVertexHandle);
+			GLES20.glEnableVertexAttribArray(mShader.positionHandle);
+			GLES20.glVertexAttribPointer(mShader.positionHandle, 3, GLES20.GL_FLOAT, false, 0, 0);
 			
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
-			GLES20.glEnableVertexAttribArray(shader.positionHandle);
-			GLES20.glVertexAttribPointer(shader.positionHandle, 3, GLES20.GL_FLOAT, false, 0, 0);
-			
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboColorHandle);
-			GLES20.glEnableVertexAttribArray(shader.colorHandle);
-			GLES20.glVertexAttribPointer(shader.colorHandle, 4, GLES20.GL_FLOAT, false, 0, 0);
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVboDataHandler.vboColorHandle);
+			GLES20.glEnableVertexAttribArray(mShader.colorHandle);
+			GLES20.glVertexAttribPointer(mShader.colorHandle, 4, GLES20.GL_FLOAT, false, 0, 0);
 			
 			
-			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboDataHandler.vboIndexHandle);
+			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, mVboDataHandler.vboIndexHandle);
 			GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexData.length, GLES20.GL_UNSIGNED_INT, 0);
 
 			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 	        
 	        GLES20.glUseProgram(0);		
 			GLES20.glDisable(GLES20.GL_BLEND);
@@ -161,42 +174,69 @@ public abstract class GLView {
 	}
 	
 
-	protected void onLayout(float leftCoord, float bottomCoord){
-		this.leftCoord = leftCoord;
-		this.bottomCoord = bottomCoord;
+	protected void onLayout(float leftCoord, float topCoord){
 		if(mParent != null){
-			this.leftCoord += mParent.leftCoord;
-			this.bottomCoord += mParent.bottomCoord;
+			mParentShiftX = mParent.mLeftCoord;
+			mParentShiftY = mParent.mTopCoord;
 		}
+
+		this.mLeftCoord = leftCoord;
+		this.mTopCoord = topCoord;
 		notifyBoundsChange();
 	}
 
 	protected void onMeasure(float width, float height) {
-		this.width = width;
-		this.height = height;
+		this.mWidth = width;
+		this.mHeight = height;
 		notifyBoundsChange();
 	} 
 	
 	private void notifyBoundsChange(){
-		float scaledLeftCoord = leftCoord / displayMetrics.widthPixels * 2 - 1;
-		float scaledBottomCoord =  bottomCoord / displayMetrics.heightPixels * 2 - 1;
-		float scaledWidth = width / displayMetrics.widthPixels * 2;
-		float scaledHeight =  height / displayMetrics.heightPixels * 2;
+		float aspectRatio = ((float)camera.getViewportWidth())/camera.getViewportHeight();
+		float aspectRatioX;
+		float aspectRatioY;
+
+		if(aspectRatio > 1){
+			aspectRatioX = 2.0f / 100;
+			aspectRatioY = 2.0f / (100 / aspectRatio);
+		} else {
+			aspectRatioX = 2.0f / (100 * aspectRatio);
+			aspectRatioY = 2.0f / 100;
+		}
+		float scaledLeftCoord = (mLeftCoord + mParentShiftX) * aspectRatioX - 1;
+		float scaledTopCoord = 1 - (mTopCoord + mParentShiftY)* aspectRatioY;
+		float scaledWidth = mWidth * aspectRatioX;
+		float scaledHeight =  - mHeight * aspectRatioY;
 		
-		vertexData = new float[]{scaledLeftCoord, scaledBottomCoord, 0, 
-				scaledLeftCoord + scaledWidth, scaledBottomCoord, 0,
-				scaledLeftCoord + scaledWidth, scaledBottomCoord + scaledHeight, 0,
-				scaledLeftCoord, scaledBottomCoord + scaledHeight, 0};		
-		attachArrayToHandler(vertexData, vboDataHandler.vboVertexHandle);
+		float[] vertexData = new float[]{scaledLeftCoord, scaledTopCoord, 0, 
+				scaledLeftCoord + scaledWidth, scaledTopCoord, 0,
+				scaledLeftCoord + scaledWidth, scaledTopCoord + scaledHeight, 0,
+				scaledLeftCoord, scaledTopCoord + scaledHeight, 0};		
+		attachArrayToHandler(vertexData, mVboDataHandler.vboVertexHandle);
+	}
+	
+	public void setColor(float r, float g, float b, float a){
+		bkgColorR = r / 255.0f;
+		bkgColorG = g / 255.0f;
+		bkgColorB = b / 255.0f;
+		bkgColorA = a / 255.0f;
+
+		float[] colorData = new float[]{bkgColorR, bkgColorG, bkgColorB, bkgColorA,
+				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
+				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
+				bkgColorR, bkgColorG, bkgColorB, bkgColorA				};
+		
+		attachArrayToHandler(colorData, mVboDataHandler.vboColorHandle);
+
 	}
 	
 	public void invalidate(){
-		onLayout(leftCoord, bottomCoord);
+		onLayout(mLeftCoord, mTopCoord);
 		for(GLView glView: mChildren){
 			glView.reMeasure();
 			glView.reLayout();
 		}
-		onMeasure(width, height);
+		onMeasure(mWidth, mHeight);
 		Log.i("tag", "GLView invalidate");
 	}
 	
@@ -204,10 +244,10 @@ public abstract class GLView {
 		for(GLView glView: mChildren){
 			glView.reMeasure();
 		}
-		onMeasure(width, height);
+		onMeasure(mWidth, mHeight);
 	}
 	private void reLayout(){
-		onLayout(leftCoord, bottomCoord);
+		onLayout(mLeftCoord, mTopCoord);
 		for(GLView glView: mChildren){
 			glView.reLayout();
 		}		
@@ -245,39 +285,99 @@ public abstract class GLView {
 		return false;
 	}
 	
+	
+	@Override
 	public boolean onTouchEvent(MotionEvent event){
+		if(camera == null){
+			Log.w(TAG, "onTouchEvent(): camera is not initialized yet");
+		}
+//		isSelected = false;
+		if (mFocusedView != null && mFocusedView != this){
+			return mFocusedView.onTouchEvent(event);
+			
+		}
 		for(GLView glView: mChildren){
 			if(glView.onTouchEvent(event)){
 				return true;
 			}
 		}
-		
-		float y = event.getY();
-		if(displayMetrics != null){
-			y = displayMetrics.heightPixels - y;
-		}
-		Log.i("tag", "x/y = " + event.getX() +"/" + event.getY());
-		Log.i("tag", "left/bottom = " + leftCoord +"/" + bottomCoord);
-		if(event.getX() >= leftCoord && event.getX() <= leftCoord + width &&
-			y >= bottomCoord && y <= bottomCoord + height){
-			if(onTapListener != null){
-				return onTapListener.onTap(this);
+		float ratio = 100.0f / Math.max(camera.getViewportWidth(), camera.getViewportHeight());
+		float x = event.getX() * ratio;
+		float y = event.getY() * ratio;
+//		Log.i("tag", "x/y = " + x +"/" + y);
+//		Log.i("tag", "left/bottom = " + (leftCoord + parentShiftX) +"/" + (bottomCoord + parentShiftY));
+
+		switch (event.getActionMasked()) {
+		case MotionEvent.ACTION_DOWN:
+		case MotionEvent.ACTION_MOVE:
+			if(getFocusedView() == this || isWithinRect(x, y)){
+//				Log.d("tag", "tap detected: " + this.getClass().getSimpleName());
+				setFocusedView(this);
+				return true;
 			}
+			break;
+		case MotionEvent.ACTION_UP:
+			if(isWithinRect(x, y) && getFocusedView() == this){
+				Log.d("tag", "tap detected: " + this.getClass().getSimpleName());
+				if(mOnTapListener != null){
+					mOnTapListener.onTap(this);
+				}
+			}
+		case MotionEvent.ACTION_CANCEL:
+			setFocusedView(null);
+			break;
+			
+
+		default:
+			break;
 		}
-		
 		return false;
 	}
 	
+	
+	public void setBackground(int resourceId){
+		mVboDataHandler.textureDataHandler = -1;
+		if(resourceId > 0){
+			//TODO getInstance...
+			mVboDataHandler.textureDataHandler = LoaderManager.getInstance((Context)null).loadTexture(resourceId);
+		}
+	}
+	
+	public boolean isBackgroundEnabled(){
+		return mVboDataHandler.textureDataHandler > 0;
+	}
+	
+	
+	private boolean isWithinRect(float x, float y){
+		return x >= mLeftCoord + mParentShiftX && x <= mLeftCoord +  + mParentShiftX + mWidth &&
+				y >= mTopCoord + mParentShiftY && y <= mTopCoord + mParentShiftY + mHeight;
+	}
+	
+	private void setFocusedView(GLView glView) {
+		if(mParent != null){
+			mParent.setFocusedView(glView);
+		} else {
+			mFocusedView = glView;
+		}
+	}
+	private GLView getFocusedView() {
+		if(mParent != null){
+			return mParent.getFocusedView();
+		}
+		return	mFocusedView;
+	}
+	
 	public OnTapListener getOnTapListener() {
-		return onTapListener;
+		return mOnTapListener;
 	}
 
 	public void setOnTapListener(OnTapListener onTapListener) {
-		this.onTapListener = onTapListener;
+		this.mOnTapListener = onTapListener;
 	}
+	
 
 	public static interface OnTapListener{
-		public boolean onTap(GLView glView);
+		public void onTap(GLView glView);
 	}
 	
 }

@@ -1,6 +1,8 @@
 package com.android.opengl;
 
 
+import android.content.Context;
+
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 
@@ -16,6 +18,9 @@ public class Camera {
 	
 	private float[] viewMatrix = new float[16];
 	private float[] projectionMatrix = new float[16];
+	
+	private int viewportWidth;
+	private int viewportHeight;
 	
 	private float angleX;
 	private float angleY;
@@ -144,7 +149,19 @@ public class Camera {
 	}
 
 	public void setViewport(int width, int height) {
-		projectionMatrix = calculateProjectionMatrix(width, height);
+		viewportWidth = width;
+		viewportHeight = height;
+		projectionMatrix = calculateProjectionMatrix(viewportWidth, viewportHeight);
 	}
+
+	public int getViewportHeight() {
+		return viewportHeight;
+	}
+
+	public int getViewportWidth() {
+		return viewportWidth;
+	}
+
+
 
 }

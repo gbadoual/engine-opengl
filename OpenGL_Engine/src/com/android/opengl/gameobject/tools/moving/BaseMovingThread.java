@@ -107,7 +107,7 @@ public class BaseMovingThread extends Thread{
 		if(sinA < 0 ){
 			turnAngle = -turnAngle;
 		}
-		Log.d("tag", "turnAngle = " + turnAngle);
+//		Log.d("tag", "turnAngle = " + turnAngle);
 
 		if(Math.abs(turnAngle) < MAX_ANGLE_DEVIATION){
 			return;
