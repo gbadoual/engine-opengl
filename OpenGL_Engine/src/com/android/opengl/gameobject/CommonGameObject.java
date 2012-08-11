@@ -62,14 +62,14 @@ public abstract class CommonGameObject {
 	public static class VboDataHandler{
 		public int vboVertexHandle;
 		public int vboColorHandle;
-		public int vboTextureHandle;
+		public int vboTextureCoordHandle;
 		public int vboNormalHandle;
 		public int vboIndexHandle;
 		public float[] vertexData;
 		public int [] indexData;
 
 		public long facesCount;
-		public int textureDataHandler;
+		public int textureDataHandler = -1;
 	}
 	
 	public CommonGameObject(CommonShader shader, Resources resources) {
@@ -142,7 +142,7 @@ public abstract class CommonGameObject {
 			
 			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboBufs[2]);
 			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, textureBuffer.capacity() * 4, textureBuffer, GLES20.GL_STATIC_DRAW);
-			vboDataHandler.vboTextureHandle = vboBufs[2];
+			vboDataHandler.vboTextureCoordHandle = vboBufs[2];
 	
 			
 			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboBufs[3]);
@@ -194,9 +194,9 @@ public abstract class CommonGameObject {
 // using VBOs		
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, vboDataHandler.textureDataHandler);
-	    GLES20.glUniform1i(shader.textureUniformHandle, 0);
+	    GLES20.glUniform1i(shader.textureHandle, 0);
 
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureHandle);
+		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureCoordHandle);
 		GLES20.glEnableVertexAttribArray(shader.textureCoordHandle);
 		GLES20.glVertexAttribPointer(shader.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
@@ -220,7 +220,7 @@ public abstract class CommonGameObject {
 
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-        
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glUseProgram(0);
 	};
 

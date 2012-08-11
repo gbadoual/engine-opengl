@@ -6,7 +6,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
 
-public class GestureDetector{
+public class GestureDetector implements Touchable{
 
 	private enum GESTURE_STATE{
 		ROTATE,
@@ -44,6 +44,7 @@ public class GestureDetector{
 	}
 
 
+	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 		
 		if(ev.getPointerCount() == 1){

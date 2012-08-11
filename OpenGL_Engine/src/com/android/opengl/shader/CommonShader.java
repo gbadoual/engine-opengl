@@ -14,14 +14,14 @@ public class CommonShader extends Shader{
 	public final int isSelectedHandle;
 	
 	public final int textureCoordHandle;
-	public final int textureUniformHandle;
+	public final int textureHandle;
 	public int textureDataHandler;
 	
 	
 	
 	public static final String UNIFORM_MVP_MATRIX = "u_MVPMatrix";
 	public static final String UNIFORM_MV_MATRIX = "u_MVMatrix";
-	public static final String UNIFORM_IS_SELECTED = "uIsChecked";
+	public static final String UNIFORM_IS_SELECTED = "uIsSelected";
 	public static final String UNIFORM_LIGHT_POSITION = "uLightPosition";
 	public static final String UNIFORM_TEXTURE = "u_Texture";
 	
@@ -41,7 +41,7 @@ public class CommonShader extends Shader{
 		positionHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_POSITION);
 		normalHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_NORMAL);
 
-		textureUniformHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTURE);
+		textureHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTURE);
 		textureCoordHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_TEXTURE_COORD);
 	}
 
@@ -67,7 +67,7 @@ public class CommonShader extends Shader{
 		"	v_Position = vec3("+UNIFORM_MV_MATRIX+" * "+ ATTRIBUTE_POSITION +");					" +
 		"	v_Normal = vec3("+UNIFORM_MV_MATRIX+" * vec4("+ ATTRIBUTE_NORMAL +", 0.0));				" +
 		"	v_isSelected = "+UNIFORM_IS_SELECTED+";													" +
-		"	v_TexCoord = vec2("+ATTRIBUTE_TEXTURE_COORD+".x, "+ATTRIBUTE_TEXTURE_COORD+".y);													" +
+		"	v_TexCoord = "+ATTRIBUTE_TEXTURE_COORD+";													" +
 		"	gl_Position = "+UNIFORM_MVP_MATRIX+" * "+ATTRIBUTE_POSITION+";							" +
 		"}																							";
 }

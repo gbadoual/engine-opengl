@@ -4,6 +4,7 @@ import android.view.MotionEvent;
 
 import com.android.opengl.view.GestureDetector;
 import com.android.opengl.view.EngineRenderer;
+import com.android.opengl.view.Touchable;
 
 public class GameInProgressState extends EngineState{
 	
@@ -21,10 +22,29 @@ public class GameInProgressState extends EngineState{
 	
 	
 	
+	private Touchable currntlyTouched;
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if(!worldRenderer.getScene().getGlView().onTouchEvent(event)){
-			gestureDetector.onTouchEvent(event);
+		switch (event.getActionMasked()) {
+		case MotionEvent.ACTION_DOWN:
+			if(worldRenderer.getScene().getGlView().onTouchEvent(event)){
+				currntlyTouched = worldRenderer.getScene().getGlView();
+			} else{
+				currntlyTouched = gestureDetector;
+				currntlyTouched.onTouchEvent(event);
+			}
+			
+			break;
+		case MotionEvent.ACTION_UP:
+			currntlyTouched.onTouchEvent(event);
+			currntlyTouched = null;
+			break;
+		default:
+			if(currntlyTouched != null){
+				currntlyTouched.onTouchEvent(event);
+			}
+			break;
 		}
 		return true;
 	}

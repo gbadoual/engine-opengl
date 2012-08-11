@@ -47,7 +47,7 @@ public class EngineRenderer implements Renderer {
 //	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
 	private Cube cube1;
 	private Cube cube2;
-	private BMW bmw1;
+//	private BMW bmw1;
 	private MainBase mainBase;
 //	private GameObject bmw2;
 	private Earth earth;
@@ -109,8 +109,8 @@ public class EngineRenderer implements Renderer {
 	public void initGameObjects() {
 		CommonGameObject.facesCount = 0;
 		scene = new Scene(worldView.getContext(), shader, new Camera(0, 0));
-		bmw1 = new BMW(scene);
-		bmw1.setPosition(-8, -7);
+//		bmw1 = new BMW(scene);
+//		bmw1.setPosition(-8, -7);
 
 //		bmw2 = new BMW(scene);
 		cube1 = new Cube(scene);
