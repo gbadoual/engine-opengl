@@ -27,6 +27,7 @@ public class MotionEventDispatcher {
 		boolean res = false;
 		switch (event.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:
+		case MotionEvent.ACTION_POINTER_DOWN:
 			for(TouchableWrapper wrapper: wrapperList){
 				int pointerId = Math.min(event.getPointerId(event.getActionIndex()), event.getPointerCount() - 1);
 				
@@ -42,30 +43,22 @@ public class MotionEventDispatcher {
 					if (wrapper.motionEvent != null){
 						PointerCoords newPointerCoords = new PointerCoords();
 						event.getPointerCoords(pointerId, newPointerCoords);
-						PointerCoords[] pointerCoordsArray = new PointerCoords[wrapper.motionEvent.getPointerCount() + 1];
-						for(int i = 0 ; i < pointerCoordsArray.length - 1; ++i){
-							wrapper.motionEvent.getPointerCoords(i, pointerCoordsArray[i]);
-						}
-						pointerCoordsArray[wrapper.motionEvent.getPointerCount()] = newPointerCoords;
-						wrapper.motionEvent.addBatch(event.getEventTime(), pointerCoordsArray, event.getMetaState());
+						addPointer(wrapper, newPointerCoords, event.getPointerId(pointerId));
 					} else {
 						wrapper.motionEvent = currentEvent;
 					}
 				}
 			}
-//			if(worldRenderer.getScene().getGlView().onTouchEvent(event)){
-//				currntlyTouched = worldRenderer.getScene().getGlView();
-//			} else{
-//				currntlyTouched = gestureDetector;
-//				currntlyTouched.onTouchEvent(event);
-//			}
-			
 			break;
 		case MotionEvent.ACTION_UP:
-//			currntlyTouched.onTouchEvent(event);
-//			currntlyTouched = null;
+		case MotionEvent.ACTION_POINTER_UP:
+			int pointerIndex = event.getPointerId(event.getActionIndex());
+			for(TouchableWrapper touchableWrapper: wrapperList){
+				removePointer(touchableWrapper, pointerIndex);
+			}
 			break;
 		default:
+			//TODO sync with current coords among all the wrappers
 			for(TouchableWrapper wrapper: wrapperList){
 				res |= wrapper.deliverTouchEvent();
 			}
@@ -85,15 +78,54 @@ public class MotionEventDispatcher {
 		}
 		return res;
 	}
+
 	public boolean unregisterToucheble(Touchable touchable){
 		return wrapperList.remove(new TouchableWrapper(touchable, null, 0));
 	}
 	
+	public void addPointer(TouchableWrapper touchableWrapper, PointerCoords pointerCoords, int newPointerId){
+		int pointerCount = touchableWrapper.getPointerCount();
+		PointerCoords[] pointerCoordsArray = new PointerCoords[pointerCount + 1];
+		int[] pointerIdList = new int[pointerCount + 1];
+		for(int i = 0 ; i < pointerCoordsArray.length - 1; ++i){
+			touchableWrapper.getPointerCoords(i, pointerCoordsArray[i]);
+			pointerIdList[i] = touchableWrapper.getPointerId(i);
+		}
+		pointerCoordsArray[pointerCount] = pointerCoords;
+		pointerIdList[pointerCount] = newPointerId;
+		touchableWrapper.addBatch(pointerCoordsArray, pointerIdList);
+	}
+
+	public boolean removePointer(TouchableWrapper touchableWrapper, int pointerIndex){
+		int pointerIdToDelete = touchableWrapper.findPointerIndex(pointerIndex);
+		if(pointerIdToDelete >= 0){
+			int size = touchableWrapper.getPointerCount();
+			if(size == 1){
+				touchableWrapper.disposeMotionEvent();
+				return true;
+			}
+			PointerCoords[] pointerCoordsArray = new PointerCoords[size - 1];
+			int[] pointerIdArray = new int[size - 1];
+			int pointerCoordIndex = 0;
+			for(int i = 0 ; i < size; ++i){
+				int pointerId = touchableWrapper.getPointerId(i);
+				if(pointerId != pointerIdToDelete){
+					touchableWrapper.getPointerCoords(pointerId, pointerCoordsArray[pointerCoordIndex++]);
+					pointerIdArray[pointerCoordIndex] = pointerId;
+				}
+			}
+			touchableWrapper.addBatch(pointerCoordsArray, pointerIdArray);
+			return true;
+		}
+		return false;
+	}
 	
 	
 	private static class TouchableWrapper{
 		public Touchable touchable;
-		public MotionEvent motionEvent;
+		private MotionEvent motionEvent;
+		private int[] pointerIdMapping = new int[0];
+		
 		public int zOrder;
 		public TouchableWrapper(Touchable touchable, MotionEvent motionEvent,
 				int zOrder) {
@@ -103,12 +135,60 @@ public class MotionEventDispatcher {
 			this.zOrder = zOrder;
 		}
 		
+		public void disposeMotionEvent() {
+			if(motionEvent != null){
+				motionEvent.recycle();
+				motionEvent = null;
+			}
+		}
+
+		public int findPointerIndex(int pointerIndex) {
+			if(motionEvent != null){
+				for(int i = 0; i < pointerIdMapping.length; ++i){
+					if(pointerIdMapping[i] == pointerIndex){
+						return i;
+					}
+				}
+			}
+			return -1;
+		}
+
+		public int getPointerId(int i) {
+			if(motionEvent != null){
+				return motionEvent.getPointerId(i);
+			}
+			return -1;
+		}
+
+		public void getPointerCoords(int i, PointerCoords pointerCoords) {
+			if(motionEvent != null){
+				motionEvent.getPointerCoords(i, pointerCoords);
+			}
+			
+		}
+
+		public int getPointerCount() {
+			if(motionEvent != null){
+				return motionEvent.getPointerCount();
+			}
+			return 0;
+		}
+
+		public void addBatch(PointerCoords[] pointerCoords, int[] pointerIdList){
+			if(motionEvent != null){
+				motionEvent.addBatch(motionEvent.getEventTime(), pointerCoords, motionEvent.getMetaState());
+				pointerIdMapping = pointerIdList;
+			}
+			
+		}
+		
 		public boolean deliverTouchEvent(MotionEvent event) {
 			if(touchable != null ){
 				return touchable.onTouchEvent(event);
 			}
 			return false;
 		}
+		
 
 		public boolean deliverTouchEvent(){
 			if(touchable != null && motionEvent != null){
