@@ -3,6 +3,7 @@ package com.android.opengl.view;
 import java.util.Arrays;
 
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -37,6 +38,12 @@ public class GestureDetector implements Touchable{
 
 	
 	public GestureDetector(Context context, OnGestureListener listener) {
+		Log.i("tag", "thread = " + Thread.currentThread() + ", looper = " + Looper.myLooper());
+		StackTraceElement[] elements = Thread.getAllStackTraces().get(Thread.currentThread());
+		for(StackTraceElement element: elements){
+			Log.i("tag", "" + element);
+		}
+		Log.i("tag", "===========================================================");
 		defaultGesturedetector = new android.view.GestureDetector(context, dispatcherGestureListener);
 		gestureListener = listener;
 		pointerIds = new int[2];

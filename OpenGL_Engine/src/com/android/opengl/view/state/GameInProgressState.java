@@ -4,15 +4,24 @@ import android.view.MotionEvent;
 
 import com.android.opengl.view.GestureDetector;
 import com.android.opengl.view.EngineRenderer;
+import com.android.opengl.view.MotionEventDispatcher;
 import com.android.opengl.view.Touchable;
 
 public class GameInProgressState extends EngineState{
 	
 	private GestureDetector gestureDetector;
+	private MotionEventDispatcher motionEventDispatcher;
 	
 	public GameInProgressState(EngineRenderer worldRenderer) {
 		super(worldRenderer);
 		gestureDetector = new GestureDetector(worldRenderer.getContext(), gestureListener);
+	}
+	
+	@Override
+	public void loadLevel() {
+		motionEventDispatcher = new MotionEventDispatcher();
+		motionEventDispatcher.registerToucheble(worldRenderer.getScene().getGlView(), 0);
+		motionEventDispatcher.registerToucheble(gestureDetector, 1);
 	}
 
 	@Override
@@ -26,6 +35,7 @@ public class GameInProgressState extends EngineState{
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+//		motionEventDispatcher.dispatchTouchEvent(event);
 		switch (event.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:
 			if(worldRenderer.getScene().getGlView().onTouchEvent(event)){

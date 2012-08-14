@@ -78,7 +78,7 @@ public class MotionEventDispatcher {
 		return 	MotionEvent.obtain(event.getDownTime(), 
 				event.getEventTime(), 
 				event.getAction(), 
-				event.getPointerCount(), 
+				pointerIds.length, 
 				pointerIds, 
 				pointerCoords, 
 				event.getMetaState(), 
@@ -124,6 +124,7 @@ public class MotionEventDispatcher {
 		if(pointerIdToDelete >= 0){
 			int size = touchableWrapper.getPointerCount();
 			if(size == 1){
+				touchableWrapper.deliverTouchEvent();
 				touchableWrapper.disposeMotionEvent();
 				return true;
 			}

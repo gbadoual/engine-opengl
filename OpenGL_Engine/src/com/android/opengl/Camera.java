@@ -3,6 +3,7 @@ package com.android.opengl;
 
 import android.content.Context;
 
+import com.android.opengl.gameobject.Scene;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 
@@ -26,11 +27,15 @@ public class Camera {
 	private float angleY;
 	private float angleZ;
 	
+	private Context context;
+	private Scene scene;
+	
 
 	
-	public Camera(int width, int height) {
+	public Camera(Context context, int width, int height) {
+		this.setContext(context);
 		initViewMatrix(viewMatrix);
-		setProjectionMatrix(calculateProjectionMatrix(width, height));
+		setViewport(width, height);
 	}
 	
 	private float[] calculateProjectionMatrix(int width, int height) {
@@ -152,6 +157,9 @@ public class Camera {
 		viewportWidth = width;
 		viewportHeight = height;
 		projectionMatrix = calculateProjectionMatrix(viewportWidth, viewportHeight);
+		if(scene != null){
+			scene.notifyViewportChanged(width, height);
+		}
 	}
 
 	public int getViewportHeight() {
@@ -160,6 +168,22 @@ public class Camera {
 
 	public int getViewportWidth() {
 		return viewportWidth;
+	}
+
+	public Context getContext() {
+		return context;
+	}
+
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
+
+	public void setScene(Scene scene) {
+		this.scene = scene;
 	}
 
 

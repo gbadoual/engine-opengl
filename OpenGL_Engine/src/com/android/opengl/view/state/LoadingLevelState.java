@@ -27,7 +27,7 @@ public class LoadingLevelState extends EngineState{
 //		// Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
-		worldRenderer.setShader(new CommonShader());
+//		worldRenderer.setShader(new CommonShader());
 		
 		worldRenderer.initGameObjects();
 		worldRenderer.initFpsCount();
@@ -37,6 +37,7 @@ public class LoadingLevelState extends EngineState{
 		Log.i("tag", "world loaded for " + time / 1000.0f + " sec.");
 		
 		worldRenderer.setEngineState(worldRenderer.getGameInProgressState());
+		worldRenderer.getEngineState().loadLevel();
 	}
 
 	@Override
