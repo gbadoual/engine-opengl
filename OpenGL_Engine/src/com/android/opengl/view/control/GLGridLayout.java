@@ -11,7 +11,7 @@ public class GLGridLayout extends GLLayout{
 	private float verticalSpacing = 2;
 
 	private float nextX;
-	private float nextY = getVerticalSpacing();
+	private float nextY = verticalSpacing;
 	private float prevRowHeight;
 	
  	public GLGridLayout(Camera camera) {

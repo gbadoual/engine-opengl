@@ -288,10 +288,9 @@ public abstract class GLView implements Touchable{
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event){
-		if(camera == null){
-			Log.w(TAG, "onTouchEvent(): camera is not initialized yet");
+		if(!isVisible){
+			return false;
 		}
-//		isSelected = false;
 		if (mFocusedView != null && mFocusedView != this){
 			return mFocusedView.onTouchEvent(event);
 			
@@ -339,7 +338,7 @@ public abstract class GLView implements Touchable{
 		mVboDataHandler.textureDataHandler = -1;
 		if(resourceId > 0){
 			//TODO getInstance...
-			mVboDataHandler.textureDataHandler = LoaderManager.getInstance((Context)null).loadTexture(resourceId);
+			mVboDataHandler.textureDataHandler = LoaderManager.getInstance(camera.getContext()).loadTexture(resourceId);
 		}
 	}
 	

@@ -37,6 +37,7 @@ public class EngineRenderer implements Renderer {
 	private LoadingLevelState loadingLevelState;
 	private GameInProgressState gameInProgressState;
 	
+	private Camera camera;
 	
 
 
@@ -53,7 +54,7 @@ public class EngineRenderer implements Renderer {
 	private Earth earth;
 	private Scene scene;
 
-	private CommonShader shader;
+//	private CommonShader shader;
 
 
 	private int fps;
@@ -82,11 +83,11 @@ public class EngineRenderer implements Renderer {
 		currentEngineState.loadLevel();		
 	}
 
-	GLView glView;
+
 	@Override
 	public void onSurfaceChanged(GL10 arg0, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
-		scene.setViewPort(width, height);
+		camera.setViewport(width, height);
 	}
 
 	@Override
@@ -94,7 +95,6 @@ public class EngineRenderer implements Renderer {
 		currentFrame++;
 		if(currentFrame <0){currentFrame = 0;}
 		clearScreen();
-//		glView.draw();
 		currentEngineState.onDrawFrame();
 		countFPS();
 	}
@@ -108,7 +108,8 @@ public class EngineRenderer implements Renderer {
 
 	public void initGameObjects() {
 		CommonGameObject.facesCount = 0;
-		scene = new Scene(worldView.getContext(), shader, new Camera(0, 0));
+		this.camera = new Camera(worldView.getContext(), 100, 100);
+		scene = new Scene(camera);
 //		bmw1 = new BMW(scene);
 //		bmw1.setPosition(-8, -7);
 
@@ -265,14 +266,14 @@ public class EngineRenderer implements Renderer {
 		}
 
 
-		public Shader getShader() {
-			return shader;
-		}
-
-
-		public void setShader(CommonShader shader) {
-			this.shader = shader;
-		}
+//		public Shader getShader() {
+//			return shader;
+//		}
+//
+//
+//		public void setShader(CommonShader shader) {
+//			this.shader = shader;
+//		}
 
 	
 }

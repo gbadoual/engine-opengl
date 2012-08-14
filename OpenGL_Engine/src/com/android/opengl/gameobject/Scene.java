@@ -47,12 +47,15 @@ public class Scene extends CommonGameObject{
 	private boolean isRendingFinished = true;
 	private float[] positionXYZ = new float[4];
 	
-	private Context context;
+//	private Context context;
 
 	
-	public Scene(Context context, CommonShader shader, Camera camera) {
-		super(shader, context.getResources());
-		this.context = context;
+	public Scene(Camera camera) {
+		super(new CommonShader(), camera.getContext().getResources());
+//		this.context = context;
+		this.camera = camera;
+		this.camera.setScene(this);
+
 		glGridLayout = new GLGridLayout(camera, 5, 10, 30, 0);
 		
 				
@@ -85,7 +88,6 @@ public class Scene extends CommonGameObject{
 				Log.i("tag", "glview tapped: " + glView);
 			}
 		});
-		this.camera = camera;
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
 		rotate((float)Math.toRadians(45), (float)Math.toRadians(-30), 0);
@@ -240,12 +242,9 @@ public class Scene extends CommonGameObject{
 	}
 	private GLGridLayout glGridLayout;
 
-	public void setViewPort(int width, int height) {
-		camera.setViewport(width, height);
+	public void notifyViewportChanged(int width, int height) {
 		notifyMVPMatrixChanged();
 		glGridLayout.invalidate();
-
-		
 	}
 
 	public void setViewMatrix(float[] viewMatrix) {
@@ -350,14 +349,14 @@ public class Scene extends CommonGameObject{
 	}
 
 
-	public Context getContext() {
-		return context;
-	}
-
-
-	public void setContext(Context context) {
-		this.context = context;
-	}
+//	public Context getContext() {
+//		return context;
+//	}
+//
+//
+//	public void setContext(Context context) {
+//		this.context = context;
+//	}
 
 
 	public GLView getGlView() {
