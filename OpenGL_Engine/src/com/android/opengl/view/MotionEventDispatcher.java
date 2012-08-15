@@ -1,6 +1,7 @@
 package com.android.opengl.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -47,9 +48,10 @@ public class MotionEventDispatcher {
 			PointerCoords newPointerCoords = new PointerCoords();
 			event.getPointerCoords(pointerIndex, newPointerCoords);
 			PointerCoords[] pointerCoords = new PointerCoords[]{newPointerCoords};
-			MotionEvent currentEvent = obrainMotionEvent(event, pointerIds, pointerCoords);
+//			MotionEvent currentEvent = obrainMotionEvent(event, pointerIds, pointerCoords);
 
 			for(TouchableWrapper wrapper: wrapperList){
+				MotionEvent currentEvent = mergeEventWithCoordinates(event, pointerCoords, pointerIds);
 				if(wrapper.deliverTouchEvent(currentEvent)){
 					res = true;
 					// adding the new pointer to the motionEvent
@@ -78,6 +80,7 @@ public class MotionEventDispatcher {
 		return res;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static MotionEvent obrainMotionEvent(MotionEvent event, int[] pointerIds, PointerCoords[] pointerCoords) {
 		Log.i("dddd", "cur action = " + event.getAction());
 		Log.i("dddd", "cur pointerCount = " + event.getPointerCount());
@@ -168,7 +171,20 @@ public class MotionEventDispatcher {
 		return false;
 	}
 	
-	
+	public MotionEvent mergeEventWithCoordinates(MotionEvent event, PointerCoords[] pointerCoords, int[] pointerIdList){
+		int pointerCount = event.getPointerCount();
+		int mergerSize = pointerCount + pointerCoords.length;
+		PointerCoords[] pointerCoordsArray = new PointerCoords[mergerSize];
+		int[] pointerIds = new int[mergerSize];
+		for(int i = 0 ; i < pointerCoordsArray.length - 1; ++i){
+			pointerCoordsArray[i] = new PointerCoords();
+			event.getPointerCoords(i, pointerCoordsArray[i]);
+			pointerIds[i] = event.getPointerId(i);
+		}
+//		System.arr
+		return obrainMotionEvent(event, pointerIdList, pointerCoords);
+	}
+
 	private static class TouchableWrapper{
 		public Touchable touchable;
 		private MotionEvent motionEvent;
@@ -216,7 +232,7 @@ public class MotionEventDispatcher {
 			if(motionEvent == null){
 				return;
 			}
-			int pointerIndex = findPointerIndex(event.getPointerId(event.getActionIndex()));
+//			int pointerIndex = findPointerIndex(event.getPointerId(event.getActionIndex()));
 //			if( pointerIndex < 0){
 //				return;
 //			}

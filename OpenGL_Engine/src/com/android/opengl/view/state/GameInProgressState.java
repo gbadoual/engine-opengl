@@ -35,27 +35,27 @@ public class GameInProgressState extends EngineState{
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-//		motionEventDispatcher.dispatchTouchEvent(event);
-		switch (event.getActionMasked()) {
-		case MotionEvent.ACTION_DOWN:
-			if(worldRenderer.getScene().getGlView().onTouchEvent(event)){
-				currntlyTouched = worldRenderer.getScene().getGlView();
-			} else{
-				currntlyTouched = gestureDetector;
-				currntlyTouched.onTouchEvent(event);
-			}
-			
-			break;
-		case MotionEvent.ACTION_UP:
-			currntlyTouched.onTouchEvent(event);
-			currntlyTouched = null;
-			break;
-		default:
-			if(currntlyTouched != null){
-				currntlyTouched.onTouchEvent(event);
-			}
-			break;
-		}
+		motionEventDispatcher.dispatchTouchEvent(event);
+//		switch (event.getActionMasked()) {
+//		case MotionEvent.ACTION_DOWN:
+//			if(worldRenderer.getScene().getGlView().onTouchEvent(event)){
+//				currntlyTouched = worldRenderer.getScene().getGlView();
+//			} else{
+//				currntlyTouched = gestureDetector;
+//				currntlyTouched.onTouchEvent(event);
+//			}
+//			
+//			break;
+//		case MotionEvent.ACTION_UP:
+//			currntlyTouched.onTouchEvent(event);
+//			currntlyTouched = null;
+//			break;
+//		default:
+//			if(currntlyTouched != null){
+//				currntlyTouched.onTouchEvent(event);
+//			}
+//			break;
+//		}
 		return true;
 	}
 	
