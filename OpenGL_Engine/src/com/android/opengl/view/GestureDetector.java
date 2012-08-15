@@ -58,25 +58,28 @@ public class GestureDetector implements Touchable{
 			prevX1 = ev.getX();
 			prevY1 = ev.getY();				
 		}
-//		Log.i("tag", "cur pointer id = " + ev.getPointerId(ev.getActionIndex()));
-//		Log.i("tag", "cur action id = " + ev.getActionIndex());
+		Log.i("tag", "gesture detector event = " + ev);
+		
+		Log.i("tag", "cur action = " + ev.getAction());
+		Log.i("tag", "cur pointerIndex = " + ev.getActionIndex());
+		Log.i("tag", "cur pointerId = " + ev.getPointerId(ev.getActionIndex()));
 
 		switch (ev.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:
 			currentState = GESTURE_STATE.NONE;
 			isMultitouchOccourred = false;
-			pointerIds[0] = ev.getPointerId(ev.getActionIndex());
+			pointerIds[0] = ev.getActionIndex();
 			prevX1 = ev.getX(pointerIds[0]);
 			prevY1 = ev.getY(pointerIds[0]);
-			break;
+			return true;
 		case MotionEvent.ACTION_POINTER_DOWN:
-			pointerIds[1] = ev.getPointerId(ev.getActionIndex());
+			pointerIds[1] = ev.getActionIndex();
 			prevX2 = ev.getX(pointerIds[1]);
 			prevY2 = ev.getY(pointerIds[1]);
 			centerX = (prevX1 + prevX2) / 2;
 			centerY = (prevY1 + prevY2) / 2;
 			isMultitouchOccourred = true;
-			break;
+			return true;
 		case MotionEvent.ACTION_MOVE:
 			pointerIds[1] = Math.min(pointerIds[1], ev.getPointerCount() -1);
 			if(pointerIds[0] != INVALID_ID && pointerIds[1] != INVALID_ID && 
@@ -124,7 +127,7 @@ public class GestureDetector implements Touchable{
 		case MotionEvent.ACTION_UP:
 			pointerIds[0] = INVALID_ID;
 			currentState = GESTURE_STATE.NONE;
-			break;
+			return true;
 		case MotionEvent.ACTION_POINTER_UP:
 			if(ev.getPointerCount() <= 2){
 				if(ev.getPointerId(ev.getActionIndex()) == pointerIds[0]){
@@ -134,12 +137,12 @@ public class GestureDetector implements Touchable{
 				}
 				pointerIds[1] = INVALID_ID;
 			}
-			break;
+			return true;
 		case MotionEvent.ACTION_CANCEL:
 			Arrays.fill(pointerIds, INVALID_ID);
 			currentState = GESTURE_STATE.NONE;
 			isMultitouchOccourred = false;
-			break;				
+			return true;		
 
 		default:
 			break;
