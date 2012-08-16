@@ -2,6 +2,8 @@ package com.android.opengl.view;
 
 import java.util.Arrays;
 
+import com.android.opengl.util.geometry.Rect2D;
+
 import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
@@ -33,7 +35,7 @@ public class GestureDetector implements Touchable{
 	private GESTURE_STATE currentState = GESTURE_STATE.NONE;
 
 	private float prevX1, prevY1, prevX2, prevY2;
-	private int[] pointerIds; 
+	private int[] pointerIndexes; 
 	private float centerX, centerY;
 
 	
@@ -46,48 +48,51 @@ public class GestureDetector implements Touchable{
 		Log.i("tag", "===========================================================");
 		defaultGesturedetector = new android.view.GestureDetector(context, dispatcherGestureListener);
 		gestureListener = listener;
-		pointerIds = new int[2];
-		Arrays.fill(pointerIds, INVALID_ID);
+		pointerIndexes = new int[2];
+		Arrays.fill(pointerIndexes, INVALID_ID);
 	}
 
 
 	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
-		
-		if(ev.getPointerCount() == 1){
-			prevX1 = ev.getX();
-			prevY1 = ev.getY();				
+	public boolean onTouchEvent(MotionEvent event) {
+		if(event.getPointerCount() > 2){
+			return false;
 		}
-		Log.i("tag", "gesture detector event = " + ev);
+		if(event.getPointerCount() == 1){
+			prevX1 = event.getX();
+			prevY1 = event.getY();				
+		}
+		Log.i("tag", "gesture detector event = " + event);
 		
-		Log.i("tag", "cur action = " + ev.getAction());
-		Log.i("tag", "cur pointerIndex = " + ev.getActionIndex());
-		Log.i("tag", "cur pointerId = " + ev.getPointerId(ev.getActionIndex()));
+		Log.i("tag", "cur action = " + event.getAction());
+		Log.i("tag", "cur pointerIndex = " + event.getActionIndex());
+		Log.i("tag", "cur pointerId = " + event.getPointerId(event.getActionIndex()));
+		Log.i("tag", "cur pointerIndex[0] = " + pointerIndexes[0]);
+		Log.i("tag", "cur pointerIndex[1] = " + pointerIndexes[1]);
 
-		switch (ev.getActionMasked()) {
+		switch (event.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:
 			currentState = GESTURE_STATE.NONE;
 			isMultitouchOccourred = false;
-			pointerIds[0] = ev.getActionIndex();
-			prevX1 = ev.getX(pointerIds[0]);
-			prevY1 = ev.getY(pointerIds[0]);
-			return true;
+			pointerIndexes[0] = event.getActionIndex();
+			prevX1 = event.getX(pointerIndexes[0]);
+			prevY1 = event.getY(pointerIndexes[0]);
+			break;
 		case MotionEvent.ACTION_POINTER_DOWN:
-			pointerIds[1] = ev.getActionIndex();
-			prevX2 = ev.getX(pointerIds[1]);
-			prevY2 = ev.getY(pointerIds[1]);
+			pointerIndexes[1] = event.getActionIndex();
+			prevX2 = event.getX(pointerIndexes[1]);
+			prevY2 = event.getY(pointerIndexes[1]);
 			centerX = (prevX1 + prevX2) / 2;
 			centerY = (prevY1 + prevY2) / 2;
 			isMultitouchOccourred = true;
-			return true;
+			break;
 		case MotionEvent.ACTION_MOVE:
-			pointerIds[1] = Math.min(pointerIds[1], ev.getPointerCount() -1);
-			if(pointerIds[0] != INVALID_ID && pointerIds[1] != INVALID_ID && 
-			 pointerIds[0] != pointerIds[1] && ev.getPointerCount() == 2){
-				float curX1 = ev.getX(pointerIds[0]);
-				float curY1 = ev.getY(pointerIds[0]);
-				float curX2 = ev.getX(pointerIds[1]);
-				float curY2 = ev.getY(pointerIds[1]);
+			if(pointerIndexes[0] != INVALID_ID && pointerIndexes[1] != INVALID_ID && 
+			 pointerIndexes[0] != pointerIndexes[1] && event.getPointerCount() == 2){
+				float curX1 = event.getX(pointerIndexes[0]);
+				float curY1 = event.getY(pointerIndexes[0]);
+				float curX2 = event.getX(pointerIndexes[1]);
+				float curY2 = event.getY(pointerIndexes[1]);
 				float dAngle = angleBtwLines(prevX1, prevY1, prevX2, prevY2, curX1, curY1, curX2, curY2);
 				float dScaleFactor = scaleFactor(prevX1, prevY1, prevX2, prevY2, curX1, curY1, curX2, curY2);
 				float[] doubleSlideDistanceXY = new float[2];
@@ -125,30 +130,30 @@ public class GestureDetector implements Touchable{
 			break;
 
 		case MotionEvent.ACTION_UP:
-			pointerIds[0] = INVALID_ID;
+			pointerIndexes[0] = INVALID_ID;
 			currentState = GESTURE_STATE.NONE;
-			return true;
+			break;
 		case MotionEvent.ACTION_POINTER_UP:
-			if(ev.getPointerCount() <= 2){
-				if(ev.getPointerId(ev.getActionIndex()) == pointerIds[0]){
-					pointerIds[0] = pointerIds[1];
+			if(event.getPointerCount() <= 2){
+				if(event.getActionIndex() == pointerIndexes[0]){
+					pointerIndexes[0] = pointerIndexes[1];
 					prevX1 = prevX2;
 					prevY1 = prevY2;
 				}
-				pointerIds[1] = INVALID_ID;
+				pointerIndexes[1] = INVALID_ID;
 			}
-			return true;
+			break;
 		case MotionEvent.ACTION_CANCEL:
-			Arrays.fill(pointerIds, INVALID_ID);
+			Arrays.fill(pointerIndexes, INVALID_ID);
 			currentState = GESTURE_STATE.NONE;
 			isMultitouchOccourred = false;
-			return true;		
+			break;		
 
 		default:
 			break;
 		}
 		
-		return defaultGesturedetector.onTouchEvent(ev);
+		return defaultGesturedetector.onTouchEvent(event);
 
 	}
 	
@@ -257,6 +262,12 @@ public class GestureDetector implements Touchable{
 		}
 		
 	};
+
+
+	@Override
+	public Rect2D getBoundariesRectInPixel() {
+		return new Rect2D(0, 0, 1000, 1000);
+	}
 	
 	
 }
