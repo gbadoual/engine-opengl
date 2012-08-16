@@ -7,7 +7,6 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -17,6 +16,7 @@ import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.LoaderManager;
+import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.Touchable;
 
 public abstract class GLView implements Touchable{
@@ -31,6 +31,9 @@ public abstract class GLView implements Touchable{
 	protected float mTopCoord;
 	protected float mWidth;
 	protected float mHeight;
+	protected Rect2D mBoundariesRectInPixel;
+	
+	
 	protected float bkgColorR;
 	protected float bkgColorG;
 	protected float bkgColorB;
@@ -71,6 +74,7 @@ public abstract class GLView implements Touchable{
 	private void init() {
 		this.mShader = new GLViewShader();
 		mVboDataHandler = new VboDataHandler();
+		mBoundariesRectInPixel = new Rect2D();
 
 		int[] vboBufs = new int[4];
 		GLES20.glGenBuffers(vboBufs.length, vboBufs, 0);
@@ -213,6 +217,9 @@ public abstract class GLView implements Touchable{
 				scaledLeftCoord + scaledWidth, scaledTopCoord + scaledHeight, 0,
 				scaledLeftCoord, scaledTopCoord + scaledHeight, 0};		
 		attachArrayToHandler(vertexData, mVboDataHandler.vboVertexHandle);
+		float percentToPixelRatio = Math.max(camera.getViewportWidth(), camera.getViewportHeight()) / 100f;
+
+		mBoundariesRectInPixel = new Rect2D((mLeftCoord + mParentShiftX) * percentToPixelRatio, (mTopCoord + mParentShiftY)*percentToPixelRatio, mWidth * percentToPixelRatio, mHeight * percentToPixelRatio);
 	}
 	
 	public void setColor(float r, float g, float b, float a){
@@ -300,23 +307,22 @@ public abstract class GLView implements Touchable{
 				return true;
 			}
 		}
-		float ratio = 100.0f / Math.max(camera.getViewportWidth(), camera.getViewportHeight());
-		float x = event.getX() * ratio;
-		float y = event.getY() * ratio;
+		float x = event.getX();// * ratio;
+		float y = event.getY();// * ratio;
 //		Log.i("tag", "x/y = " + x +"/" + y);
 //		Log.i("tag", "left/bottom = " + (leftCoord + parentShiftX) +"/" + (bottomCoord + parentShiftY));
 
 		switch (event.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:
 		case MotionEvent.ACTION_MOVE:
-			if(getFocusedView() == this || isWithinRect(x, y)){
+			if(getFocusedView() == this || mBoundariesRectInPixel.isWithinRect(x, y)){
 //				Log.d("tag", "tap detected: " + this.getClass().getSimpleName());
 				setFocusedView(this);
 				return true;
 			}
 			break;
 		case MotionEvent.ACTION_UP:
-			if(isWithinRect(x, y) && getFocusedView() == this){
+			if(mBoundariesRectInPixel.isWithinRect(x, y) && getFocusedView() == this){
 				Log.d("tag", "tap detected: " + this.getClass().getSimpleName());
 				if(mOnTapListener != null){
 					mOnTapListener.onTap(this);
@@ -337,7 +343,6 @@ public abstract class GLView implements Touchable{
 	public void setBackground(int resourceId){
 		mVboDataHandler.textureDataHandler = -1;
 		if(resourceId > 0){
-			//TODO getInstance...
 			mVboDataHandler.textureDataHandler = LoaderManager.getInstance(camera.getContext()).loadTexture(resourceId);
 		}
 	}
@@ -346,11 +351,6 @@ public abstract class GLView implements Touchable{
 		return mVboDataHandler.textureDataHandler > 0;
 	}
 	
-	
-	private boolean isWithinRect(float x, float y){
-		return x >= mLeftCoord + mParentShiftX && x <= mLeftCoord +  + mParentShiftX + mWidth &&
-				y >= mTopCoord + mParentShiftY && y <= mTopCoord + mParentShiftY + mHeight;
-	}
 	
 	private void setFocusedView(GLView glView) {
 		if(mParent != null){
@@ -374,7 +374,13 @@ public abstract class GLView implements Touchable{
 		this.mOnTapListener = onTapListener;
 	}
 	
+	@Override
+	public Rect2D getBoundariesRectInPixel() {
+		return mBoundariesRectInPixel ;
+	}
 
+	
+	
 	public static interface OnTapListener{
 		public void onTap(GLView glView);
 	}
