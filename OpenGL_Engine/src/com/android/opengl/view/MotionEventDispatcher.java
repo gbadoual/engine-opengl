@@ -28,13 +28,9 @@ public class MotionEventDispatcher {
 	
 	public boolean dispatchTouchEvent(MotionEvent event){
 		if(wrapperList.isEmpty()){
-			Log.i(TAG, "no any Touchable registered. Use registerToucheble(Touchable) to deliever MotionEvent");
+			Log.i(TAG, "no any Touchable registered. Use registerTouchable(Touchable) to deliever MotionEvent");
 			return false;
 		}
-		
-		Log.d("dddd", "event = " + event);
-		Log.d("dddd", "actionIndex = " + event.getActionIndex());
-		Log.d("dddd", "actionMasked = " + event.getActionMasked());
 		
 		boolean res = false;
 		int pointerIndex = event.getActionIndex();
@@ -58,7 +54,7 @@ public class MotionEventDispatcher {
 						currentEvent = mergeEventWithCoordinates(wrapper.motionEvent, pointerData);
 						wrapper.motionEvent.recycle();
 					} else{
-						currentEvent = MotionEventDispatcher.obtainMotionEvent(event, pointerData);
+						currentEvent = MotionEventDispatcher.obtainMotionEvent(event, event.getEventTime(), pointerData);
 					}
 					wrapper.motionEvent = currentEvent;
 					wrapper.syncAction(event);
@@ -67,14 +63,15 @@ public class MotionEventDispatcher {
 				}
 			}
 			break;
-		case MotionEvent.ACTION_UP:
 		case MotionEvent.ACTION_POINTER_UP:
 			for(TouchableWrapper touchableWrapper: wrapperList){
 				removePointer(touchableWrapper, pointerId);
 			}
 			break;
+		case MotionEvent.ACTION_UP:
 		case MotionEvent.ACTION_CANCEL:
 			for(TouchableWrapper touchableWrapper: wrapperList){
+				touchableWrapper.deliverTouchEvent();
 				touchableWrapper.disposeMotionEvent();
 			}
 			break;
@@ -88,28 +85,19 @@ public class MotionEventDispatcher {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static MotionEvent obtainMotionEvent(MotionEvent event, PointerData pointerData) {
-		Log.i("dddd", "cur action = " + event.getAction());
-		Log.i("dddd", "cur event = " + event);
-		Log.i("dddd", "cur pointerCount = " + event.getPointerCount());
-		Log.i("dddd", "cur pointerIndex = " + event.getActionIndex());
-		Log.i("dddd", "cur pointerId = " + event.getPointerId(event.getActionIndex()));
+	public static MotionEvent obtainMotionEvent(MotionEvent event, long downTime, PointerData pointerData) {
 		int pointerIndex = event.getActionIndex();
 		int pointerId = event.getPointerId(pointerIndex);
-		boolean found = false;
 		for(int i = 0; i < pointerData.pointerIds.length; ++i){
 			if(pointerData.pointerIds[i] == pointerId){
 				pointerIndex = i;
-				found = true;
 				break;
 			} 
 		}
-		if(!found){
-			Log.w("tag", "no pointerId found: pointerIndex = " + pointerIndex +", pointerIds.length = " + pointerData.pointerIds.length);
-		}
+
 		int action = event.getAction();
 		action = action & (0xFF | (pointerIndex << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-		MotionEvent mergedEvent = MotionEvent.obtain(event.getDownTime(), 
+		MotionEvent mergedEvent = MotionEvent.obtain(downTime, 
 				event.getEventTime(), 
 				action, 
 				pointerData.pointerIds.length, 
@@ -128,12 +116,10 @@ public class MotionEventDispatcher {
 	public boolean registerToucheble(Touchable touchable, int zOrder){
 		boolean res = false;
 		TouchableWrapper wrapper = new TouchableWrapper(touchable, null, zOrder);
-//		if(!wrapperList.contains(wrapper)){
-			res = wrapperList.add(wrapper);
-			if(res){
-				Collections.sort(wrapperList, touchableWrapperComparator);
-			}
-//		}
+		res = wrapperList.add(wrapper);
+		if(res){
+			Collections.sort(wrapperList, touchableWrapperComparator);
+		}
 		return res;
 	}
 
@@ -168,14 +154,13 @@ public class MotionEventDispatcher {
 			touchableWrapper.updatePointerCoordinates(pointerData);
 			return true;
 		}
-		Log.w("eeee", "pointerIndexToDelete = " + pointerIndexToDelete + ", pointerId = " + pointerId + ", motionEvent = " + touchableWrapper.motionEvent);
 
 		return false;
 	}
 	
 	public MotionEvent mergeEventWithCoordinates(MotionEvent event, PointerData pointerDataToMerge){
 		PointerData eventPointerData = getEventPointerData(event);
-		return obtainMotionEvent(event, mergePointerData(eventPointerData, pointerDataToMerge));
+		return obtainMotionEvent(event, event.getDownTime(), mergePointerData(eventPointerData, pointerDataToMerge));
 	}
 	
 	public PointerData getEventPointerData(MotionEvent event){
@@ -232,10 +217,6 @@ public class MotionEventDispatcher {
 			if(motionEvent == null){
 				return;
 			}
-//			int pointerIndex = findPointerIndex(event.getPointerId(event.getActionIndex()));
-//			if( pointerIndex < 0){
-//				return;
-//			}
 			syncAction(event);
 			int pointerCount = motionEvent.getPointerCount();
 			PointerCoords[] pointerCoordsArray = new PointerCoords[pointerCount];
@@ -290,7 +271,7 @@ public class MotionEventDispatcher {
 
 		public void updatePointerCoordinates(PointerData pointerData){
 			if(motionEvent != null){
-				 MotionEvent tmpEvent= obtainMotionEvent(motionEvent, pointerData);
+				 MotionEvent tmpEvent= obtainMotionEvent(motionEvent, motionEvent.getDownTime(), pointerData);
 				 motionEvent.recycle();
 				 motionEvent = tmpEvent;
 			}
@@ -298,7 +279,7 @@ public class MotionEventDispatcher {
 		
 		public boolean deliverTouchEvent(MotionEvent event) {
 			if(touchable != null ){
-				Log.i("dddd", "delivering touchEvent: " + touchable.getClass().getSimpleName() + ", event = " + motionEvent);
+//				Log.i(TAG, "delivering touchEvent: " + touchable.getClass().getSimpleName() + ", event = " + motionEvent);
 				return touchable.onTouchEvent(event);
 			}
 			return false;
@@ -361,7 +342,11 @@ public class MotionEventDispatcher {
 
 	@SuppressWarnings("deprecation")
 	public static int syncActionEvent(MotionEvent destEvent, MotionEvent srcEvent) {
-		int action = destEvent.getAction();
+		int action = MotionEvent.ACTION_MOVE;
+		if(srcEvent.getActionMasked() == MotionEvent.ACTION_CANCEL){
+			action = MotionEvent.ACTION_CANCEL;			
+		}
+		
 		int pointerIdInEvent = srcEvent.getPointerId(srcEvent.getActionIndex());
 		int pointerIndex = destEvent.findPointerIndex(pointerIdInEvent);
 		// if pointerIndex < 0 then srcEvent action does not relate to this destEvent
