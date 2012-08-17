@@ -14,6 +14,7 @@ import android.util.Log;
 import com.android.opengl.Camera;
 import com.android.opengl.R;
 import com.android.opengl.shader.CommonShader;
+import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.MeshQuadNode2D;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
@@ -140,17 +141,17 @@ public class Scene extends CommonGameObject{
 
 	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureCoordHandle);
 		GLES20.glEnableVertexAttribArray(shader.textureCoordHandle);
-		GLES20.glVertexAttribPointer(shader.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(shader.textureCoordHandle, GLUtil.TEXTURE_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
 		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
 		GLES20.glEnableVertexAttribArray(shader.positionHandle);
-		GLES20.glVertexAttribPointer(shader.positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(shader.positionHandle, GLUtil.VERTEX_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 		
 		
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboNormalHandle);
 		GLES20.glEnableVertexAttribArray(shader.normalHandle);
-		GLES20.glVertexAttribPointer(shader.normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLES20.glVertexAttribPointer(shader.normalHandle, GLUtil.NORMAL_SIZE, GLES20.GL_FLOAT, false, 0, 0);
 
 		
 		IntBuffer indexBuffer;

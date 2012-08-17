@@ -1,5 +1,7 @@
 package com.android.opengl.view;
 
+import com.android.opengl.util.geometry.Rect2D;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,7 +14,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
-public class WorldView extends GLSurfaceView{
+public class WorldView extends GLSurfaceView implements Touchable{
 
 	public static final int DIALOG_LOADING_SHOW = 0;
 	public static final int DIALOG_LOADING_DISMISS = 1;
@@ -112,6 +114,12 @@ public class WorldView extends GLSurfaceView{
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		return worldRenderer.onTouchEvent(event);
+	}
+
+	@Override
+	public Rect2D getBoundariesRectInPixel() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 

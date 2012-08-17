@@ -233,7 +233,7 @@ public class LoaderManager {
 			while (i < meshData.textureData.length){
 				meshData.textureData[i] /= maxTextureCoordX;
 				meshData.textureData[i + 1] /= maxTextureCoordY;
-				i+= CommonGameObject.TEXTURE_ELEMENT_SIZE;
+				i+= GLUtil.TEXTURE_SIZE;
 			}
 		}
 	}
@@ -250,7 +250,7 @@ public class LoaderManager {
 		objData.facesCount = facesCount;
 		int vertCount = v.size();
 		objData.vertexData = new float[vertCount];
-		objData.textureData = new float[vertCount / CommonGameObject.VERTEX_ELEMENT_SIZE * CommonGameObject.TEXTURE_ELEMENT_SIZE];
+		objData.textureData = new float[vertCount / GLUtil.VERTEX_SIZE * GLUtil.TEXTURE_SIZE];
 		objData.normalData = new float[vertCount];
 		objData.indexData = new int[vf.size()];
 		
@@ -258,22 +258,22 @@ public class LoaderManager {
 		int indexCount = vf.size();
 		for(int i = 0; i < indexCount; ++i){
 
-			int curDestIndexUnpacked = vf.get(i) * CommonGameObject.VERTEX_ELEMENT_SIZE;
-			int curSrcIndexUnpacked = vf.get(i) * CommonGameObject.VERTEX_ELEMENT_SIZE;
-			for(int j = 0; j < CommonGameObject.VERTEX_ELEMENT_SIZE; ++j){
+			int curDestIndexUnpacked = vf.get(i) * GLUtil.VERTEX_SIZE;
+			int curSrcIndexUnpacked = vf.get(i) * GLUtil.VERTEX_SIZE;
+			for(int j = 0; j < GLUtil.VERTEX_SIZE; ++j){
 				objData.vertexData[curDestIndexUnpacked + j] = v.get(curSrcIndexUnpacked + j);
 				
 			}
 
-			curDestIndexUnpacked = vf.get(i) * CommonGameObject.NORMAL_ELEMENT_SIZE;
-			curSrcIndexUnpacked = vnf.get(i) * CommonGameObject.NORMAL_ELEMENT_SIZE;
-			for(int j = 0; j < CommonGameObject.NORMAL_ELEMENT_SIZE; ++j){
+			curDestIndexUnpacked = vf.get(i) * GLUtil.NORMAL_SIZE;
+			curSrcIndexUnpacked = vnf.get(i) * GLUtil.NORMAL_SIZE;
+			for(int j = 0; j < GLUtil.NORMAL_SIZE; ++j){
 				objData.normalData[curDestIndexUnpacked + j] = vn.get(curSrcIndexUnpacked + j);
 			}
 
-			curDestIndexUnpacked = vf.get(i) * CommonGameObject.TEXTURE_ELEMENT_SIZE;
-			curSrcIndexUnpacked = vtf.get(i) * CommonGameObject.TEXTURE_ELEMENT_SIZE;
-			for(int j = 0; j < CommonGameObject.TEXTURE_ELEMENT_SIZE; ++j){
+			curDestIndexUnpacked = vf.get(i) * GLUtil.TEXTURE_SIZE;
+			curSrcIndexUnpacked = vtf.get(i) * GLUtil.TEXTURE_SIZE;
+			for(int j = 0; j < GLUtil.TEXTURE_SIZE; ++j){
 				objData.textureData[curDestIndexUnpacked + j] = vt.get(curSrcIndexUnpacked + j);
 			}
 
@@ -296,24 +296,24 @@ public class LoaderManager {
 				if(vertexStat[0][curIndex] != vtf.get(i)
 					|| vertexStat[1][curIndex] != vnf.get(i)){
 					// copying current vertex as it referenced with another texture coordinate or normal index
-					int unpackedCurIndex = curIndex * CommonGameObject.VERTEX_ELEMENT_SIZE; 
+					int unpackedCurIndex = curIndex * GLUtil.VERTEX_SIZE; 
 					v.add(v.get(unpackedCurIndex + 0));
 					v.add(v.get(unpackedCurIndex + 1));
 					v.add(v.get(unpackedCurIndex + 2));
 
-					unpackedCurIndex = vnf.get(i) * CommonGameObject.NORMAL_ELEMENT_SIZE;
+					unpackedCurIndex = vnf.get(i) * GLUtil.NORMAL_SIZE;
 					vn.add(vn.get(unpackedCurIndex + 0));
 					vn.add(vn.get(unpackedCurIndex + 1));
 					vn.add(vn.get(unpackedCurIndex + 2));
 					
-					unpackedCurIndex = vtf.get(i) * CommonGameObject.TEXTURE_ELEMENT_SIZE;
+					unpackedCurIndex = vtf.get(i) * GLUtil.TEXTURE_SIZE;
 					vt.add(vt.get(unpackedCurIndex + 0));
 					vt.add(vt.get(unpackedCurIndex + 1));
 					
 					//update references
-					vf.set(i, v.size() / CommonGameObject.VERTEX_ELEMENT_SIZE - 1);
-					vnf.set(i, vn.size() / CommonGameObject.NORMAL_ELEMENT_SIZE - 1);
-					vtf.set(i, vt.size() / CommonGameObject.TEXTURE_ELEMENT_SIZE - 1);
+					vf.set(i, v.size() / GLUtil.VERTEX_SIZE - 1);
+					vnf.set(i, vn.size() / GLUtil.NORMAL_SIZE - 1);
+					vtf.set(i, vt.size() / GLUtil.TEXTURE_SIZE - 1);
 				}				
 			} 
 		}

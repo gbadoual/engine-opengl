@@ -1,9 +1,5 @@
 package com.android.opengl.view.control;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,14 +11,14 @@ import com.android.opengl.Camera;
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
 import com.android.opengl.shader.GLViewShader;
+import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.Touchable;
 
 public abstract class GLView implements Touchable{
 	
-	private static final int SIZE_INT = 4;
-	private static final int SIZE_FLOAT = 4;
+
 	private static final String TAG = GLView.class.getSimpleName();
 	
 	private float mParentShiftX = 0;
@@ -86,29 +82,11 @@ public abstract class GLView implements Touchable{
 
 		setColor(128, 128, 128, 192);
 		invalidate();
-		attachArrayToHandler(textureCoord, mVboDataHandler.vboTextureCoordHandle);
-		attachIndeciesToHandler(indexData, mVboDataHandler.vboIndexHandle);
+		GLUtil.attachArrayToHandler(textureCoord, mVboDataHandler.vboTextureCoordHandle);
+		GLUtil.attachIndexesToHandler(indexData, mVboDataHandler.vboIndexHandle);
 	}
 
-	private void attachArrayToHandler(float[] data, int handler){
-		FloatBuffer floatBuffer;
-		floatBuffer = ByteBuffer.allocateDirect(data.length * SIZE_FLOAT).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		floatBuffer.put(data).position(0);
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, handler);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, floatBuffer.capacity() * SIZE_FLOAT, floatBuffer, GLES20.GL_STATIC_DRAW);
-		floatBuffer.limit(0);
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-	}
-	
-	private void attachIndeciesToHandler(int[] indexData, int handler){
-		IntBuffer indexBuffer;
-		indexBuffer = ByteBuffer.allocateDirect(indexData.length * SIZE_INT).order(ByteOrder.nativeOrder()).asIntBuffer();
-		indexBuffer.put(indexData).position(0);
-		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, handler);
-		GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.capacity() * SIZE_INT, indexBuffer, GLES20.GL_STATIC_DRAW);
-		indexBuffer.limit(0);
-		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-	}	
+
 	
 	public void onDraw(){
 		if(isVisible){
@@ -128,31 +106,19 @@ public abstract class GLView implements Touchable{
 
 			GLES20.glUniform1f(mShader.isTextureEnabledHandle, isBackgroundEnabled()? 1 : 0);
 			if(isBackgroundEnabled()){
-				GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-			    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mVboDataHandler.textureDataHandler);
-			    GLES20.glUniform1i(mShader.textureHandle, 0);
-
-				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVboDataHandler.vboTextureCoordHandle);
-				GLES20.glEnableVertexAttribArray(mShader.textureCoordHandle);
-				GLES20.glVertexAttribPointer(mShader.textureCoordHandle, CommonGameObject.TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+			    GLUtil.passTextureToShader(mVboDataHandler.textureDataHandler, mShader.textureHandle);
+			    GLUtil.passBufferToShader(mVboDataHandler.vboTextureCoordHandle, mShader.textureCoordHandle, 
+			    								  GLUtil.TEXTURE_SIZE);
 			}
 			
-			
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVboDataHandler.vboVertexHandle);
-			GLES20.glEnableVertexAttribArray(mShader.positionHandle);
-			GLES20.glVertexAttribPointer(mShader.positionHandle, 3, GLES20.GL_FLOAT, false, 0, 0);
-			
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVboDataHandler.vboColorHandle);
-			GLES20.glEnableVertexAttribArray(mShader.colorHandle);
-			GLES20.glVertexAttribPointer(mShader.colorHandle, 4, GLES20.GL_FLOAT, false, 0, 0);
-			
-			
-			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, mVboDataHandler.vboIndexHandle);
-			GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexData.length, GLES20.GL_UNSIGNED_INT, 0);
+			GLUtil.passBufferToShader(mVboDataHandler.vboVertexHandle, mShader.positionHandle, 
+					  GLUtil.VERTEX_SIZE);
 
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+			GLUtil.passBufferToShader(mVboDataHandler.vboColorHandle, mShader.colorHandle, 
+					  GLUtil.COLOR_SIZE);
+			
+			GLUtil.drawElements(mVboDataHandler.vboIndexHandle, indexData.length);
+			
 	        
 	        GLES20.glUseProgram(0);		
 			GLES20.glDisable(GLES20.GL_BLEND);
@@ -216,7 +182,7 @@ public abstract class GLView implements Touchable{
 				scaledLeftCoord + scaledWidth, scaledTopCoord, 0,
 				scaledLeftCoord + scaledWidth, scaledTopCoord + scaledHeight, 0,
 				scaledLeftCoord, scaledTopCoord + scaledHeight, 0};		
-		attachArrayToHandler(vertexData, mVboDataHandler.vboVertexHandle);
+		GLUtil.attachArrayToHandler(vertexData, mVboDataHandler.vboVertexHandle);
 		float percentToPixelRatio = Math.max(camera.getViewportWidth(), camera.getViewportHeight()) / 100f;
 
 		mBoundariesRectInPixel = new Rect2D((mLeftCoord + mParentShiftX) * percentToPixelRatio, (mTopCoord + mParentShiftY)*percentToPixelRatio, mWidth * percentToPixelRatio, mHeight * percentToPixelRatio);
@@ -233,7 +199,7 @@ public abstract class GLView implements Touchable{
 				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
 				bkgColorR, bkgColorG, bkgColorB, bkgColorA				};
 		
-		attachArrayToHandler(colorData, mVboDataHandler.vboColorHandle);
+		GLUtil.attachArrayToHandler(colorData, mVboDataHandler.vboColorHandle);
 
 	}
 	
