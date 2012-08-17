@@ -15,6 +15,7 @@ import android.util.Log;
 import com.android.opengl.R;
 import com.android.opengl.shader.CommonShader;
 import com.android.opengl.shader.Shader;
+import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
@@ -23,10 +24,7 @@ public abstract class CommonGameObject {
 	
 	private static final String TAG = CommonGameObject.class.getSimpleName();
 
-	public static final int VERTEX_ELEMENT_SIZE = 3;
-	public static final int COLOR_ELEMENT_SIZE = 4;
-	public static final int TEXTURE_ELEMENT_SIZE = 2;
-	public static final int NORMAL_ELEMENT_SIZE = 3;
+
 	
 	public static long facesCount = 0;
 	
@@ -93,8 +91,7 @@ public abstract class CommonGameObject {
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		if (vboDataHandler == null){
 			vboDataHandler = new VboDataHandler();
-//			vboDataHandler.textureUniformHandle = GLES20.glGetUniformLocation(programHandle, Shader.UNIFORM_TEXTURE);
-//			vboDataHandler.textureCoordHandle = GLES20.glGetAttribLocation(programHandle, Shader.ATTRIBUTE_TEXTURE_COORD);
+
 			GLES20.glEnable(GLES20.GL_TEXTURE_2D);
 			vboDataHandler.textureDataHandler = meshLoader.loadTexture(getTextureResource()); 
 			vboDataHandlerMap.put(getClass().getSimpleName(), vboDataHandler);
@@ -106,58 +103,24 @@ public abstract class CommonGameObject {
 			vboDataHandler.vertexData = meshData.vertexData;
 			vboDataHandler.indexData = meshData.indexData;
 			vboDataHandler.facesCount = meshData.facesCount;
-
-			//buffers
-			FloatBuffer vertexBuffer;
-			FloatBuffer textureBuffer;
-			FloatBuffer normalBuffer;
-			IntBuffer indexBuffer;
-	//		FloatBuffer colorBuffer;
-	
-			vertexBuffer = ByteBuffer.allocateDirect(vboDataHandler.vertexData.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-			vertexBuffer.put(vboDataHandler.vertexData).position(0);
-	//		colorBuffer = ByteBuffer.allocateDirect(meshData.textureData.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-	//		colorBuffer.put(meshData.textureData).position(0);
-			textureBuffer = ByteBuffer.allocateDirect(meshData.textureData.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-			textureBuffer.put(meshData.textureData).position(0);
-			normalBuffer = ByteBuffer.allocateDirect(meshData.normalData.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-			normalBuffer.put(meshData.normalData).position(0);
-			indexBuffer = ByteBuffer.allocateDirect(vboDataHandler.indexData.length * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
-			indexBuffer.put(vboDataHandler.indexData).position(0);
-				
 			int[] vboBufs = new int[4];
 			GLES20.glGenBuffers(vboBufs.length, vboBufs, 0);
-			
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboBufs[0]);
-			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexBuffer.capacity() * 4, vertexBuffer, GLES20.GL_STATIC_DRAW);
 			vboDataHandler.vboVertexHandle = vboBufs[0];
-				
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboBufs[1]);
-			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, normalBuffer.capacity() * 4, normalBuffer, GLES20.GL_STATIC_DRAW);
 			vboDataHandler.vboNormalHandle = vboBufs[1];
-				
-	//		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboBufs[2]);
-	//		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, colorBuffer.capacity() * 4, colorBuffer, GLES20.GL_STATIC_DRAW);
-	//		vboColorHandle = vboBufs[2];
-			
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboBufs[2]);
-			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, textureBuffer.capacity() * 4, textureBuffer, GLES20.GL_STATIC_DRAW);
 			vboDataHandler.vboTextureCoordHandle = vboBufs[2];
-	
-			
-			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboBufs[3]);
-			GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.capacity() * 4, indexBuffer, GLES20.GL_STATIC_DRAW);
 			vboDataHandler.vboIndexHandle = vboBufs[3];
 			
-			
-			vertexBuffer.limit(0);
-			normalBuffer.limit(0);
-	//		colorBuffer.limit(0);
-			indexBuffer.limit(0);
-			textureBuffer.limit(0);
-			
-			
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+			GLUtil.attachArrayToHandler(meshData.vertexData, vboDataHandler.vboVertexHandle);
+			GLUtil.attachArrayToHandler(meshData.normalData, vboDataHandler.vboNormalHandle);
+			GLUtil.attachArrayToHandler(meshData.textureData, vboDataHandler.vboTextureCoordHandle);
+			GLUtil.attachIndexesToHandler(meshData.indexData, vboDataHandler.vboIndexHandle);
+
+//			vboDataHandler.vboVertexHandle = GLRenderHelper.attachArrayToHandler(meshData.vertexData);
+//			vboDataHandler.vboNormalHandle = GLRenderHelper.attachArrayToHandler(meshData.normalData);
+//			vboDataHandler.vboTextureCoordHandle = GLRenderHelper.attachArrayToHandler(meshData.textureData);
+//			GLRenderHelper.attachIndexesToHandler(meshData.indexData, vboDataHandler.vboIndexHandle);
+
+
 		}
 		facesCount+=vboDataHandler.facesCount;
 		
@@ -192,35 +155,16 @@ public abstract class CommonGameObject {
 
 //		-----------------------------------------------------
 // using VBOs		
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, vboDataHandler.textureDataHandler);
-	    GLES20.glUniform1i(shader.textureHandle, 0);
+    
+	    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
+	    GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, shader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
 
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureCoordHandle);
-		GLES20.glEnableVertexAttribArray(shader.textureCoordHandle);
-		GLES20.glVertexAttribPointer(shader.textureCoordHandle, TEXTURE_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
+		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE);
+		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, shader.normalHandle, GLUtil.NORMAL_SIZE);
 
-		
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
-		GLES20.glEnableVertexAttribArray(shader.positionHandle);
-		GLES20.glVertexAttribPointer(shader.positionHandle, VERTEX_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
-		
-//		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboColorHandle);
-//		GLES20.glEnableVertexAttribArray(colorHandle);
-//		GLES20.glVertexAttribPointer(colorHandle, colorElementSize, GLES20.GL_FLOAT, false, 0, 0);
-		
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboNormalHandle);
-		GLES20.glEnableVertexAttribArray(shader.normalHandle);
-		GLES20.glVertexAttribPointer(shader.normalHandle, NORMAL_ELEMENT_SIZE, GLES20.GL_FLOAT, false, 0, 0);
-
+		GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);		
 		
 		
-		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboDataHandler.vboIndexHandle);
-		GLES20.glDrawElements(GLES20.GL_TRIANGLES, vboDataHandler.indexData.length, GLES20.GL_UNSIGNED_INT, 0);
-
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glUseProgram(0);
 	};
 

@@ -264,9 +264,10 @@ public class GestureDetector implements Touchable{
 	};
 
 
+	//TODO this is very strange move... someone else should implement Touchable instead of GestureDetector 
 	@Override
 	public Rect2D getBoundariesRectInPixel() {
-		return new Rect2D(0, 0, 1000, 1000);
+		return new Rect2D(0, 0, 10000, 10000);
 	}
 	
 	

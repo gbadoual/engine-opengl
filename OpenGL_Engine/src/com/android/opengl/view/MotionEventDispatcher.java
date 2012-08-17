@@ -279,7 +279,7 @@ public class MotionEventDispatcher {
 		
 		public boolean deliverTouchEvent(MotionEvent event) {
 			if(touchable != null ){
-//				Log.i(TAG, "delivering touchEvent: " + touchable.getClass().getSimpleName() + ", event = " + motionEvent);
+				Log.i(TAG, "delivering touchEvent: " + touchable.getClass().getSimpleName() + ", event = " + motionEvent);
 				return touchable.onTouchEvent(event);
 			}
 			return false;
