@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
-import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
@@ -19,7 +18,7 @@ import com.android.opengl.view.Touchable;
 public abstract class GLView implements Touchable{
 	
 
-	private static final String TAG = GLView.class.getSimpleName();
+//	private static final String TAG = GLView.class.getSimpleName();
 	
 	private float mParentShiftX = 0;
 	private float mParentShiftY = 0;

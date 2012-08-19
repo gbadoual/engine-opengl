@@ -6,10 +6,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import android.opengl.GLES20;
-import android.util.Log;
-
-import com.android.opengl.shader.CommonShader;
-import com.android.opengl.shader.Shader;
 
 public class GLUtil {
 	

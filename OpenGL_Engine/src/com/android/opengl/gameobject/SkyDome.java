@@ -1,9 +1,6 @@
 package com.android.opengl.gameobject;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 import com.android.opengl.Camera;
 import com.android.opengl.R;

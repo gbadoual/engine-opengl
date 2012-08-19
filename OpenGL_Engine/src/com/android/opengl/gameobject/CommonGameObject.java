@@ -1,10 +1,5 @@
 package com.android.opengl.gameobject;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +9,6 @@ import android.util.Log;
 
 import com.android.opengl.R;
 import com.android.opengl.shader.CommonShader;
-import com.android.opengl.shader.Shader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.geometry.Matrix;
@@ -174,10 +168,6 @@ public abstract class CommonGameObject {
 	public void rotate(float angleX, float angleY, float angleZ){
 		rotate(new float[]{angleX, angleY, angleZ});
 	}
-	
-//	public void translate(float centerX, float centerY, float centerZ){
-//		translate(new float[]{centerX, centerY, centerZ});
-//	}
 	
 	public void rotate(float [] newAngleXYZ){
 		this.angleXYZ = newAngleXYZ;

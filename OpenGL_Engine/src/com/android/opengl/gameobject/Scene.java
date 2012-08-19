@@ -1,20 +1,15 @@
 package com.android.opengl.gameobject;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.Context;
 import android.content.res.Resources;
-import android.opengl.GLES20;
+import android.util.FloatMath;
 import android.util.Log;
 
 import com.android.opengl.Camera;
 import com.android.opengl.R;
 import com.android.opengl.shader.CommonShader;
-import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.MeshQuadNode2D;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
@@ -26,11 +21,11 @@ import com.android.opengl.view.control.GLView;
 public class Scene extends CommonGameObject{
 
 	
-	private static final float MIN_ANGLE = -90;
-	private static final float MAX_ANGLE = 90;
-
-	private static final float MAX_SCALE = 5;
-	private static final float MIN_SCALE = 0.3f;
+//	private static final float MIN_ANGLE = -90;
+//	private static final float MAX_ANGLE = 90;
+//
+//	private static final float MAX_SCALE = 5;
+//	private static final float MIN_SCALE = 0.3f;
 	
 	private static final float SCALING_STEP = 10;
 	
@@ -41,24 +36,19 @@ public class Scene extends CommonGameObject{
 	private MeshQuadNode2D sceneQuad2D;
 	
 	
-//	protected float[] projectionMatrix = new float[16];
 	protected Camera camera;
 
 	
 	private boolean isRendingFinished = true;
-	private float[] positionXYZ = new float[4];
-	
-//	private Context context;
-
 	
 	public Scene(Camera camera) {
 		super(new CommonShader(), camera.getContext().getResources());
-//		this.context = context;
 		this.camera = camera;
 		this.camera.setScene(this);
 		skyBox = new SkyDome(camera);
 
 		glGridLayout = new GLGridLayout(camera, 5, 10, 30, 0);
+		camera.registerTouchable(glGridLayout, 0);
 		
 				
 		GLView child = new GLButton(camera, 50, 20, 30, 10);
@@ -76,7 +66,7 @@ public class Scene extends CommonGameObject{
 				Log.i("tag", "another glview tapped: " + glView);
 			}
 		});
-		glGridLayout.setVisible(false);
+//		glGridLayout.setVisible(false);
 		glGridLayout.addChild(child1);
 		glGridLayout.addChild(child2);
 		glGridLayout.addChild(child3);
@@ -140,14 +130,12 @@ public class Scene extends CommonGameObject{
 	@Override
 	public void setPosition(float centerX, float centerY, float centerZ) {
 		super.setPosition(centerX, centerY, centerZ);
-		positionXYZ = getPosition().asFloatArray();
 		notifyMVPMatrixChanged();
 	}
 
 	@Override
 	public void setPosition(float[] newCenterXYZ) {
 		super.setPosition(newCenterXYZ);
-		positionXYZ = getPosition().asFloatArray();
 		notifyMVPMatrixChanged();
 	}
 	
@@ -268,33 +256,17 @@ public class Scene extends CommonGameObject{
 //		camera.translate(dx, dz);
 		float[] position = getPosition().asFloatArray();
 		float[] rotation = camera.getAngleXYZ();
-		float sinY = (float)Math.sin(rotation[1]);
-		float cosY = (float)Math.cos(rotation[1]);
+		float sinY = FloatMath.sin(rotation[1]);
+		float cosY = FloatMath.cos(rotation[1]);
 		position[0] = position[0] + -dx * cosY + dz * sinY;
 		position[2] = position[2] + -dx * sinY - dz * cosY;
 		setPosition(position);
 	}
 
 
-//	public Context getContext() {
-//		return context;
-//	}
-//
-//
-//	public void setContext(Context context) {
-//		this.context = context;
-//	}
-
-
 	public GLView getGlView() {
 		return glGridLayout;
 	}
-
-
-
-
-
-
 
 
 }

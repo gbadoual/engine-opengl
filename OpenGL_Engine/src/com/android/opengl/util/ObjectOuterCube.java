@@ -2,7 +2,6 @@ package com.android.opengl.util;
 
 import android.util.Log;
 
-import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Plane;

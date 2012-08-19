@@ -15,21 +15,16 @@ import android.view.MotionEvent;
 import com.android.opengl.Camera;
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.Scene;
-import com.android.opengl.gameobject.building.MainBase;
 import com.android.opengl.gameobject.unit.Cube;
 import com.android.opengl.gameobject.unit.Earth;
-import com.android.opengl.gameobject.unit.vehicle.BMW;
-import com.android.opengl.shader.CommonShader;
-import com.android.opengl.shader.Shader;
 import com.android.opengl.util.geometry.Point3D;
+import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.util.geometry.Vector3D;
-import com.android.opengl.view.control.GLButton;
-import com.android.opengl.view.control.GLView;
 import com.android.opengl.view.state.EngineState;
 import com.android.opengl.view.state.GameInProgressState;
 import com.android.opengl.view.state.LoadingLevelState;
 
-public class EngineRenderer implements Renderer {
+public class EngineRenderer implements Renderer, Touchable{
 
 	
 	private EngineState currentEngineState;
@@ -39,6 +34,8 @@ public class EngineRenderer implements Renderer {
 	
 	private Camera camera;
 	
+	
+	private Rect2D mViewBoundaries;	
 
 
 
@@ -49,12 +46,11 @@ public class EngineRenderer implements Renderer {
 	private Cube cube1;
 	private Cube cube2;
 //	private BMW bmw1;
-	private MainBase mainBase;
+//	private MainBase mainBase;
 //	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
 
-//	private CommonShader shader;
 
 
 	private int fps;
@@ -67,6 +63,7 @@ public class EngineRenderer implements Renderer {
 	public EngineRenderer(WorldView worldView, Handler handler) {
 		this.worldView = worldView;
 		this.callbackHandler = handler;
+		this.mViewBoundaries = new Rect2D(worldView.getLeft(), worldView.getTop(), worldView.getWidth(), worldView.getHeight());
 		initStates();
 	}
 
@@ -88,6 +85,8 @@ public class EngineRenderer implements Renderer {
 	public void onSurfaceChanged(GL10 arg0, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
 		camera.setViewport(width, height);
+		mViewBoundaries.mWidth = width;
+		mViewBoundaries.mHeight = height;
 	}
 
 	@Override
@@ -108,7 +107,7 @@ public class EngineRenderer implements Renderer {
 
 	public void initGameObjects() {
 		CommonGameObject.facesCount = 0;
-		this.camera = new Camera(worldView.getContext(), 100, 100);
+		this.camera = new Camera(worldView, 100, 100);
 		scene = new Scene(camera);
 //		bmw1 = new BMW(scene);
 //		bmw1.setPosition(-8, -7);
@@ -161,8 +160,8 @@ public class EngineRenderer implements Renderer {
 
 	public void onSingleTap(float x, float y) {
 			
-		int w = worldView.getWidth();
-		int h = worldView.getHeight();
+		int w = camera.getViewportWidth();
+		int h = camera.getViewportHeight();
 		y = h - y;
 
 		if(scene == null){
@@ -220,6 +219,7 @@ public class EngineRenderer implements Renderer {
 		}
 
 
+		@Override
 		public boolean onTouchEvent(MotionEvent event) {
 			return currentEngineState.onTouchEvent(event);
 		}
@@ -266,14 +266,11 @@ public class EngineRenderer implements Renderer {
 		}
 
 
-//		public Shader getShader() {
-//			return shader;
-//		}
-//
-//
-//		public void setShader(CommonShader shader) {
-//			this.shader = shader;
-//		}
+		@Override
+		public Rect2D getBoundariesRectInPixel() {
+			return mViewBoundaries;
+		}
+
 
 	
 }
