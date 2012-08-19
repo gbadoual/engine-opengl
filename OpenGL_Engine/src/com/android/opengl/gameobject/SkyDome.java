@@ -27,14 +27,6 @@ public class SkyDome {
 		init();
 	}
 	
-	public SkyDome(Context context) {
-		this(context.getResources());
-	}
-	
-	public SkyDome(Resources resourcest) {
-	}
-	
-	
 	private void init() {
 		
 		MeshData meshData = LoaderManager.getInstance(camera.getContext().getResources()).loadMeshData(R.raw.skydome_data);
