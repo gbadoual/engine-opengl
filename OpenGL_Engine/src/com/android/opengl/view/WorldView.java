@@ -111,9 +111,19 @@ public class WorldView extends GLSurfaceView implements Touchable{
 //		progressDialog = null;
 	}
 	
+	private boolean onTouchEventRes;
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		return worldRenderer.onTouchEvent(event);
+	public boolean onTouchEvent(final MotionEvent event) {
+		onTouchEventRes = true;
+
+//		queueEvent(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+				onTouchEventRes = worldRenderer.onTouchEvent(event);				
+//			}
+//		});
+		return onTouchEventRes;
 	}
 
 	@Override
