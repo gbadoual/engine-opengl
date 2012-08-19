@@ -49,6 +49,8 @@ public class SkyDome {
 	
 	public void onDrawFrame(){
 
+		boolean isCulingTestEnabled = GLES20.glIsEnabled(GLES20.GL_CULL_FACE);
+		GLES20.glEnable(GLES20.GL_CULL_FACE);
 		GLES20.glUseProgram(mSkyBoxShader.programHandle);
 		GLES20.glUniformMatrix4fv(mSkyBoxShader.mvpMatrixHandle, 1, false, camera.getVpMatrix(), 0);
 
@@ -60,6 +62,9 @@ public class SkyDome {
 		GLUtil.drawElements(mVboDataHandler.vboIndexHandle, mVboDataHandler.indexDataLength);
 		
         GLES20.glUseProgram(0);		
+		if(!isCulingTestEnabled){
+			GLES20.glDisable(GLES20.GL_CULL_FACE);
+		}
 	}
 	
 	

@@ -3,10 +3,12 @@ package com.android.opengl.view.control;
 import android.util.Log;
 
 import com.android.opengl.Camera;
+import com.android.opengl.gameobject.Scene;
 
 public class GLGridLayout extends GLLayout{
 	
-	
+
+	// dimensions are represented in percents from the largest side of the screen
 	private float horizantalSpacing = 2;
 	private float verticalSpacing = 2;
 
@@ -14,25 +16,31 @@ public class GLGridLayout extends GLLayout{
 	private float nextY = verticalSpacing;
 	private float prevRowHeight;
 	
- 	public GLGridLayout(Camera camera) {
+ 	public GLGridLayout(Scene scene, float left, float top, float width, float height) {
+		super(scene, left, top, width, height);
+	}
+
+
+	public GLGridLayout(Scene scene) {
+		super(scene);
+	}
+
+
+	public GLGridLayout(Camera camera) {
 		super(camera);
 		initLocal();
 	}
- 	
- 	
 	
-	private void initLocal() {
-		setColor(128, 142, 128, 192);
-	}
-
-
-
+	
 	public GLGridLayout(Camera camera, float left, float top, float width, float height) {
 		super(camera, left, top, width, height);
 		initLocal();
 	}
 
 
+	private void initLocal() {
+		setColor(128, 142, 128, 192);
+	}
 
 	@Override
 	public void addChild(GLView child) {

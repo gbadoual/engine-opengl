@@ -124,6 +124,7 @@ public class EngineRenderer implements Renderer, Touchable{
 		earth = new Earth(scene);
 		earth.setPosition(-6, 3);
 		mainBase = new MainBase(scene);
+		mainBase.getCurSpeed();
 		
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));

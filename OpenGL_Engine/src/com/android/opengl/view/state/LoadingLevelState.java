@@ -25,8 +25,6 @@ public class LoadingLevelState extends EngineState{
 //		// Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
-//		worldRenderer.setShader(new CommonShader());
-		
 		engineRenderer.initGameObjects();
 		engineRenderer.initFpsCount();
 		engineRenderer.getCallbackHandler().sendEmptyMessage(WorldView.DIALOG_LOADING_DISMISS);
@@ -40,7 +38,6 @@ public class LoadingLevelState extends EngineState{
 
 	@Override
 	public void onDrawFrame() {
-//		worldRenderer.getScene().drawFrame();
 	}
 	
 	
