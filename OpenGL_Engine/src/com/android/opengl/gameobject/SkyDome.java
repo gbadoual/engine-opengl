@@ -15,10 +15,14 @@ public class SkyDome {
 	private SkyDomeShader mSkyBoxShader = new SkyDomeShader();
 	private Camera camera;
 
-	
+	int textureResId = R.raw.skydome_texture_small;
 	private VboDataHandler mVboDataHandler = new VboDataHandler();
 	
 	
+	public SkyDome(Camera camera, int textureResId) {
+		this(camera);
+		this.textureResId = textureResId;
+	}
 	public SkyDome(Camera camera) {
 		this.camera = camera;
 		init();
@@ -27,7 +31,7 @@ public class SkyDome {
 	private void init() {
 		
 		MeshData meshData = LoaderManager.getInstance(camera.getContext().getResources()).loadMeshData(R.raw.skydome_data);
-		mVboDataHandler.textureDataHandler = LoaderManager.getInstance(camera.getContext().getResources()).loadTexture(R.raw.skydome_texture_small);
+		mVboDataHandler.textureDataHandler = LoaderManager.getInstance(camera.getContext().getResources()).loadTexture(textureResId);
 		mVboDataHandler.indexDataLength = meshData.indexData.length;
 
 		int[] vboBufs = new int[4];
@@ -55,7 +59,6 @@ public class SkyDome {
 
 		GLUtil.drawElements(mVboDataHandler.vboIndexHandle, mVboDataHandler.indexDataLength);
 		
-        
         GLES20.glUseProgram(0);		
 	}
 	

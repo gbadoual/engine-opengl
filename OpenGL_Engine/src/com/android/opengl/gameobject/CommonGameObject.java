@@ -220,7 +220,7 @@ public abstract class CommonGameObject {
 		setPosition(position[0], position[1], position[2]);
 	}
 	
-	public void onObjectTap() {
+	public void onObjectFocusChanged(boolean hasFocus) {
 	}
 
 
@@ -258,6 +258,8 @@ public abstract class CommonGameObject {
 	}
 
 
-
+	public void notifyViewportChanged(int width, int height) {
+		
+	}
 
 }

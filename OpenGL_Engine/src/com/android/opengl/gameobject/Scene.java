@@ -1,6 +1,7 @@
 package com.android.opengl.gameobject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.res.Resources;
@@ -14,6 +15,7 @@ import com.android.opengl.util.MeshQuadNode2D;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Vector3D;
+import com.android.opengl.view.Touchable;
 import com.android.opengl.view.control.GLButton;
 import com.android.opengl.view.control.GLGridLayout;
 import com.android.opengl.view.control.GLView;
@@ -32,11 +34,12 @@ public class Scene extends CommonGameObject{
 	private static final String TAG = Scene.class.getSimpleName();
 	
 	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
+	private List<GLView> glViewList = new ArrayList<GLView>();
 	
 	private MeshQuadNode2D sceneQuad2D;
 	
 	
-	protected Camera camera;
+	private Camera camera;
 
 	
 	private boolean isRendingFinished = true;
@@ -47,40 +50,6 @@ public class Scene extends CommonGameObject{
 		this.camera.setScene(this);
 		skyBox = new SkyDome(camera);
 
-		glGridLayout = new GLGridLayout(camera, 5, 10, 30, 0);
-		camera.registerTouchable(glGridLayout, 0);
-		
-				
-		GLView child = new GLButton(camera, 50, 20, 30, 10);
-		GLView child1 = new GLButton(camera, 5, 2, 10, 10);
-		GLView child2 = new GLButton(camera, 5, 2, 10, 10);
-		GLView child3 = new GLButton(camera, 5, 2, 10, 5);
-		GLView child4 = new GLButton(camera, 5, 2, 10, 5);
-		GLView child5 = new GLButton(camera, 5, 2, 10, 5);
-		GLView child6 = new GLButton(camera, 5, 2, 10, 5);
-		child.setBackground(R.raw.bubble_background);
-		child.setOnTapListener(new GLView.OnTapListener() {
-			
-			@Override
-			public void onTap(GLView glView) {
-				Log.i("tag", "another glview tapped: " + glView);
-			}
-		});
-//		glGridLayout.setVisible(false);
-		glGridLayout.addChild(child1);
-		glGridLayout.addChild(child2);
-		glGridLayout.addChild(child3);
-		glGridLayout.addChild(child4);
-		glGridLayout.addChild(child5);
-		glGridLayout.addChild(child6);
-		glGridLayout.addChild(child);
-		glGridLayout.setOnTapListener(new GLView.OnTapListener() {
-			
-			@Override
-			public void onTap(GLView glView) {
-				Log.i("tag", "glview tapped: " + glView);
-			}
-		});
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
 		rotate((float)Math.toRadians(45), (float)Math.toRadians(-30), 0);
@@ -114,12 +83,34 @@ public class Scene extends CommonGameObject{
 		for(GameObject gameObject: gameObjectList){
 			gameObject.drawFrame();
 		}
-		glGridLayout.onDraw();
+		for(GLView glView: glViewList){
+			glView.onDraw();
+		}
 		
 		isRendingFinished = true;
 	}
 	
+	public boolean registerGLView(GLView glView, int zOrder){
+		boolean res = getCamera().registerTouchable(glView, zOrder);
+		if(!res){
+			Log.w(TAG, "registerGLView(): unable to register glView");
+			return false;
+		}
+		glView.setzOrder(zOrder);
+		res = glViewList.add(glView);
+		if(!res){
+			Log.w(TAG, "registerGLView(): unable to register glView");
+			getCamera().unregisterTouchable(glView);
+			return false;
+		}
+		Collections.sort(glViewList, new GLView.GLViewComparator());
+		return res;
+	}
 	
+	public boolean unregisterGLView(GLView glView){
+		getCamera().unregisterTouchable(glView);
+		return glViewList.remove(glView);
+	}
 	
 	public void scale(float scaleFactor) {
 		float distacne = SCALING_STEP * (1 - 1/scaleFactor);
@@ -155,11 +146,12 @@ public class Scene extends CommonGameObject{
 	public void notifyMVPMatrixChanged(){
 		Matrix.multiplyMM(mvMatrix, 0, camera.getVpMatrix(), 0, modelMatrix, 0);
 	}
-	private GLGridLayout glGridLayout;
 
 	public void notifyViewportChanged(int width, int height) {
 		notifyMVPMatrixChanged();
-		glGridLayout.invalidate();
+		for(GLView glView: glViewList){
+			glView.invalidate();
+		}
 	}
 
 	public void setViewMatrix(float[] viewMatrix) {
@@ -264,8 +256,15 @@ public class Scene extends CommonGameObject{
 	}
 
 
-	public GLView getGlView() {
-		return glGridLayout;
+
+
+	public Camera getCamera() {
+		return camera;
+	}
+
+
+	public void setCamera(Camera camera) {
+		this.camera = camera;
 	}
 
 
