@@ -8,4 +8,5 @@ public interface Touchable {
 
 	public boolean onTouchEvent(MotionEvent event);
 	public Rect2D getBoundariesRectInPixel();
+	
 }

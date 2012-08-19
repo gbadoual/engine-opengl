@@ -58,9 +58,7 @@ abstract public class GameObject extends CommonGameObject{
 	
 	public boolean checkObjectRayIntersection(Vector3D vector) {
 		isSelected = outerCube.isIntersected(vector);
-		if(isSelected){
-			onObjectTap();
-		}
+		onObjectFocusChanged(isSelected);
 		return isSelected;
 	}
 	

@@ -2,6 +2,7 @@ package com.android.opengl;
 
 
 import android.content.Context;
+import android.opengl.GLES20;
 
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.util.geometry.Matrix;
@@ -163,6 +164,7 @@ public class Camera {
 	public void setViewport(int width, int height) {
 		viewportWidth = width;
 		viewportHeight = height;
+		GLES20.glViewport(0, 0, width, height);
 		projectionMatrix = calculateProjectionMatrix(viewportWidth, viewportHeight);
 		notifyVPMatrixChanged();
 		if(scene != null){

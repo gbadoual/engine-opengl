@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import com.android.opengl.Camera;
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.building.MainBase;
 import com.android.opengl.gameobject.unit.Cube;
 import com.android.opengl.gameobject.unit.Earth;
 import com.android.opengl.util.geometry.Point3D;
@@ -46,7 +47,7 @@ public class EngineRenderer implements Renderer, Touchable{
 	private Cube cube1;
 	private Cube cube2;
 //	private BMW bmw1;
-//	private MainBase mainBase;
+	private MainBase mainBase;
 //	private GameObject bmw2;
 	private Earth earth;
 	private Scene scene;
@@ -83,7 +84,6 @@ public class EngineRenderer implements Renderer, Touchable{
 
 	@Override
 	public void onSurfaceChanged(GL10 arg0, int width, int height) {
-		GLES20.glViewport(0, 0, width, height);
 		camera.setViewport(width, height);
 		mViewBoundaries.mWidth = width;
 		mViewBoundaries.mHeight = height;
@@ -123,7 +123,7 @@ public class EngineRenderer implements Renderer, Touchable{
 
 		earth = new Earth(scene);
 		earth.setPosition(-6, 3);
-//		mainBase = new MainBase(scene);
+		mainBase = new MainBase(scene);
 		
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));

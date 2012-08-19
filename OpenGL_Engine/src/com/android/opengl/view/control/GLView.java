@@ -1,6 +1,7 @@
 package com.android.opengl.view.control;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import android.opengl.GLES20;
@@ -19,7 +20,19 @@ public abstract class GLView implements Touchable{
 	
 
 //	private static final String TAG = GLView.class.getSimpleName();
-	
+
+	public static class GLViewComparator implements Comparator<GLView> {
+		@Override
+		public int compare(GLView lhs, GLView rhs) {
+			if(lhs != null && rhs != null){
+				return lhs.zOrder - rhs.zOrder; 
+			}
+			return 0;
+		}
+	};
+
+
+
 	private float mParentShiftX = 0;
 	private float mParentShiftY = 0;
 	protected float mLeftCoord;
@@ -44,6 +57,7 @@ public abstract class GLView implements Touchable{
 	protected List<GLView> mChildren = new ArrayList<GLView>();
 	
 	private Camera camera;
+	private int zOrder;
 	
 	private boolean isVisible = true;
 	
@@ -101,7 +115,9 @@ public abstract class GLView implements Touchable{
 		    GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
 			GLES20.glUseProgram(mShader.programHandle);
-			GLES20.glUniform1f(mShader.isPressedHandle, getFocusedView() == this?1:0);
+			int isSelected = getFocusedView() == this?1:0;
+			Log.i("eeee", "isSelected = " + isSelected);
+			GLES20.glUniform1f(mShader.isPressedHandle, isSelected);
 
 			GLES20.glUniform1f(mShader.isTextureEnabledHandle, isBackgroundEnabled()? 1 : 0);
 			if(isBackgroundEnabled()){
@@ -350,6 +366,15 @@ public abstract class GLView implements Touchable{
 
 	
 	
+	public int getzOrder() {
+		return zOrder;
+	}
+	public void setzOrder(int zOrder) {
+		this.zOrder = zOrder;
+	}
+
+
+
 	public static interface OnTapListener{
 		public void onTap(GLView glView);
 	}
