@@ -63,6 +63,7 @@ public abstract class CommonGameObject {
 		public int vboTextureCoordHandle;
 		public int vboNormalHandle;
 		public int vboIndexHandle;
+		public int indexDataLength;
 		public float[] vertexData;
 		public int [] indexData;
 
@@ -95,7 +96,7 @@ public abstract class CommonGameObject {
 			GLES20.glEnable(GLES20.GL_TEXTURE_2D);
 			vboDataHandler.textureDataHandler = meshLoader.loadTexture(getTextureResource()); 
 			vboDataHandlerMap.put(getClass().getSimpleName(), vboDataHandler);
-			meshData = meshLoader.loadFromRes(getMeshResource());
+			meshData = meshLoader.loadMeshData(getMeshResource());
 			if(meshData == null){
 				Log.w("tag",TAG+":initDtata() meshData is null. Init aborting.");
 				return;

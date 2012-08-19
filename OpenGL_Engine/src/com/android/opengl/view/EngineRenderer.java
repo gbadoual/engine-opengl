@@ -124,7 +124,7 @@ public class EngineRenderer implements Renderer {
 
 		earth = new Earth(scene);
 		earth.setPosition(-6, 3);
-		mainBase = new MainBase(scene);
+//		mainBase = new MainBase(scene);
 		
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));

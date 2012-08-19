@@ -56,6 +56,7 @@ public class Scene extends CommonGameObject{
 //		this.context = context;
 		this.camera = camera;
 		this.camera.setScene(this);
+		skyBox = new SkyDome(camera);
 
 		glGridLayout = new GLGridLayout(camera, 5, 10, 30, 0);
 		
@@ -75,6 +76,7 @@ public class Scene extends CommonGameObject{
 				Log.i("tag", "another glview tapped: " + glView);
 			}
 		});
+		glGridLayout.setVisible(false);
 		glGridLayout.addChild(child1);
 		glGridLayout.addChild(child2);
 		glGridLayout.addChild(child3);
@@ -107,9 +109,12 @@ public class Scene extends CommonGameObject{
 		gameObjectList.clear();
 	}
 	
+	private SkyDome skyBox;
+	
 	@Override
 	public void drawFrame() {
 		isRendingFinished = false;
+		skyBox.onDrawFrame();
 //		rotate(0, -0.5f, 0);
 		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);//mvMatrix = viewMatrix;
 		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);//mvMatrix = viewMatrix;
@@ -120,94 +125,16 @@ public class Scene extends CommonGameObject{
 			gameObject.drawFrame();
 		}
 		glGridLayout.onDraw();
+		
 		isRendingFinished = true;
 	}
 	
 	
-	private void localDraw(){
-		GLES20.glUseProgram(getShader().programHandle);
-
-			
-		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
-        GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
-
-// using VBOs		
-
-		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
-
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, shader.textureDataHandler);
-	    GLES20.glUniform1i(shader.textureHandle, 0);
-
-	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboTextureCoordHandle);
-		GLES20.glEnableVertexAttribArray(shader.textureCoordHandle);
-		GLES20.glVertexAttribPointer(shader.textureCoordHandle, GLUtil.TEXTURE_SIZE, GLES20.GL_FLOAT, false, 0, 0);
-
-		
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboVertexHandle);
-		GLES20.glEnableVertexAttribArray(shader.positionHandle);
-		GLES20.glVertexAttribPointer(shader.positionHandle, GLUtil.VERTEX_SIZE, GLES20.GL_FLOAT, false, 0, 0);
-		
-		
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboDataHandler.vboNormalHandle);
-		GLES20.glEnableVertexAttribArray(shader.normalHandle);
-		GLES20.glVertexAttribPointer(shader.normalHandle, GLUtil.NORMAL_SIZE, GLES20.GL_FLOAT, false, 0, 0);
-
-		
-		IntBuffer indexBuffer;
-		ArrayList<Integer> indexList = (ArrayList<Integer>) sceneQuad2D.getIndexToDrawList().clone();
-		int[] indexData = new int[indexList.size()];
-		for(int i = 0; i < indexData.length; ++i){
-			if(indexList == null){
-				return;
-			}
-			indexData[i] = indexList.get(i);
-		}
-
-			indexBuffer = ByteBuffer.allocateDirect(indexData.length * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
-			indexBuffer.put(indexData).position(0);
-				
-			
-			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboDataHandler.vboIndexHandle);
-			GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.capacity() * 4, indexBuffer, GLES20.GL_DYNAMIC_DRAW);
-
-			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vboDataHandler.vboIndexHandle);
-			GLES20.glDrawElements(GLES20.GL_TRIANGLES, indexData.length, GLES20.GL_UNSIGNED_INT, 0);
-			
-			
-			indexBuffer.limit(0);
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-			GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-				
-			GLES20.glUseProgram(0);
-	}
-	
-
-
 	
 	public void scale(float scaleFactor) {
 		float distacne = SCALING_STEP * (1 - 1/scaleFactor);
 		camera.moveForward(distacne);
 		notifyMVPMatrixChanged();
-//		if(Math.abs(1 - scaleFactor) < EPSILON){
-//			scaleFactor = 1;
-//		}
-//		scale *= scaleFactor;
-//		float borderedScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
-//		if(scale == borderedScale){
-//			Matrix.scaleM(modelMatrix, 0, scaleFactor, scaleFactor, scaleFactor);
-//			float[] newposition = getPosition().asFloatArray();
-//			float dx = newposition[0] * scaleFactor - newposition[0];
-//			float dz = newposition[2] * scaleFactor - newposition[2];
-//			newposition[0] = newposition[0] + dx;
-//			newposition[2] = newposition[2] + dz;
-//
-//			Log.i("tag", "scaleFactor = " + scaleFactor);
-//			Log.i("tag", "newposition = " + newposition[0] + ", " + newposition[1] + ", " + newposition[2]);
-//			setPosition(newposition);
-//			notifyMVPMatrixChanged();
-//		}
-//		scale = borderedScale;
 	}
 
 	@Override
@@ -238,8 +165,7 @@ public class Scene extends CommonGameObject{
 
 	
 	public void notifyMVPMatrixChanged(){
-		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);
-		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);
+		Matrix.multiplyMM(mvMatrix, 0, camera.getVpMatrix(), 0, modelMatrix, 0);
 	}
 	private GLGridLayout glGridLayout;
 
@@ -309,7 +235,7 @@ public class Scene extends CommonGameObject{
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.landscape;
+		return R.raw.scene;
 	}
 
 

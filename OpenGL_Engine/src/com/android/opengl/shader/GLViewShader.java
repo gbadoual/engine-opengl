@@ -14,11 +14,11 @@ public class GLViewShader extends Shader{
 	
 	public static final String UNIFORM_PRESSED = "uPressed";
 	public static final String UNIFORM_TEXTURE_ENABLED = "uTextureEnabled";
-	public static final String UNIFORM_TEXTURE = "uTexture";
 
+	public static final String UNIFORM_TEXTURE = "uTexture";
+	public static final String ATTRIBUTE_TEXTURE_COORD = "aTexCoord";
 	public static final String ATTRIBUTE_COLOR = "aColor";
 	public static final String ATTRIBUTE_POSITION = "aPosition";
-	public static final String ATTRIBUTE_TEXTURE_COORD = "aTexCoord";
 
 	
 	public GLViewShader() {

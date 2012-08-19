@@ -100,7 +100,7 @@ public class LoaderManager {
 		this.resources = resources;
 	}
 
-	public MeshData loadFromRes(int objectRawId) {
+	public MeshData loadMeshData(int objectRawId) {
 		long time = System.currentTimeMillis();
 		MeshData objData = null;
 		try {
