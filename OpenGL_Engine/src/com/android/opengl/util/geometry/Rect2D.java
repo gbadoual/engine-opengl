@@ -33,5 +33,9 @@ public class Rect2D {
 				y >= mTopCoord && y <= mTopCoord + mHeight;
 	}
 
+	public static Rect2D getEmpyRect() {
+		return new Rect2D(0, 0, -1, -1);
+	}
+
 
 }

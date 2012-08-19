@@ -19,6 +19,7 @@ public class Camera {
 	
 	private float[] viewMatrix = new float[16];
 	private float[] projectionMatrix = new float[16];
+	private float[] vpMatrix = new float[16];
 	
 	private int viewportWidth;
 	private int viewportHeight;
@@ -45,7 +46,7 @@ public class Camera {
 		float bottom = -1;
 		float top = 1;
 		float near = 1;
-		float far = 105;
+		float far = 205;
 		if(ratio > 1){
 			top = 1/ratio;
 			bottom = -1/ratio;
@@ -78,6 +79,7 @@ public class Camera {
 	public void moveForward(float distance){
 		viewMatrix[MATRIX_Z_OFFSET] += distance;
 		viewMatrix[MATRIX_Z_OFFSET] = Math.min(CAMERA_MAX_DISTANCE, Math.max(CAMERA_MIN_DISTANCE, viewMatrix[MATRIX_Z_OFFSET]));
+		notifyVPMatrixChanged();
 	}
 	
 	public void translate(float dx, float dz){
@@ -105,6 +107,7 @@ public class Camera {
 		viewMatrix[MATRIX_X_OFFSET] = x; 
 		viewMatrix[MATRIX_Y_OFFSET] = y; 
 		viewMatrix[MATRIX_Z_OFFSET] = z;
+		notifyVPMatrixChanged();
 	}
 	
 	public float[] getViewMatrix() {
@@ -113,6 +116,7 @@ public class Camera {
 
 	public void setViewMatrix(float[] viewMatrix) {
 		this.viewMatrix = viewMatrix;
+		notifyVPMatrixChanged();
 	}	
 	
 	private void initViewMatrix(float[] viewatrix) {
@@ -151,12 +155,14 @@ public class Camera {
 
 	public void setProjectionMatrix(float[] projectionMatrix) {
 		this.projectionMatrix = projectionMatrix;
+		notifyVPMatrixChanged();
 	}
 
 	public void setViewport(int width, int height) {
 		viewportWidth = width;
 		viewportHeight = height;
 		projectionMatrix = calculateProjectionMatrix(viewportWidth, viewportHeight);
+		notifyVPMatrixChanged();
 		if(scene != null){
 			scene.notifyViewportChanged(width, height);
 		}
@@ -185,6 +191,16 @@ public class Camera {
 	public void setScene(Scene scene) {
 		this.scene = scene;
 	}
+
+	public float[] getVpMatrix() {
+		return vpMatrix;
+	}
+	
+	
+	private void notifyVPMatrixChanged(){
+		Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+	}	
+	
 
 
 

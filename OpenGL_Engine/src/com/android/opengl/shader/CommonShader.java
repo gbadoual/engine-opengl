@@ -6,16 +6,16 @@ public class CommonShader extends Shader{
 	
 	public final int mvpMatrixHandle;
 	public final int mvMatrixHandle;
-	public final int positionHandle;
 
-
-	public final int normalHandle;
-//	public final int textureHandle;
-	public final int isSelectedHandle;
 	
+	public final int positionHandle;
+	public final int normalHandle;
 	public final int textureCoordHandle;
 	public final int textureHandle;
-	public int textureDataHandler;
+
+	
+	public final int isSelectedHandle;
+	
 	
 	
 	
@@ -96,7 +96,7 @@ public class CommonShader extends Shader{
 			"	float distance = length("+UNIFORM_LIGHT_POSITION+" - v_Position);					" +
 			"	vec3 lightVector = normalize("+ UNIFORM_LIGHT_POSITION+" - v_Position);				" +
 			"	float diffuse = max(dot(v_Normal, lightVector), 0.1);								" +
-			"	diffuse = diffuse * 1.0/(1.0+(0.0001*distance*distance));							" +
+//			"	diffuse = diffuse * 1.0/(1.0+(0.0001*distance*distance));							" +
 //				"	gl_FragColor = resColor * diffuse * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
 //"				if(" + UNIFORM_TEXTURE + "!= null){	" +
 			"		gl_FragColor = diffuse * selectedColor * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +

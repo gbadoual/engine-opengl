@@ -342,7 +342,11 @@ public abstract class GLView implements Touchable{
 	
 	@Override
 	public Rect2D getBoundariesRectInPixel() {
-		return mBoundariesRectInPixel ;
+		if(isVisible){
+			return mBoundariesRectInPixel ;
+		} else{
+			return Rect2D.getEmpyRect();
+		}
 	}
 
 	
