@@ -10,10 +10,12 @@ import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
+import com.android.opengl.gameobject.Scene;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.geometry.Rect2D;
+import com.android.opengl.view.MotionEventDispatcher;
 import com.android.opengl.view.Touchable;
 
 public abstract class GLView implements Touchable{
@@ -35,6 +37,8 @@ public abstract class GLView implements Touchable{
 
 	private float mParentShiftX = 0;
 	private float mParentShiftY = 0;
+
+	// dimensions are represented in percents from the largest side of the screen
 	protected float mLeftCoord;
 	protected float mTopCoord;
 	protected float mWidth;
@@ -47,7 +51,7 @@ public abstract class GLView implements Touchable{
 	protected float bkgColorB;
 	protected float bkgColorA;
 
-	private GLViewShader mShader;
+	private GLViewShader mGLViewShader;
 	private VboDataHandler mVboDataHandler;
 	private OnTapListener mOnTapListener;
 
@@ -61,16 +65,24 @@ public abstract class GLView implements Touchable{
 	
 	private boolean isVisible = true;
 	
-	int[] indexData = new int[]{0, 2, 3, 0, 1, 2};
-	float[] textureCoord = new float[]{0, 1,
-									   1, 1, 
-									   1, 0, 
-									   0, 0};
+	private final int[] indexData = new int[]{0, 2, 3, 0, 1, 2};
+	private final float[] textureCoord = new float[]{0, 1,
+												   1, 1, 
+												   1, 0, 
+												   0, 0};
 	
+	public GLView(Scene scene) {
+		this(scene.getCamera());
+	}
+	public GLView(Scene scene, float left, float top, float width, float height) {
+		this(scene.getCamera(), left, top, width, height);
+	}
+
 	public GLView(Camera camera) {
 		this.camera = camera;
 		init();
 	}
+	
 	public GLView(Camera camera, float left, float top, float width, float height) {
 		this.camera = camera;
 		this.mLeftCoord = left;
@@ -81,7 +93,7 @@ public abstract class GLView implements Touchable{
 	}
 	
 	private void init() {
-		this.mShader = new GLViewShader();
+		this.mGLViewShader = new GLViewShader();
 		mVboDataHandler = new VboDataHandler();
 		mBoundariesRectInPixel = new Rect2D();
 
@@ -114,22 +126,22 @@ public abstract class GLView implements Touchable{
 			GLES20.glEnable(GLES20.GL_BLEND);
 		    GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
-			GLES20.glUseProgram(mShader.programHandle);
+			GLES20.glUseProgram(mGLViewShader.programHandle);
 			int isSelected = getFocusedView() == this?1:0;
 			Log.i("eeee", "isSelected = " + isSelected);
-			GLES20.glUniform1f(mShader.isPressedHandle, isSelected);
+			GLES20.glUniform1f(mGLViewShader.isPressedHandle, isSelected);
 
-			GLES20.glUniform1f(mShader.isTextureEnabledHandle, isBackgroundEnabled()? 1 : 0);
+			GLES20.glUniform1f(mGLViewShader.isTextureEnabledHandle, isBackgroundEnabled()? 1 : 0);
 			if(isBackgroundEnabled()){
-			    GLUtil.passTextureToShader(mVboDataHandler.textureDataHandler, mShader.textureHandle);
-			    GLUtil.passBufferToShader(mVboDataHandler.vboTextureCoordHandle, mShader.textureCoordHandle, 
+			    GLUtil.passTextureToShader(mVboDataHandler.textureDataHandler, mGLViewShader.textureHandle);
+			    GLUtil.passBufferToShader(mVboDataHandler.vboTextureCoordHandle, mGLViewShader.textureCoordHandle, 
 			    								  GLUtil.TEXTURE_SIZE);
 			}
 			
-			GLUtil.passBufferToShader(mVboDataHandler.vboVertexHandle, mShader.positionHandle, 
+			GLUtil.passBufferToShader(mVboDataHandler.vboVertexHandle, mGLViewShader.positionHandle, 
 					  GLUtil.VERTEX_SIZE);
 
-			GLUtil.passBufferToShader(mVboDataHandler.vboColorHandle, mShader.colorHandle, 
+			GLUtil.passBufferToShader(mVboDataHandler.vboColorHandle, mGLViewShader.colorHandle, 
 					  GLUtil.COLOR_SIZE);
 			
 			GLUtil.drawElements(mVboDataHandler.vboIndexHandle, indexData.length);
@@ -155,6 +167,9 @@ public abstract class GLView implements Touchable{
 	}
 
 	public void setVisible(boolean isVisible) {
+		if(!isVisible){
+			onTouchEvent(MotionEventDispatcher.obtainCancelEvent());
+		}
 		this.isVisible = isVisible;
 	}
 	

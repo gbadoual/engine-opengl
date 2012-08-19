@@ -15,9 +15,6 @@ import com.android.opengl.util.MeshQuadNode2D;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Vector3D;
-import com.android.opengl.view.Touchable;
-import com.android.opengl.view.control.GLButton;
-import com.android.opengl.view.control.GLGridLayout;
 import com.android.opengl.view.control.GLView;
 
 public class Scene extends CommonGameObject{

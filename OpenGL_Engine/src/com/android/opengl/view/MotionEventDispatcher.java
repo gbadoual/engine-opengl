@@ -207,8 +207,7 @@ public class MotionEventDispatcher {
 		
 		public boolean syncAction(MotionEvent event) {
 			if(motionEvent != null){
-					int action = MotionEventDispatcher.syncActionEvent(motionEvent, event);
-					motionEvent.setAction(action);
+					MotionEventDispatcher.syncActionEvent(motionEvent, event);
 					return true;
 			}
 			return false;
@@ -351,7 +350,7 @@ public class MotionEventDispatcher {
 		int pointerIdInEvent = srcEvent.getPointerId(srcEvent.getActionIndex());
 		int pointerIndex = destEvent.findPointerIndex(pointerIdInEvent);
 		// if pointerIndex < 0 then srcEvent action does not relate to this destEvent
-		// no need to update destEvent's action
+		// no need to sync destEvent's action
 		if(pointerIndex >= 0){
 		
 			action = srcEvent.getAction();
@@ -375,7 +374,13 @@ public class MotionEventDispatcher {
 				action = action & 0xFF00 | actionMasked;
 			}
 		}
+		destEvent.setAction(action);
 		return action;
+	}
+
+	public static MotionEvent obtainCancelEvent() {
+		long curTime = System.currentTimeMillis();
+		return MotionEvent.obtain(curTime, curTime, MotionEvent.ACTION_CANCEL, 0, 0, 0);
 	}
 
 }
