@@ -87,7 +87,7 @@ public class CommonShader extends Shader{
 //				"	vec4 resColor;																		" +
 			"	float selectedColor = 1.0;" +
 			"	if (v_isSelected > 0.0){															" +
-			"		selectedColor = 2.0;" +
+			"		selectedColor = 1.3;" +
 //				"		resColor = vec4(v_Color.x / 2.0, v_Color.y + 1.0, v_Color.z + 1.0, v_Color.w);	" +
 			"	} else {																			" +
 //				"		resColor = v_Color;																" +
@@ -96,7 +96,7 @@ public class CommonShader extends Shader{
 			"	float distance = length("+UNIFORM_LIGHT_POSITION+" - v_Position);					" +
 			"	vec3 lightVector = normalize("+ UNIFORM_LIGHT_POSITION+" - v_Position);				" +
 			"	float diffuse = max(dot(v_Normal, lightVector), 0.1);								" +
-//			"	diffuse = diffuse * 1.0/(1.0+(0.0001*distance*distance));							" +
+			"	diffuse = diffuse * 1.0/(1.0+(0.0001*distance*distance)) + 0.5;							" +
 //				"	gl_FragColor = resColor * diffuse * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
 //"				if(" + UNIFORM_TEXTURE + "!= null){	" +
 			"		gl_FragColor = diffuse * selectedColor * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +

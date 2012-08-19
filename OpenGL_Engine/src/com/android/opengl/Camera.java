@@ -6,6 +6,8 @@ import android.content.Context;
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
+import com.android.opengl.view.Touchable;
+import com.android.opengl.view.WorldView;
 
 public class Camera {
 	
@@ -28,13 +30,13 @@ public class Camera {
 	private float angleY;
 	private float angleZ;
 	
-	private Context context;
+	private WorldView worldView;
 	private Scene scene;
 	
 
 	
-	public Camera(Context context, int width, int height) {
-		this.setContext(context);
+	public Camera(WorldView worldView, int width, int height) {
+		this.worldView = worldView;
 		initViewMatrix(viewMatrix);
 		setViewport(width, height);
 	}
@@ -177,12 +179,12 @@ public class Camera {
 	}
 
 	public Context getContext() {
-		return context;
+		return worldView.getContext();
 	}
 
-	public void setContext(Context context) {
-		this.context = context;
-	}
+//	public void setContext(Context context) {
+//		this.worldView = context;
+//	}
 
 	public Scene getScene() {
 		return scene;
@@ -199,7 +201,15 @@ public class Camera {
 	
 	private void notifyVPMatrixChanged(){
 		Matrix.multiplyMM(vpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
-	}	
+	}
+	
+	public boolean registerTouchable(Touchable touchable, int zOrder){
+		return worldView.getMotionEventDispatcher().registerToucheble(touchable, zOrder);
+	};
+	public boolean unregisterTouchable(Touchable touchable){
+		return worldView.getMotionEventDispatcher().unregisterToucheble(touchable);
+	};
+	
 	
 
 

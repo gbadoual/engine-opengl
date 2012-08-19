@@ -2,8 +2,6 @@ package com.android.opengl.gameobject.building;
 
 import com.android.opengl.R;
 import com.android.opengl.gameobject.Scene;
-import com.android.opengl.view.control.GLButton;
-import com.android.opengl.view.control.GLView;
 
 public class MainBase extends AbstractBuilding{
 	

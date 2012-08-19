@@ -58,20 +58,20 @@ public class MotionEventDispatcher {
 					}
 					wrapper.motionEvent = currentEvent;
 					wrapper.syncAction(event);
-					wrapper.deliverTouchEvent();
+					res = wrapper.deliverTouchEvent();
 					break;
 				}
 			}
 			break;
 		case MotionEvent.ACTION_POINTER_UP:
 			for(TouchableWrapper touchableWrapper: wrapperList){
-				removePointer(touchableWrapper, pointerId);
+				res = removePointer(touchableWrapper, pointerId);
 			}
 			break;
 		case MotionEvent.ACTION_UP:
 		case MotionEvent.ACTION_CANCEL:
 			for(TouchableWrapper touchableWrapper: wrapperList){
-				touchableWrapper.deliverTouchEvent();
+				res = touchableWrapper.deliverTouchEvent();
 				touchableWrapper.disposeMotionEvent();
 			}
 			break;
@@ -133,9 +133,10 @@ public class MotionEventDispatcher {
 	}
 
 	public boolean removePointer(TouchableWrapper touchableWrapper, int pointerId){
+		boolean res = false;
 		int pointerIndexToDelete = touchableWrapper.findPointerIndex(pointerId);
 		if(pointerIndexToDelete >= 0){
-			touchableWrapper.deliverTouchEvent();
+			res = touchableWrapper.deliverTouchEvent();
 			int size = touchableWrapper.getPointerCount();
 			if(size == 1){
 				touchableWrapper.disposeMotionEvent();
@@ -152,7 +153,7 @@ public class MotionEventDispatcher {
 				}
 			}
 			touchableWrapper.updatePointerCoordinates(pointerData);
-			return true;
+			return res;
 		}
 
 		return false;

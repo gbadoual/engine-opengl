@@ -1,10 +1,6 @@
 package com.android.opengl.gameobject.tools.moving;
 
-import android.util.Log;
-
-import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.util.geometry.Point3D;
-import com.android.opengl.util.geometry.Vector3D;
 
 public abstract class MovingTool {
 	

@@ -1,7 +1,5 @@
 package com.android.opengl.view;
 
-import com.android.opengl.util.geometry.Rect2D;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,13 +12,14 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
-public class WorldView extends GLSurfaceView implements Touchable{
+public class WorldView extends GLSurfaceView{
 
 	public static final int DIALOG_LOADING_SHOW = 0;
 	public static final int DIALOG_LOADING_DISMISS = 1;
 	
 	private EngineRenderer worldRenderer;
 	private TextView textView;
+	private MotionEventDispatcher motionEventDispatcher;
 	
 	private ProgressDialog progressDialog;
 	
@@ -77,6 +76,8 @@ public class WorldView extends GLSurfaceView implements Touchable{
 	private void init() {
 		
 		worldRenderer = new EngineRenderer(this, handler);
+		motionEventDispatcher = new MotionEventDispatcher();
+		motionEventDispatcher.registerToucheble(worldRenderer, 100);
 		setEGLContextClientVersion(2);
 		setRenderer(worldRenderer);
 	}
@@ -111,29 +112,36 @@ public class WorldView extends GLSurfaceView implements Touchable{
 //		progressDialog = null;
 	}
 	
+	
 	private boolean onTouchEventRes;
+	private Object syncObj = new Object();
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
 		onTouchEventRes = true;
-
-//		queueEvent(new Runnable() {
-//			
-//			@Override
-//			public void run() {
-				onTouchEventRes = worldRenderer.onTouchEvent(event);				
-//			}
-//		});
+		queueEvent(new Runnable() {
+			
+			@Override
+			public void run() {
+				synchronized (syncObj) {
+					onTouchEventRes = motionEventDispatcher.dispatchTouchEvent(event);
+					syncObj.notifyAll();
+				}
+			}
+		});
+		synchronized (syncObj) {
+			try {
+				syncObj.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		return onTouchEventRes;
 	}
 
-	@Override
-	public Rect2D getBoundariesRectInPixel() {
-		// TODO Auto-generated method stub
-		return null;
+
+	public MotionEventDispatcher getMotionEventDispatcher() {
+		return motionEventDispatcher;
 	}
-	
-
-
 
 
 }

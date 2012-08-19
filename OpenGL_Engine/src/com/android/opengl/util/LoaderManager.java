@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import org.apache.commons.io.IOUtils;
 
 import android.content.Context;
@@ -23,8 +21,6 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
 
-import com.android.opengl.gameobject.CommonGameObject;
-
 public class LoaderManager {
 	
 	private static final String TAG = LoaderManager.class.getSimpleName();
@@ -35,7 +31,7 @@ public class LoaderManager {
 	private static final char[] typeVt = new char[]{'v', 't'};
 	private static final char[] typeF = new char[]{'f', ' '};
 	
-	private Map<Integer, MeshData> meashDataCache = new HashMap<Integer, MeshData>();
+//	private Map<Integer, MeshData> meashDataCache = new HashMap<Integer, MeshData>();
 	private Map<Integer, Integer> textureHandlerCache = new HashMap<Integer, Integer>();
 	
 //	private CommonGameObject commonGameObject;

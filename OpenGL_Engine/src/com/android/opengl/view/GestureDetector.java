@@ -2,14 +2,12 @@ package com.android.opengl.view;
 
 import java.util.Arrays;
 
-import com.android.opengl.util.geometry.Rect2D;
-
 import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 
-public class GestureDetector implements Touchable{
+public class GestureDetector{
 
 	private enum GESTURE_STATE{
 		ROTATE,
@@ -53,7 +51,6 @@ public class GestureDetector implements Touchable{
 	}
 
 
-	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if(event.getPointerCount() > 2){
 			return false;
@@ -262,13 +259,5 @@ public class GestureDetector implements Touchable{
 		}
 		
 	};
-
-
-	//TODO this is very strange move... someone else should implement Touchable instead of GestureDetector 
-	@Override
-	public Rect2D getBoundariesRectInPixel() {
-		return new Rect2D(0, 0, 10000, 10000);
-	}
-	
 	
 }
