@@ -14,7 +14,7 @@ public class Earth extends GameObject{
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.earth;
+		return R.raw.earth_data;
 	}
 	
 	@Override
