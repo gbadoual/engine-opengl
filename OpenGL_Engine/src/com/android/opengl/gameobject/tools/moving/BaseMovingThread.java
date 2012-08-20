@@ -13,7 +13,7 @@ import com.android.opengl.util.geometry.Vector3D;
 public class BaseMovingThread extends Thread{
 	
 	private static final float MAX_ANGLE_DEVIATION = (float) Math.toRadians(20.0);
-	private static final float SPEED_SCALE_FACTOR = 100;
+	private static final float SPEED_SCALE_FACTOR = 200;
 	private static final float MOVING_TIME_INTERVAL = 100;
 	private static final long THREAD_SLEEP_INTERVAL = 10;
 	private static final float EPSILON = 0.000001f;

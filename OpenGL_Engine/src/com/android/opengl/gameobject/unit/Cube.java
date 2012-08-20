@@ -21,7 +21,7 @@ public class Cube extends GameObject{
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.cube;
+		return R.raw.cube_data;
 	}
 	
 	@Override

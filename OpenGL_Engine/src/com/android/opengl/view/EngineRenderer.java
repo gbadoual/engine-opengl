@@ -113,18 +113,18 @@ public class EngineRenderer implements Renderer, Touchable{
 //		bmw1.setPosition(-8, -7);
 
 //		bmw2 = new BMW(scene);
-		cube1 = new Cube(scene);
-		cube1.setPosition(0, -6);
+//		cube1 = new Cube(scene);
+//		cube1.setPosition(0, -6);
 //		cube1.moveTo(new Point3D(-5, 0, 0));
 
 		
-		cube2 = new Cube(scene);
-		cube2.setPosition(4, 4);
-
-		earth = new Earth(scene);
-		earth.setPosition(-6, 3);
+//		cube2 = new Cube(scene);
+//		cube2.setPosition(4, 4);
+//
+//		earth = new Earth(scene);
+//		earth.setPosition(-6, 3);
 		mainBase = new MainBase(scene);
-		mainBase.getCurSpeed();
+		mainBase.setPosition(5, 5);
 		
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));

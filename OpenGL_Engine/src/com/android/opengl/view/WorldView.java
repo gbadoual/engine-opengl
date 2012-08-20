@@ -130,7 +130,7 @@ public class WorldView extends GLSurfaceView{
 		});
 		synchronized (syncObj) {
 			try {
-				syncObj.wait();
+				syncObj.wait(2000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
