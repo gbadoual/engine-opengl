@@ -16,6 +16,7 @@ import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
@@ -401,9 +402,9 @@ public class LoaderManager {
 	        flip.postScale(1f, -1f);
 	        final BitmapFactory.Options options = new BitmapFactory.Options();
 	        options.inScaled = false;   // No pre-scaling
-	 
 	        // Read in the resource
-	        final Bitmap temp = BitmapFactory.decodeResource(resources, resourceId, options);
+	        Bitmap temp = decodeAndFeetDegree2Dimens(resources, resourceId, options);
+	        
 	        
 	        Bitmap bmp = Bitmap.createBitmap(temp, 0, 0, temp.getWidth(), temp.getHeight(), flip, true);
 	        temp.recycle();
@@ -415,8 +416,8 @@ public class LoaderManager {
 //	 	 
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR_MIPMAP_NEAREST);
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPLACE);
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPLACE);
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
 //	        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
 //	        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
 //
@@ -464,5 +465,33 @@ public class LoaderManager {
 	    textureHandlerCache.put(resourceId, textureHandle[0]);	 
 	    return textureHandle[0];
 	}
+
+	private Bitmap decodeAndFeetDegree2Dimens(Resources resources2,
+			int resourceId, Options options) {
+		Bitmap bitmap = BitmapFactory.decodeResource(resources, resourceId, options);
+	    int degree2Width = 1;	 
+	    int degree2Height = 1;
+	    int width = bitmap.getWidth();
+	    int height = bitmap.getHeight();
+	    
+	    while(degree2Width < width){
+	    	degree2Width<<=1;
+	    }
+	    while(degree2Height < height){
+	    	degree2Height<<=1;
+	    }
+	    if(width != degree2Width || height != degree2Height){
+	    	Log.w(TAG, "Dimensions of texture is not a degree of 2. Forcing it to feet the closest ^2 number");
+	    	// find closest ^2 value
+	    	if(width != degree2Width && (width - (degree2Width>>1) < degree2Width - width)){degree2Width>>=1;}
+	    	if(height != degree2Height && (height - (degree2Height>>1) < degree2Height - height)){degree2Height>>=1;}
+	    	Log.w(TAG, "old w/h = " + width +"/"+ height);
+	    	Log.w(TAG, "target w/h = " + degree2Width +"/"+ degree2Height);
+	    	return Bitmap.createScaledBitmap(bitmap, degree2Width, degree2Height, false);
+	    }		
+		return bitmap;
+	}
+
+
 	
 }
