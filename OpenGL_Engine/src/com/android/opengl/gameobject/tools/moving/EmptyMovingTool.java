@@ -2,9 +2,15 @@ package com.android.opengl.gameobject.tools.moving;
 
 import android.util.Log;
 
+import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.util.geometry.Point3D;
 
 public class EmptyMovingTool extends MovingTool{
+	
+
+	public EmptyMovingTool(GameObject objectToMove) {
+		super(objectToMove);
+	}
 
 	@Override
 	public void moveTo(Point3D destination) {

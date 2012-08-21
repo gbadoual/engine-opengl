@@ -30,8 +30,8 @@ abstract public class GameObject extends CommonGameObject{
 		this.parentScene = parentScene;
 		this.parentScene.addGameObject(this);
 		outerCube = new ObjectOuterCube(this);
-		movingTool = new EmptyMovingTool();
-		attackingTool = new EmptyAttackingTool();
+		movingTool = new EmptyMovingTool(this);
+		attackingTool = new EmptyAttackingTool(this);
 	}
 
 	
