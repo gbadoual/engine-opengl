@@ -7,10 +7,10 @@ public class Wheels extends MovingTool{
 	
 	private static float MAX_SPEED = 80;
 	
-	private GameObject objectToMove;
+
 	
 	public Wheels(GameObject objectToMove) {
-		this.objectToMove = objectToMove; 
+		super(objectToMove);
 	}
 	
 
