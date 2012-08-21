@@ -108,7 +108,7 @@ public class SkyDome {
 			"void main(){																				" +
 			"	v_TexCoord = "+ATTRIBUTE_TEXTURE_COORD+";												" +
 			"	vec3 pos = mat3(" +UNIFORM_MVP_MATRIX+ ") * ("+ATTRIBUTE_POSITION+" * 2.0);" +
-			"	gl_Position =  vec4(pos.xy, 1.0, 1.0);										" +
+			"	gl_Position =  vec4(pos.xy, 0.99997, 1.0);										" +
 			"}																							";
 	}
 
