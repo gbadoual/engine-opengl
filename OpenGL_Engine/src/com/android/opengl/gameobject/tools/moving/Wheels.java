@@ -15,10 +15,11 @@ public class Wheels extends MovingTool{
 	
 
 	@Override
-	public void moveTo(Point3D destination) {
+	public BaseMovingThread moveTo(Point3D destination) {
 		stop();
 		movingThread = new BaseMovingThread(objectToMove, destination);
 		movingThread.start();
+		return movingThread;
 	}
 
 	@Override

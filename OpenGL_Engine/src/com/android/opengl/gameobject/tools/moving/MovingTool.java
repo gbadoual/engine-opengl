@@ -12,13 +12,22 @@ public abstract class MovingTool {
 	public MovingTool(GameObject objectToMove) {
 		this.objectToMove = objectToMove;
 	}
-	public abstract void moveTo(Point3D destination);
+	public abstract BaseMovingThread moveTo(Point3D destination);
 	public abstract void stop();
 	public abstract float getMaxSpeed();
-	
-	
-	
+	public boolean isMoving(){
+		if(movingThread != null && !movingThread.isInterrupted()){
+			return true;
+		}
+		return false;
+	}
 
+	public void beginFollowingObject(GameObject objectToAttack, float maxDistance, float minDistance) {
+		
+	}
+
+	
+	
 
 
 }
