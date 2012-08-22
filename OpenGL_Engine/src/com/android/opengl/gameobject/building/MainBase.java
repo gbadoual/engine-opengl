@@ -75,7 +75,11 @@ public class MainBase extends AbstractBuilding{
 
 	@Override
 	public int getMeshResource() {
-		return R.raw.twisted_cube;
+		return R.raw.main_base;
+	}
+	@Override
+	public int getTextureResource() {
+		return R.raw.skydome_texture_small;
 	}
 	
 	@Override

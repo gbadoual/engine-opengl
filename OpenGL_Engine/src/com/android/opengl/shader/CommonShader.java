@@ -95,8 +95,8 @@ public class CommonShader extends Shader{
 			"	vec3 "+ UNIFORM_LIGHT_POSITION+" = vec3(0.0,0.0,0.0);								" +
 			"	float distance = length("+UNIFORM_LIGHT_POSITION+" - v_Position);					" +
 			"	vec3 lightVector = normalize("+ UNIFORM_LIGHT_POSITION+" - v_Position);				" +
-			"	float diffuse = max(dot(v_Normal, lightVector), 0.1);								" +
-			"	diffuse = diffuse * 1.0/(1.0+(0.0001*distance*distance)) + 0.5;							" +
+			"	float diffuse = max(dot(v_Normal, lightVector), 0.1) + 0.3;								" +
+//			"	diffuse = diffuse * 1.0/(1.0+(0.0001*distance*distance)) + 0.5;							" +
 //				"	gl_FragColor = resColor * diffuse * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
 //"				if(" + UNIFORM_TEXTURE + "!= null){	" +
 			"		gl_FragColor = diffuse * selectedColor * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
