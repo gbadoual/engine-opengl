@@ -19,7 +19,7 @@ public class EmptyMovingTool extends MovingTool{
 	}
 
 	@Override
-	public void stop() {
+	public void cancelMove() {
 		Log.i("tag", "This object is unmovable.");
 	}
 

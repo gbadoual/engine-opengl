@@ -61,6 +61,7 @@ public abstract class GLView implements Touchable{
 	protected List<GLView> mChildren = new ArrayList<GLView>();
 	
 	private Camera camera;
+	private Scene scene;
 	private int zOrder;
 	
 	private boolean isVisible = true;
@@ -72,19 +73,22 @@ public abstract class GLView implements Touchable{
 												   0, 0};
 	
 	public GLView(Scene scene) {
-		this(scene.getCamera());
-	}
-	public GLView(Scene scene, float left, float top, float width, float height) {
-		this(scene.getCamera(), left, top, width, height);
-	}
-
-	public GLView(Camera camera) {
-		this.camera = camera;
+		this.scene = scene;
+		this.camera = scene.getCamera();
 		init();
 	}
+//	public GLView(Scene scene, float left, float top, float width, float height) {
+//		this(scene.getCamera(), left, top, width, height);
+//	}
+//
+//	public GLView(Camera camera) {
+//		this.camera = camera;
+//		init();
+//	}
 	
-	public GLView(Camera camera, float left, float top, float width, float height) {
-		this.camera = camera;
+	public GLView(Scene scene, float left, float top, float width, float height) {
+		this.scene = scene;
+		this.camera = scene.getCamera();
 		this.mLeftCoord = left;
 		this.mTopCoord = top;
 		this.mWidth = width;
@@ -109,6 +113,9 @@ public abstract class GLView implements Touchable{
 		invalidate();
 		GLUtil.attachArrayToHandler(textureCoord, mVboDataHandler.vboTextureCoordHandle);
 		GLUtil.attachIndexesToHandler(indexData, mVboDataHandler.vboIndexHandle);
+//		if(mParent == null){
+//			scene.registerGLView(this, zOrder);
+//		}
 	}
 
 
@@ -379,12 +386,19 @@ public abstract class GLView implements Touchable{
 		}
 	}
 
-	
+	public void relaese(){
+		mChildren.clear();
+	}
 	
 	public int getzOrder() {
 		return zOrder;
 	}
+	
 	public void setzOrder(int zOrder) {
+		if(mParent == null && scene.containsGLView(this)){
+			scene.unregisterGLView(this);
+			scene.registerGLView(this, zOrder);
+		}
 		this.zOrder = zOrder;
 	}
 

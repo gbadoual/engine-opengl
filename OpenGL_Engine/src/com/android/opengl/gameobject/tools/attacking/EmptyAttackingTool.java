@@ -7,7 +7,7 @@ import com.android.opengl.gameobject.GameObject;
 public class EmptyAttackingTool extends AttackingTool{
 
 	public EmptyAttackingTool(GameObject attackingObject) {
-		super(attackingObject);
+		super(attackingObject, 0, 0);
 	}
 
 	@Override

@@ -26,16 +26,16 @@ public class GLGridLayout extends GLLayout{
 	}
 
 
-	public GLGridLayout(Camera camera) {
-		super(camera);
-		initLocal();
-	}
-	
-	
-	public GLGridLayout(Camera camera, float left, float top, float width, float height) {
-		super(camera, left, top, width, height);
-		initLocal();
-	}
+//	public GLGridLayout(Camera camera) {
+//		super(camera);
+//		initLocal();
+//	}
+//	
+//	
+//	public GLGridLayout(Camera camera, float left, float top, float width, float height) {
+//		super(camera, left, top, width, height);
+//		initLocal();
+//	}
 
 
 	private void initLocal() {

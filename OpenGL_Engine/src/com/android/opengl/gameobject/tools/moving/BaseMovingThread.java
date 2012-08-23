@@ -5,12 +5,14 @@ import java.util.Random;
 import android.util.Log;
 
 import com.android.opengl.gameobject.GameObject;
+import com.android.opengl.gameobject.tools.moving.MovingTool.MovingToolState;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Plane;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Vector3D;
 
 public class BaseMovingThread extends Thread{
+	
 	
 	private static final float MAX_ANGLE_DEVIATION = (float) Math.toRadians(20.0);
 	private static final float SPEED_SCALE_FACTOR = 200;
@@ -47,7 +49,7 @@ public class BaseMovingThread extends Thread{
 	public void run() {
 		long time;
 		float newX, newY, newZ;
-		
+		objectToMove.getMovingTool().setCurState(MovingToolState.MOVING);
 		while(!isInterrupted()){
 			try {
 				Point3D position = objectToMove.getPosition();
@@ -56,6 +58,7 @@ public class BaseMovingThread extends Thread{
 				newX = position.x + speedVector.getLength() * objectToMove.getDirection().x;
 				newZ = position.z + speedVector.getLength() * objectToMove.getDirection().z;
 				newY = objectToMove.getParentScene().getAltitude(newX, newZ);
+				Log.i("tag", "newY = " + newY);
 				Point3D endPoint = new Point3D(newX, newY, newZ);
 				speedVector = new Vector3D(position, endPoint).normalize();
 				speedVector.setLength(speed);
@@ -66,17 +69,27 @@ public class BaseMovingThread extends Thread{
 					float norma = Point3D.getmaxNorma(objectToMove.getPosition(), destination);
 					if(norma < speed / 2 || Math.abs(speed) <= EPSILON){
 						Log.i("tag", objectToMove.getClass().getSimpleName()+" destination has reached");
-						interrupt();
+						interruptSuccess();
 					}
 					curStep = ((float)(System.currentTimeMillis() - time))/MOVING_TIME_INTERVAL;
 					sleep(THREAD_SLEEP_INTERVAL);
 				}
 			} catch (InterruptedException e) {
 				Log.w("tag", "moving thread was interrupted: " + e);
-				interrupt();
+				interruptCanceled();
 			}
 			
 		}
+	}
+
+	public void interruptCanceled() {
+		interrupt();
+		objectToMove.getMovingTool().setCurState(MovingToolState.CANCELED);	
+	}
+
+	public void interruptSuccess() {
+		interrupt();
+		objectToMove.getMovingTool().setCurState(MovingToolState.ARRIVED);
 	}
 
 	private Random rnd = new Random();

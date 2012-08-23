@@ -9,20 +9,20 @@ public abstract class GLLayout extends GLView{
 
 
 	
-	public GLLayout(Scene scene, float left, float top, float width, float height) {
-		super(scene, left, top, width, height);
-	}
+//	public GLLayout(Scene scene, float left, float top, float width, float height) {
+//		super(scene, left, top, width, height);
+//	}
 
 	public GLLayout(Scene scene) {
 		super(scene);
 	}
 
-	public GLLayout(Camera camera) {
-		super(camera);
-	}
+//	public GLLayout(Camera camera) {
+//		super(camera);
+//	}
 
-	public GLLayout(Camera camera, float left, float top, float width, float height) {
-		super(camera, left, top, width, height);
+	public GLLayout(Scene scene, float left, float top, float width, float height) {
+		super(scene, left, top, width, height);
 	}
 	
 	@Override

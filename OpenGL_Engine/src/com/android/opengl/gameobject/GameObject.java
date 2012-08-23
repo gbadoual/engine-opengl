@@ -1,5 +1,8 @@
 package com.android.opengl.gameobject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.util.Log;
 
 import com.android.opengl.gameobject.tools.attacking.AttackingTool;
@@ -23,6 +26,7 @@ abstract public class GameObject extends CommonGameObject{
 	protected float curHealthLevel;
 	protected MovingTool movingTool;
 	protected AttackingTool attackingTool;
+	private List<PositionChangeListener> positionListenerList = new ArrayList<PositionChangeListener>();
 	
 	public GameObject(Scene parentScene) {
 		super(parentScene.getShader(), parentScene.getResources());
@@ -70,9 +74,8 @@ abstract public class GameObject extends CommonGameObject{
 			Log.w(TAG, "setPosition(x, z): parentScene is null");
 			return;
 		}
-		Point3D position = getPosition();
-		float y = parentScene.getAltitude(position.x, position.z);
-		setPosition(position.x + x, y, position.z + z);
+		float y = parentScene.getAltitude(getPosX(), getPosZ());
+		setPosition(getPosX() + x, y, getPosZ() + z);
 	}
 
 	public void setPosition(float x, float z) {
@@ -83,11 +86,38 @@ abstract public class GameObject extends CommonGameObject{
 		float y = parentScene.getAltitude(x, z);
 		setPosition(x, y, z);
 	}
-
 	
-	public void setAltitude(float alt){
-		modelMatrix[13] = alt;
+	@Override
+	public void setPosition(float x, float y, float z) {
+		if(x != modelMatrix[Matrix.POS_X_OFFSET] ||
+		   y != modelMatrix[Matrix.POS_Y_OFFSET] ||
+		   z != modelMatrix[Matrix.POS_Z_OFFSET]){
+			super.setPosition(x, y, z);
+			notifyPositionChanged();
+		}
 	}
+	
+	@Override
+	public void setPosition(float[] position) {
+		if(position[0] != modelMatrix[Matrix.POS_X_OFFSET] ||
+		   position[1] != modelMatrix[Matrix.POS_Y_OFFSET] ||
+		   position[2] != modelMatrix[Matrix.POS_Z_OFFSET]){
+			super.setPosition(position);
+			notifyPositionChanged();
+		}
+	}
+
+	@Override
+	public void setPosition(Point3D position) {
+		if(position.x != modelMatrix[Matrix.POS_X_OFFSET] ||
+		   position.y != modelMatrix[Matrix.POS_Y_OFFSET] ||
+		   position.z != modelMatrix[Matrix.POS_Z_OFFSET]){
+		   super.setPosition(position);
+		   notifyPositionChanged();
+		}
+	}
+
+
 
 	
 	
@@ -128,11 +158,47 @@ abstract public class GameObject extends CommonGameObject{
 	@Override
 	public void release() {
 		super.release();
-		movingTool.stop();
+		movingTool.cancelMove();
+	}
+
+
+	public boolean registerPositionListener(PositionChangeListener positionChangeListener){
+		if(positionChangeListener != this && !positionListenerList.contains(positionChangeListener)){
+			return positionListenerList.add(positionChangeListener);
+		}
+		return false;
+	}
+	
+	public boolean unregisterPositionListener(PositionChangeListener movingToolStateListener){
+		return positionListenerList.remove(movingToolStateListener);
+	}
+	
+	private void notifyPositionChanged() {
+		for(PositionChangeListener listener: positionListenerList){
+			listener.onPositionChanged(getPosX(), getPosY(), getPosZ());
+		}
+	}
+
+
+	public void decreaseLife(float damage) {
+		curHealthLevel-= damage;
+		if(curHealthLevel <= 0){
+			destroy();
+		}
+	}
+
+
+	private void destroy() {
+		parentScene.removeGameObject(this);
+		
 	}
 
 
 
+
+	
+	
+	
 	
 
 	
