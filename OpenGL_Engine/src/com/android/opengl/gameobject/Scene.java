@@ -182,8 +182,16 @@ public class Scene extends CommonGameObject{
 				selectedObjectToMove.add(gameObject);
 			};
 		}
+		List<GameObject> prevSelectedObj = new ArrayList<GameObject>(selectedObjectToMove);
+
 		for(GameObject gameObject: gameObjectList){
 			isAnyGameObgectSelected |= gameObject.checkObjectRayIntersection(ray);
+			if(gameObject.isSelected() && !prevSelectedObj.isEmpty()){
+				//Begin attack
+				for(GameObject attackingObj: prevSelectedObj){
+					attackingObj.getAttackingTool().attack(gameObject);
+				}
+			}
 		}
 		if(!isAnyGameObgectSelected){
 			//find intersection point with scene
@@ -262,6 +270,16 @@ public class Scene extends CommonGameObject{
 
 	public void setCamera(Camera camera) {
 		this.camera = camera;
+	}
+
+
+	public boolean containsGameObject(GameObject objectToAttack) {
+		return gameObjectList.contains(objectToAttack);
+	}
+
+
+	public boolean containsGLView(GLView glView) {
+		return glViewList.contains(glView);
 	}
 
 

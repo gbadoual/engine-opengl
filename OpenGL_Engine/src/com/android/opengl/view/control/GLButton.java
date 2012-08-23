@@ -16,14 +16,14 @@ public class GLButton extends GLView{
 		super(scene);
 	}
 
-	public GLButton(Camera camera) {
-		super(camera);
-
-	}
-
-	public GLButton(Camera camera, float left, float top, float width, float height) {
-		super(camera, left, top, width, height);
-	}
+//	public GLButton(Camera camera) {
+//		super(camera);
+//
+//	}
+//
+//	public GLButton(Camera camera, float left, float top, float width, float height) {
+//		super(camera, left, top, width, height);
+//	}
 	
 	
 	

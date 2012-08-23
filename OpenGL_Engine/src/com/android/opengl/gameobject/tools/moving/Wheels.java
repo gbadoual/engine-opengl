@@ -16,18 +16,17 @@ public class Wheels extends MovingTool{
 
 	@Override
 	public BaseMovingThread moveTo(Point3D destination) {
-		stop();
+		cancelMove();
 		movingThread = new BaseMovingThread(objectToMove, destination);
 		movingThread.start();
 		return movingThread;
 	}
 
 	@Override
-	public void stop() {
+	public void cancelMove() {
 		if(movingThread != null){
-			movingThread.interrupt();
+			movingThread.interruptCanceled();
 		}
-		
 	}
 
 

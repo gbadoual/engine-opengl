@@ -22,6 +22,9 @@ public class Matrix extends android.opengl.Matrix{
 	public static final int VIEX_Y_OFFSET = 9;
 	public static final int VIEX_Z_OFFSET = 10;
 	
+	public static final int POS_X_OFFSET = 12;
+	public static final int POS_Y_OFFSET = 13;
+	public static final int POS_Z_OFFSET = 14;
 	
 	public static void rotate(float[] m, float angleX, float angleY, float angleZ){
 		rotateRad(m, (float) Math.toRadians(angleX), 
