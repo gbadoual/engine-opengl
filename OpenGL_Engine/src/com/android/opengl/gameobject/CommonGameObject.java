@@ -256,6 +256,16 @@ public abstract class CommonGameObject {
 	public CommonShader getShader() {
 		return shader;
 	}
+	
+	public float getPosX(){
+		return modelMatrix[Matrix.POS_X_OFFSET];
+	} 
+	public float getPosY(){
+		return modelMatrix[Matrix.POS_Y_OFFSET];
+	} 
+	public float getPosZ(){
+		return modelMatrix[Matrix.POS_Z_OFFSET];
+	} 
 
 
 	public void notifyViewportChanged(int width, int height) {
