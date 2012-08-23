@@ -18,6 +18,7 @@ public class Cube extends GameObject{
 		curHealthLevel = 100;
 		healthBar = new GLHealthBar(this);
 		healthBar.setVisible(true);
+		healthBar.setzOrder(200);
 //		parentScene.registerGLView(healthBar, 200);
 	}
 
@@ -39,7 +40,7 @@ public class Cube extends GameObject{
 	
 	@Override
 	public void release() {
-		healthBar.relaese();
+		healthBar.release();
 		super.release();
 	}
 

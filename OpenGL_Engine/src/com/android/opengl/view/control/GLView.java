@@ -113,9 +113,9 @@ public abstract class GLView implements Touchable{
 		invalidate();
 		GLUtil.attachArrayToHandler(textureCoord, mVboDataHandler.vboTextureCoordHandle);
 		GLUtil.attachIndexesToHandler(indexData, mVboDataHandler.vboIndexHandle);
-//		if(mParent == null){
-//			scene.registerGLView(this, zOrder);
-//		}
+		if(mParent == null){
+			scene.registerGLView(this, zOrder);
+		}
 	}
 
 
@@ -162,6 +162,7 @@ public abstract class GLView implements Touchable{
 			if(isCulingTestEnabled){
 				GLES20.glEnable(GLES20.GL_CULL_FACE);
 			}
+			//TODO CuncurrentModificationException
 			for(GLView glView: mChildren){
 				glView.onDraw();
 			}
@@ -275,6 +276,11 @@ public abstract class GLView implements Touchable{
 
 	public void setParent(GLView parent) {
 		this.mParent = parent;
+		if(mParent == null){
+			scene.registerGLView(this, zOrder);
+		} else{
+			scene.unregisterGLView(this);
+		}
 	}
 	
 	public GLView removeChildAt(int index){
@@ -386,7 +392,8 @@ public abstract class GLView implements Touchable{
 		}
 	}
 
-	public void relaese(){
+	public void release(){
+		scene.unregisterGLView(this);		
 		mChildren.clear();
 	}
 	

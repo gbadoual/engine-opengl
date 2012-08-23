@@ -58,7 +58,11 @@ public class Scene extends CommonGameObject{
 	}
 
 	public boolean removeGameObject(GameObject gameObject){
-		return this.gameObjectList.remove(gameObject);
+		boolean res = gameObjectList.remove(gameObject);
+		if(res){
+			gameObject.release();
+		}
+		return res;
 	}
 	
 	public void clearGameObjectList(){
@@ -230,6 +234,9 @@ public class Scene extends CommonGameObject{
 		Log.d(TAG, "deinit");
 		for(GameObject gameObject: gameObjectList){
 			gameObject.release();
+		}
+		for(GLView glView: glViewList){
+			glView.release();
 		}
 		vboDataHandlerMap.clear();
 		if(meshLoader != null){

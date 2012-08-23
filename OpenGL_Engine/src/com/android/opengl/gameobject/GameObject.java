@@ -190,7 +190,6 @@ abstract public class GameObject extends CommonGameObject{
 
 	private void destroy() {
 		parentScene.removeGameObject(this);
-		
 	}
 
 

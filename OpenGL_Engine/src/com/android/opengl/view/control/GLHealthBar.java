@@ -22,11 +22,5 @@ public class GLHealthBar extends GLView implements PositionChangeListener{
 		onLayout(50, 10);
 		
 	}
-	
-	@Override
-	public void relaese() {
-		gameObject.unregisterPositionListener(this);
-		super.relaese();
-	}
 
 }
