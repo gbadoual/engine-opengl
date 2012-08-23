@@ -20,8 +20,10 @@ public class MainBase extends AbstractBuilding{
 	public MainBase(Scene parentScene) {
 		super(parentScene);
 		initView();
-		parentScene.registerGLView(mainPanleLayout, 50);
+//		parentScene.registerGLView(mainPanleLayout, 50);
+		mainPanleLayout.setzOrder(50);
 		mainPanleLayout.setVisible(isSelected);
+		
 	}
 
 
@@ -94,8 +96,11 @@ public class MainBase extends AbstractBuilding{
 	
 	@Override
 	public void release() {
+		mainPanleLayout.release();
 		super.release();
-		parentScene.unregisterGLView(mainPanleLayout);
+//		TODO maybe this line related to CuncurrentModificationException in Scene.onDraw()
+//		parentScene.unregisterGLView(mainPanleLayout);
+		
 	}
 
 

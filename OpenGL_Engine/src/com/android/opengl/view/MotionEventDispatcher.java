@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import android.util.Log;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 
@@ -14,6 +15,9 @@ public class MotionEventDispatcher {
 	private static final String TAG = MotionEventDispatcher.class.getSimpleName();
 
 	private List<TouchableWrapper> wrapperList = new ArrayList<TouchableWrapper>();
+	private List<Pair<TouchableWrapper, Boolean>> pendingWrapperList = new ArrayList<Pair<TouchableWrapper,Boolean>>();
+	private boolean isDispatching;
+	
 	
 	public Comparator<TouchableWrapper> touchableWrapperComparator = new Comparator<MotionEventDispatcher.TouchableWrapper>() {
 		
@@ -33,6 +37,7 @@ public class MotionEventDispatcher {
 		}
 		
 		boolean res = false;
+		isDispatching = true;
 		int pointerIndex = event.getActionIndex();
 		int pointerId = event.getPointerId(pointerIndex);
 		for(TouchableWrapper touchableWrapper: wrapperList){
@@ -81,9 +86,25 @@ public class MotionEventDispatcher {
 			}
 			break;
 		}
+		isDispatching = false;
+		mergePendingWrapperList();
 		return res;
 	}
 	
+	private void mergePendingWrapperList() {
+		if(!pendingWrapperList.isEmpty()){
+			for(Pair<TouchableWrapper, Boolean> pair : pendingWrapperList){
+				if(pair.second){
+					wrapperList.add(pair.first);
+				} else{
+					wrapperList.remove(pair.first);
+				}
+			}
+			Collections.sort(wrapperList, touchableWrapperComparator);
+			pendingWrapperList.clear();
+		}		
+	}
+
 	@SuppressWarnings("deprecation")
 	public static MotionEvent obtainMotionEvent(MotionEvent event, long downTime, PointerData pointerData) {
 		int pointerIndex = event.getActionIndex();
@@ -116,15 +137,24 @@ public class MotionEventDispatcher {
 	public boolean registerToucheble(Touchable touchable, int zOrder){
 		boolean res = false;
 		TouchableWrapper wrapper = new TouchableWrapper(touchable, null, zOrder);
-		res = wrapperList.add(wrapper);
-		if(res){
-			Collections.sort(wrapperList, touchableWrapperComparator);
+		if(!isDispatching){
+			res = wrapperList.add(wrapper);
+			if(res){
+				Collections.sort(wrapperList, touchableWrapperComparator);
+			}
+		} else {
+			res = pendingWrapperList.add(new Pair<TouchableWrapper, Boolean>(wrapper, true));
 		}
 		return res;
 	}
 
 	public boolean unregisterToucheble(Touchable touchable){
-		return wrapperList.remove(new TouchableWrapper(touchable, null, 0));
+		TouchableWrapper wrapper = new TouchableWrapper(touchable, null, 0);
+		if(!isDispatching){
+			return wrapperList.remove(wrapper);
+		} else {
+			return pendingWrapperList.add(new Pair<TouchableWrapper, Boolean>(wrapper, false));
+		}
 	}
 	
 	public void addPointer(TouchableWrapper touchableWrapper, PointerCoords pointerCoords, int pointerId){
@@ -292,16 +322,16 @@ public class MotionEventDispatcher {
 			}
 			return false;
 		}
-		
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result
-					+ ((motionEvent == null) ? 0 : motionEvent.hashCode());
+					+ ((touchable == null) ? 0 : touchable.hashCode());
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -311,13 +341,15 @@ public class MotionEventDispatcher {
 			if (getClass() != obj.getClass())
 				return false;
 			TouchableWrapper other = (TouchableWrapper) obj;
-			if (motionEvent == null) {
-				if (other.motionEvent != null)
+			if (touchable == null) {
+				if (other.touchable != null)
 					return false;
-			} else if (!motionEvent.equals(other.motionEvent))
+			} else if (!touchable.equals(other.touchable))
 				return false;
 			return true;
 		}
+		
+				
 	}
 	
 	public static class PointerData{
