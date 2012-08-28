@@ -120,16 +120,20 @@ public abstract class GLView implements Touchable{
 	
 	public void onDraw(){
 		if(isVisible){
-			boolean isDepthTestEnabled = GLES20.glIsEnabled(GLES20.GL_DEPTH_TEST);
-			boolean isCulingTestEnabled = GLES20.glIsEnabled(GLES20.GL_CULL_FACE);
-			if(isDepthTestEnabled){
-				GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-			}
-			if(isCulingTestEnabled){
-				GLES20.glDisable(GLES20.GL_CULL_FACE);
-			}
-			GLES20.glEnable(GLES20.GL_BLEND);
-		    GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+//			boolean isDepthTestEnabled = GLES20.glIsEnabled(GLES20.GL_DEPTH_TEST);
+//			boolean isCulingTestEnabled = GLES20.glIsEnabled(GLES20.GL_CULL_FACE);
+//			if(isDepthTestEnabled){
+//				GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+//			}
+//			if(isCulingTestEnabled){
+//				GLES20.glDisable(GLES20.GL_CULL_FACE);
+//			}
+			GLUtil.setGLState(GLES20.GL_DEPTH_TEST, false);
+			GLUtil.setGLState(GLES20.GL_CULL_FACE, false);
+
+			GLUtil.setGLState(GLES20.GL_BLEND, true);
+
+			GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
 			GLES20.glUseProgram(mGLViewShader.programHandle);
 			int isSelected = getFocusedView() == this?1:0;
@@ -152,14 +156,19 @@ public abstract class GLView implements Touchable{
 			GLUtil.drawElements(mVboDataHandler.vboIndexHandle, indexData.length);
 			
 	        
-	        GLES20.glUseProgram(0);		
-			GLES20.glDisable(GLES20.GL_BLEND);
-			if(isDepthTestEnabled){
-				GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-			}
-			if(isCulingTestEnabled){
-				GLES20.glEnable(GLES20.GL_CULL_FACE);
-			}
+	        GLES20.glUseProgram(0);	
+
+	        GLUtil.restorePrevGLState(GLES20.GL_DEPTH_TEST);
+			GLUtil.restorePrevGLState(GLES20.GL_CULL_FACE);
+			GLUtil.restorePrevGLState(GLES20.GL_BLEND);
+	        
+//			GLES20.glDisable(GLES20.GL_BLEND);
+//			if(isDepthTestEnabled){
+//				GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+//			}
+//			if(isCulingTestEnabled){
+//				GLES20.glEnable(GLES20.GL_CULL_FACE);
+//			}
 			//TODO CuncurrentModificationException
 			for(GLView glView: mChildren){
 				glView.onDraw();
