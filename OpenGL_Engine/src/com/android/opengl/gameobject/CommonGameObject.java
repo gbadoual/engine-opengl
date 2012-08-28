@@ -127,7 +127,7 @@ public abstract class CommonGameObject {
 		
 	}
 
-	public void drawFrame(){
+	public void onDrawFrame(){
 		//use program and pass buffers
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		GLES20.glUseProgram(shader.programHandle);

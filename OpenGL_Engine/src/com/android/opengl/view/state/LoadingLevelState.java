@@ -19,6 +19,7 @@ public class LoadingLevelState extends EngineState{
 	public void loadLevel() {
 		long time = System.currentTimeMillis();
 
+		engineRenderer.getCallbackHandler().removeMessages(WorldView.DIALOG_LOADING_SHOW);
 		engineRenderer.getCallbackHandler().sendEmptyMessage(WorldView.DIALOG_LOADING_SHOW);
 		// Use culling to remove back faces.
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
@@ -38,6 +39,11 @@ public class LoadingLevelState extends EngineState{
 
 	@Override
 	public void onDrawFrame() {
+	}
+
+	@Override
+	public void onWorldUpdate() {
+		
 	}
 	
 	

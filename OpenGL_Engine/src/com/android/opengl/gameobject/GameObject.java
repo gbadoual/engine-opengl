@@ -39,14 +39,14 @@ abstract public class GameObject extends CommonGameObject{
 	}
 
 	
-	public void drawFrame() {
+	public void onDrawFrame() {
 		if(parentScene.isRendingFinished()){
 			throw new IllegalStateException("Scene shoud be rendered before rendering object of this scene");
 		}
         Matrix.multiplyMM(mvpMatrix, 0, parentScene.getMVPMatrix(), 0, modelMatrix, 0);
         Matrix.multiplyMM(mvMatrix, 0, parentScene.getMVMatrix(), 0, modelMatrix, 0);
 
-		super.drawFrame();
+		super.onDrawFrame();
 		
 	}
 

@@ -12,9 +12,9 @@ public class BMW extends AbstractVehicle{
 	}
 	
 	@Override
-	public void drawFrame() {
+	public void onDrawFrame() {
 		rotate(0, -0.001f, 0);
-		super.drawFrame();
+		super.onDrawFrame();
 	}
 
 	@Override

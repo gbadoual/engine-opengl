@@ -85,8 +85,8 @@ public class MainBase extends AbstractBuilding{
 	}
 	
 	@Override
-	public void drawFrame() {
-		super.drawFrame();
+	public void onDrawFrame() {
+		super.onDrawFrame();
 	}
 	
 	@Override

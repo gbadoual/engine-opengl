@@ -31,7 +31,7 @@ public class Scene extends CommonGameObject{
 	private static final String TAG = Scene.class.getSimpleName();
 	
 	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
-	private List<GLView> glViewList = new ArrayList<GLView>();
+
 	
 	private MeshQuadNode2D sceneQuad2D;
 	
@@ -72,46 +72,24 @@ public class Scene extends CommonGameObject{
 	private SkyDome skyBox;
 	
 	@Override
-	public void drawFrame() {
+	public void onDrawFrame() {
 		isRendingFinished = false;
 		skyBox.onDrawFrame();
 //		rotate(0, -0.5f, 0);
 		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);//mvMatrix = viewMatrix;
 		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);//mvMatrix = viewMatrix;
-		super.drawFrame();
+		super.onDrawFrame();
 //		localDraw();
 
 		for(GameObject gameObject: gameObjectList){
-			gameObject.drawFrame();
+			gameObject.onDrawFrame();
 		}
-		for(GLView glView: glViewList){
-			glView.onDraw();
-		}
+
 		
 		isRendingFinished = true;
 	}
 	
-	public boolean registerGLView(GLView glView, int zOrder){
-		boolean res = getCamera().registerTouchable(glView, zOrder);
-		if(!res){
-			Log.w(TAG, "registerGLView(): unable to register glView");
-			return false;
-		}
-		glView.setzOrder(zOrder);
-		res = glViewList.add(glView);
-		if(!res){
-			Log.w(TAG, "registerGLView(): unable to register glView");
-			getCamera().unregisterTouchable(glView);
-			return false;
-		}
-		Collections.sort(glViewList, new GLView.GLViewComparator());
-		return res;
-	}
-	
-	public boolean unregisterGLView(GLView glView){
-		getCamera().unregisterTouchable(glView);
-		return glViewList.remove(glView);
-	}
+
 	
 	public void scale(float scaleFactor) {
 		float distacne = SCALING_STEP * (1 - 1/scaleFactor);
@@ -150,9 +128,6 @@ public class Scene extends CommonGameObject{
 
 	public void notifyViewportChanged(int width, int height) {
 		notifyMVPMatrixChanged();
-		for(GLView glView: glViewList){
-			glView.invalidate();
-		}
 	}
 
 	public void setViewMatrix(float[] viewMatrix) {
@@ -235,9 +210,7 @@ public class Scene extends CommonGameObject{
 		for(GameObject gameObject: gameObjectList){
 			gameObject.release();
 		}
-		for(GLView glView: glViewList){
-			glView.release();
-		}
+
 		vboDataHandlerMap.clear();
 		if(meshLoader != null){
 			meshLoader.release();
@@ -285,8 +258,10 @@ public class Scene extends CommonGameObject{
 	}
 
 
-	public boolean containsGLView(GLView glView) {
-		return glViewList.contains(glView);
+
+
+	public void onWorldUpdate() {
+		
 	}
 
 

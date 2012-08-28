@@ -65,6 +65,7 @@ public class EngineRenderer implements Renderer, Touchable{
 		this.worldView = worldView;
 		this.callbackHandler = handler;
 		this.mViewBoundaries = new Rect2D(worldView.getLeft(), worldView.getTop(), worldView.getWidth(), worldView.getHeight());
+		camera = new Camera(worldView, 100, 100);
 		initStates();
 	}
 
@@ -91,13 +92,19 @@ public class EngineRenderer implements Renderer, Touchable{
 
 	@Override
 	public void onDrawFrame(GL10 arg0) {
+		gameLoopStep();
+	}
+
+
+
+	private void gameLoopStep() {
 		currentFrame++;
 		if(currentFrame <0){currentFrame = 0;}
 		clearScreen();
+		currentEngineState.onWorldUpdate();
 		currentEngineState.onDrawFrame();
 		countFPS();
 	}
-
 
 
 	public void initFpsCount() {
@@ -107,7 +114,7 @@ public class EngineRenderer implements Renderer, Touchable{
 
 	public void initGameObjects() {
 		CommonGameObject.facesCount = 0;
-		this.camera = new Camera(worldView, 100, 100);
+		
 		scene = new Scene(camera);
 //		bmw1 = new BMW(scene);
 //		bmw1.setPosition(-8, -7);
@@ -181,8 +188,8 @@ public class EngineRenderer implements Renderer, Touchable{
 
 
 		public void release() {
-			if(scene != null){
-				scene.release();				
+			if(camera != null){
+				camera.release();				
 			} 
 		}
 
@@ -270,6 +277,11 @@ public class EngineRenderer implements Renderer, Touchable{
 		@Override
 		public Rect2D getBoundariesRectInPixel() {
 			return mViewBoundaries;
+		}
+
+
+		public Camera getCamera() {
+			return camera;
 		}
 
 

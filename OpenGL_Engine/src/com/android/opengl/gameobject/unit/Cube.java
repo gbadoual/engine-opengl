@@ -23,8 +23,8 @@ public class Cube extends GameObject{
 	}
 
 	@Override
-	public void drawFrame() {
-		super.drawFrame();
+	public void onDrawFrame() {
+		super.onDrawFrame();
 
 	}
 

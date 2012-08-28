@@ -143,5 +143,13 @@ public class WorldView extends GLSurfaceView{
 		return motionEventDispatcher;
 	}
 
+	public boolean registerToucheble(Touchable touchable, int zOrder) {
+		return motionEventDispatcher.registerToucheble(touchable, zOrder);
+	}
+
+	public boolean unregisterToucheble(Touchable touchable) {
+		return motionEventDispatcher.unregisterToucheble(touchable);
+	}
+
 
 }

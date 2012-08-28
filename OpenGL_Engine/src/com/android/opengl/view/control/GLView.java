@@ -61,7 +61,7 @@ public abstract class GLView implements Touchable{
 	protected List<GLView> mChildren = new ArrayList<GLView>();
 	
 	private Camera camera;
-	private Scene scene;
+//	private Scene scene;
 	private int zOrder;
 	
 	private boolean isVisible = true;
@@ -73,22 +73,20 @@ public abstract class GLView implements Touchable{
 												   0, 0};
 	
 	public GLView(Scene scene) {
-		this.scene = scene;
 		this.camera = scene.getCamera();
 		init();
 	}
-//	public GLView(Scene scene, float left, float top, float width, float height) {
-//		this(scene.getCamera(), left, top, width, height);
-//	}
-//
-//	public GLView(Camera camera) {
-//		this.camera = camera;
-//		init();
-//	}
-	
 	public GLView(Scene scene, float left, float top, float width, float height) {
-		this.scene = scene;
-		this.camera = scene.getCamera();
+		this(scene.getCamera(), left, top, width, height);
+	}
+
+	public GLView(Camera camera) {
+		this.camera = camera;
+		init();
+	}
+	
+	public GLView(Camera camera, float left, float top, float width, float height) {
+		this.camera = camera;
 		this.mLeftCoord = left;
 		this.mTopCoord = top;
 		this.mWidth = width;
@@ -114,7 +112,7 @@ public abstract class GLView implements Touchable{
 		GLUtil.attachArrayToHandler(textureCoord, mVboDataHandler.vboTextureCoordHandle);
 		GLUtil.attachIndexesToHandler(indexData, mVboDataHandler.vboIndexHandle);
 		if(mParent == null){
-			scene.registerGLView(this, zOrder);
+			camera.registerGLView(this, zOrder);
 		}
 	}
 
@@ -277,9 +275,9 @@ public abstract class GLView implements Touchable{
 	public void setParent(GLView parent) {
 		this.mParent = parent;
 		if(mParent == null){
-			scene.registerGLView(this, zOrder);
+			camera.registerGLView(this, zOrder);
 		} else{
-			scene.unregisterGLView(this);
+			camera.unregisterGLView(this);
 		}
 	}
 	
@@ -393,7 +391,7 @@ public abstract class GLView implements Touchable{
 	}
 
 	public void release(){
-		scene.unregisterGLView(this);		
+		camera.unregisterGLView(this);		
 		mChildren.clear();
 	}
 	
@@ -402,9 +400,9 @@ public abstract class GLView implements Touchable{
 	}
 	
 	public void setzOrder(int zOrder) {
-		if(mParent == null && scene.containsGLView(this)){
-			scene.unregisterGLView(this);
-			scene.registerGLView(this, zOrder);
+		if(mParent == null && camera.containsGLView(this)){
+			camera.unregisterGLView(this);
+			camera.registerGLView(this, zOrder);
 		}
 		this.zOrder = zOrder;
 	}

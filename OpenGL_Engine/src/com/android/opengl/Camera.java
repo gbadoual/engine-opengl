@@ -1,14 +1,21 @@
 package com.android.opengl;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import android.content.Context;
 import android.opengl.GLES20;
+import android.os.AsyncTask;
+import android.util.Log;
 
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
+import com.android.opengl.view.control.GLView;
 
 public class Camera {
 	
@@ -18,6 +25,7 @@ public class Camera {
 	
 	private static final float CAMERA_MIN_DISTANCE = -80;
 	private static final float CAMERA_MAX_DISTANCE = -5;
+	private static final String TAG = Camera.class.getSimpleName();
 	
 	
 	private float[] viewMatrix = new float[16];
@@ -33,6 +41,7 @@ public class Camera {
 	
 	private WorldView worldView;
 	private Scene scene;
+	private List<GLView> glViewList = new ArrayList<GLView>();
 	
 
 	
@@ -170,6 +179,9 @@ public class Camera {
 		if(scene != null){
 			scene.notifyViewportChanged(width, height);
 		}
+		for(GLView glView: glViewList){
+			glView.invalidate();
+		}
 	}
 
 	public int getViewportHeight() {
@@ -183,10 +195,6 @@ public class Camera {
 	public Context getContext() {
 		return worldView.getContext();
 	}
-
-//	public void setContext(Context context) {
-//		this.worldView = context;
-//	}
 
 	public Scene getScene() {
 		return scene;
@@ -206,13 +214,55 @@ public class Camera {
 	}
 	
 	public boolean registerTouchable(Touchable touchable, int zOrder){
-		return worldView.getMotionEventDispatcher().registerToucheble(touchable, zOrder);
+		return worldView.registerToucheble(touchable, zOrder);
 	};
 	public boolean unregisterTouchable(Touchable touchable){
-		return worldView.getMotionEventDispatcher().unregisterToucheble(touchable);
+		return worldView.unregisterToucheble(touchable);
+	}
+	
+	public boolean registerGLView(GLView glView, int zOrder){
+
+		boolean res = registerTouchable(glView, zOrder);
+		if(!res){
+			Log.w(TAG, "registerGLView(): unable to register glView");
+			return false;
+		}
+		glView.setzOrder(zOrder);
+		res = glViewList.add(glView);
+		if(!res){
+			Log.w(TAG, "registerGLView(): unable to register glView");
+			unregisterTouchable(glView);
+			return false;
+		}
+		Collections.sort(glViewList, new GLView.GLViewComparator());
+		return res;
+	}
+	
+	public boolean unregisterGLView(GLView glView){
+		return unregisterTouchable(glView) && glViewList.remove(glView);
+	}
+	public boolean containsGLView(GLView glView) {
+		return glViewList.contains(glView);
+	}
+	
+
+	public void onWorldUpdate(){
+		scene.onWorldUpdate();
+	}
+	
+	public void onDrawFrame() {
+		scene.onDrawFrame();
+		for(GLView glView: glViewList){
+			glView.onDraw();
+		}		
 	};
 	
-	
+	public void release(){
+		for(GLView glView: glViewList){
+			glView.release();
+		}
+		scene.release();
+	}
 
 
 
