@@ -36,7 +36,9 @@ public abstract class EngineState {
 		Log.i(TAG, "pauseGame() is not implemented");
 	};
 
+	abstract public void onWorldUpdate();
 	abstract public void onDrawFrame();
+
 	public boolean onTouchEvent(MotionEvent event){
 		return false;
 	};

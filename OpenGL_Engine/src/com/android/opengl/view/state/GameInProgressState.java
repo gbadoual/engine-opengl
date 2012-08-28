@@ -16,10 +16,14 @@ public class GameInProgressState extends EngineState{
 	
 
 	@Override
+	public void onWorldUpdate() {
+		engineRenderer.getScene().onWorldUpdate();		
+	}		
+
+	@Override
 	public void onDrawFrame() {
-		engineRenderer.getScene().drawFrame();
+		engineRenderer.getCamera().onDrawFrame();
 	}
-	
 	
 	
 	
@@ -89,6 +93,8 @@ public class GameInProgressState extends EngineState{
 			
 		}
 	
-	};	
+	};
+
+
 
 }
