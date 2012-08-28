@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.opengl.GLES20;
 
@@ -61,9 +63,33 @@ public class GLUtil {
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 		GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
-		
 	}
 	
+	private static Map<Integer, Boolean> modeStateMap = new HashMap<Integer, Boolean>();
+	
+	public static void setGLState(int glModeToChange, boolean newState){
+		boolean curState = GLES20.glIsEnabled(glModeToChange);
+		if(curState != newState){
+			modeStateMap.put(glModeToChange, curState);
+			setPrivateGLState(glModeToChange, newState);
+		}
+	}
+	
+	public static void restorePrevGLState(int glModeToRestore){
+		Boolean prevState = modeStateMap.remove(glModeToRestore);
+		boolean curState = GLES20.glIsEnabled(glModeToRestore);
+		if(prevState != null && prevState != curState){
+			setPrivateGLState(glModeToRestore, prevState);
+		}
+	}
+	
+	private static void setPrivateGLState(int glModeToChange, boolean newState){
+		if(newState){
+			GLES20.glEnable(glModeToChange);
+		}else{
+			GLES20.glDisable(glModeToChange);			
+		}
+	}
 	
 
 }
