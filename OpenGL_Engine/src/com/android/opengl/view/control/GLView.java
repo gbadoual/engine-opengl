@@ -400,7 +400,7 @@ public abstract class GLView implements Touchable{
 	}
 
 	public void release(){
-		camera.unregisterGLView(this);		
+//		camera.unregisterGLView(this);		
 		mChildren.clear();
 	}
 	
