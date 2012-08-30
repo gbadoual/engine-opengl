@@ -258,8 +258,10 @@ public class Camera {
 	};
 	
 	public void release(){
-		for(GLView glView: glViewList){
+		while(!glViewList.isEmpty()){
+			GLView glView = glViewList.remove(0);
 			glView.release();
+			unregisterGLView(glView);
 		}
 		scene.release();
 	}
