@@ -34,6 +34,7 @@ public class Camera {
 	
 	private int viewportWidth;
 	private int viewportHeight;
+	private float aspectRatio;
 	
 	private float angleX;
 	private float angleY;
@@ -173,6 +174,7 @@ public class Camera {
 	public void setViewport(int width, int height) {
 		viewportWidth = width;
 		viewportHeight = height;
+		aspectRatio = ((float)viewportWidth)/viewportHeight;
 		GLES20.glViewport(0, 0, width, height);
 		projectionMatrix = calculateProjectionMatrix(viewportWidth, viewportHeight);
 		notifyVPMatrixChanged();
@@ -239,7 +241,9 @@ public class Camera {
 	}
 	
 	public boolean unregisterGLView(GLView glView){
-		return unregisterTouchable(glView) && glViewList.remove(glView);
+		boolean res = unregisterTouchable(glView);
+		res |= glViewList.remove(glView);
+		return res;
 	}
 	public boolean containsGLView(GLView glView) {
 		return glViewList.contains(glView);
@@ -264,6 +268,14 @@ public class Camera {
 			unregisterGLView(glView);
 		}
 		scene.release();
+	}
+
+	public void notifyGLViewzOrderChanged() {
+		Collections.sort(glViewList, new GLView.GLViewComparator());				
+	}
+
+	public float getWidthToHeightRatio() {
+		return aspectRatio;
 	}
 
 

@@ -1,11 +1,11 @@
 package com.android.opengl.gameobject.building;
 
-import android.util.Log;
 
 import com.android.opengl.R;
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.gameobject.unit.Cube;
 import com.android.opengl.gameobject.unit.Earth;
+import com.android.opengl.util.Log;
 import com.android.opengl.view.control.GLButton;
 import com.android.opengl.view.control.GLGridLayout;
 import com.android.opengl.view.control.GLView;

@@ -20,25 +20,10 @@ import com.android.opengl.view.Touchable;
 
 public abstract class GLView implements Touchable{
 	
-
-//	private static final String TAG = GLView.class.getSimpleName();
-
-	public static class GLViewComparator implements Comparator<GLView> {
-		@Override
-		public int compare(GLView lhs, GLView rhs) {
-			if(lhs != null && rhs != null){
-				return lhs.zOrder - rhs.zOrder; 
-			}
-			return 0;
-		}
-	};
-
-
-
 	private float mParentShiftX = 0;
 	private float mParentShiftY = 0;
 
-	// dimensions are represented in percents from the largest side of the screen
+	// dimensions are represented in percents from the largest side of the screen (in range 0 - 100)
 	protected float mLeftCoord;
 	protected float mTopCoord;
 	protected float mWidth;
@@ -46,12 +31,9 @@ public abstract class GLView implements Touchable{
 	protected Rect2D mBoundariesRectInPixel;
 	
 	
-	protected float bkgColorR;
-	protected float bkgColorG;
-	protected float bkgColorB;
-	protected float bkgColorA;
+	protected float[] bkgColor = new float[4];
 
-	private GLViewShader mGLViewShader;
+	protected GLViewShader mGLViewShader;
 	private VboDataHandler mVboDataHandler;
 	private OnTapListener mOnTapListener;
 
@@ -60,8 +42,7 @@ public abstract class GLView implements Touchable{
 	protected GLView mParent;
 	protected List<GLView> mChildren = new ArrayList<GLView>();
 	
-	private Camera camera;
-//	private Scene scene;
+	protected Camera camera;
 	private int zOrder;
 	
 	private boolean isVisible = true;
@@ -71,6 +52,7 @@ public abstract class GLView implements Touchable{
 												   1, 1, 
 												   1, 0, 
 												   0, 0};
+	protected float[] positionOffset = new float[2];
 	
 	public GLView(Scene scene) {
 		this.camera = scene.getCamera();
@@ -120,24 +102,18 @@ public abstract class GLView implements Touchable{
 	
 	public void onDraw(){
 		if(isVisible){
-//			boolean isDepthTestEnabled = GLES20.glIsEnabled(GLES20.GL_DEPTH_TEST);
-//			boolean isCulingTestEnabled = GLES20.glIsEnabled(GLES20.GL_CULL_FACE);
-//			if(isDepthTestEnabled){
-//				GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-//			}
-//			if(isCulingTestEnabled){
-//				GLES20.glDisable(GLES20.GL_CULL_FACE);
-//			}
+
 			GLUtil.setGLState(GLES20.GL_DEPTH_TEST, false);
 			GLUtil.setGLState(GLES20.GL_CULL_FACE, false);
 
 			GLUtil.setGLState(GLES20.GL_BLEND, true);
-
 			GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
+			
 			GLES20.glUseProgram(mGLViewShader.programHandle);
+			
+			GLES20.glUniform2fv(mGLViewShader.positionOffsetHandle, 1, positionOffset , 0);
 			int isSelected = getFocusedView() == this?1:0;
-			Log.i("eeee", "isSelected = " + isSelected);
 			GLES20.glUniform1f(mGLViewShader.isPressedHandle, isSelected);
 
 			GLES20.glUniform1f(mGLViewShader.isTextureEnabledHandle, isBackgroundEnabled()? 1 : 0);
@@ -145,16 +121,14 @@ public abstract class GLView implements Touchable{
 			    GLUtil.passTextureToShader(mVboDataHandler.textureDataHandler, mGLViewShader.textureHandle);
 			    GLUtil.passBufferToShader(mVboDataHandler.vboTextureCoordHandle, mGLViewShader.textureCoordHandle, 
 			    								  GLUtil.TEXTURE_SIZE);
+			} else {
+				GLES20.glUniform4fv(mGLViewShader.colorHandle, 1, bkgColor, 0);
 			}
 			
 			GLUtil.passBufferToShader(mVboDataHandler.vboVertexHandle, mGLViewShader.positionHandle, 
-					  GLUtil.VERTEX_SIZE);
-
-			GLUtil.passBufferToShader(mVboDataHandler.vboColorHandle, mGLViewShader.colorHandle, 
-					  GLUtil.COLOR_SIZE);
+					  GLUtil.VERTEX_SIZE_2D);
 			
 			GLUtil.drawElements(mVboDataHandler.vboIndexHandle, indexData.length);
-			
 	        
 	        GLES20.glUseProgram(0);	
 
@@ -162,14 +136,6 @@ public abstract class GLView implements Touchable{
 			GLUtil.restorePrevGLState(GLES20.GL_CULL_FACE);
 			GLUtil.restorePrevGLState(GLES20.GL_BLEND);
 	        
-//			GLES20.glDisable(GLES20.GL_BLEND);
-//			if(isDepthTestEnabled){
-//				GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-//			}
-//			if(isCulingTestEnabled){
-//				GLES20.glEnable(GLES20.GL_CULL_FACE);
-//			}
-			//TODO CuncurrentModificationException
 			for(GLView glView: mChildren){
 				glView.onDraw();
 			}
@@ -223,10 +189,10 @@ public abstract class GLView implements Touchable{
 		float scaledWidth = mWidth * aspectRatioX;
 		float scaledHeight =  - mHeight * aspectRatioY;
 		
-		float[] vertexData = new float[]{scaledLeftCoord, scaledTopCoord, 0, 
-				scaledLeftCoord + scaledWidth, scaledTopCoord, 0,
-				scaledLeftCoord + scaledWidth, scaledTopCoord + scaledHeight, 0,
-				scaledLeftCoord, scaledTopCoord + scaledHeight, 0};		
+		float[] vertexData = new float[]{scaledLeftCoord, scaledTopCoord, 
+				scaledLeftCoord + scaledWidth, scaledTopCoord,
+				scaledLeftCoord + scaledWidth, scaledTopCoord + scaledHeight,
+				scaledLeftCoord, scaledTopCoord + scaledHeight};		
 		GLUtil.attachArrayToHandler(vertexData, mVboDataHandler.vboVertexHandle);
 		float percentToPixelRatio = Math.max(camera.getViewportWidth(), camera.getViewportHeight()) / 100f;
 
@@ -234,17 +200,17 @@ public abstract class GLView implements Touchable{
 	}
 	
 	public void setColor(float r, float g, float b, float a){
-		bkgColorR = r / 255.0f;
-		bkgColorG = g / 255.0f;
-		bkgColorB = b / 255.0f;
-		bkgColorA = a / 255.0f;
+		bkgColor[0] = r / 255.0f;
+		bkgColor[1] = g / 255.0f;
+		bkgColor[2] = b / 255.0f;
+		bkgColor[3] = a / 255.0f;
 
-		float[] colorData = new float[]{bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-				bkgColorR, bkgColorG, bkgColorB, bkgColorA				};
-		
-		GLUtil.attachArrayToHandler(colorData, mVboDataHandler.vboColorHandle);
+//		float[] colorData = new float[]{bkgColorR, bkgColorG, bkgColorB, bkgColorA,
+//				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
+//				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
+//				bkgColorR, bkgColorG, bkgColorB, bkgColorA				};
+//		
+//		GLUtil.attachArrayToHandler(colorData, mVboDataHandler.vboColorHandle);
 
 	}
 	
@@ -400,7 +366,7 @@ public abstract class GLView implements Touchable{
 	}
 
 	public void release(){
-//		camera.unregisterGLView(this);		
+		camera.unregisterGLView(this);		
 		mChildren.clear();
 	}
 	
@@ -409,15 +375,23 @@ public abstract class GLView implements Touchable{
 	}
 	
 	public void setzOrder(int zOrder) {
-		if(mParent == null && camera.containsGLView(this)){
-			camera.unregisterGLView(this);
-			camera.registerGLView(this, zOrder);
-		}
 		this.zOrder = zOrder;
+		if(mParent == null && camera.containsGLView(this)){
+			camera.notifyGLViewzOrderChanged();
+		}
 	}
 
 
-
+	public static class GLViewComparator implements Comparator<GLView> {
+		@Override
+		public int compare(GLView lhs, GLView rhs) {
+			if(lhs != null && rhs != null){
+				return lhs.zOrder - rhs.zOrder; 
+			}
+			return 0;
+		}
+	};
+	
 	public static interface OnTapListener{
 		public void onTap(GLView glView);
 	}

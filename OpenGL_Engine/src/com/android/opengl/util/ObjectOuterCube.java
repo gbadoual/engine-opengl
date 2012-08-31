@@ -81,7 +81,7 @@ public class ObjectOuterCube {
 			if(coordBottom > vertexData[curVertex + Plane.Y_OFFSET]){coordBottom = vertexData[curVertex + Plane.Y_OFFSET];}
 			if(coordNear < vertexData[curVertex + Plane.Z_OFFSET]){coordNear = vertexData[curVertex + Plane.Z_OFFSET];}
 			if(coordFar > vertexData[curVertex + Plane.Z_OFFSET]){coordFar = vertexData[curVertex + Plane.Z_OFFSET];}
-			curVertex += GLUtil.VERTEX_SIZE;
+			curVertex += GLUtil.VERTEX_SIZE_3D;
 		}
 		
 //		generatePlanes(null);		

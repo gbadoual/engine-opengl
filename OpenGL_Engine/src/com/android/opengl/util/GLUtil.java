@@ -11,7 +11,8 @@ import android.opengl.GLES20;
 
 public class GLUtil {
 	
-	public static final int VERTEX_SIZE = 3;
+	public static final int VERTEX_SIZE_3D = 3;
+	public static final int VERTEX_SIZE_2D = 2;
 	public static final int COLOR_SIZE = 4;
 	public static final int TEXTURE_SIZE = 2;
 	public static final int NORMAL_SIZE = 3;
@@ -90,6 +91,5 @@ public class GLUtil {
 			GLES20.glDisable(glModeToChange);			
 		}
 	}
-	
 
 }

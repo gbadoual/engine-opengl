@@ -8,12 +8,14 @@ public class GLViewShader extends Shader{
 	public final int positionHandle;
 	public final int isPressedHandle;
 	public final int isTextureEnabledHandle;
+	public final int positionOffsetHandle;
 	
 	public final int textureHandle;
 	public final int textureCoordHandle;
 	
 	public static final String UNIFORM_PRESSED = "uPressed";
 	public static final String UNIFORM_TEXTURE_ENABLED = "uTextureEnabled";
+	public static final String UNIFORM_POSITION_OFFSET = "u_PositionOffset";		
 
 	public static final String UNIFORM_TEXTURE = "uTexture";
 	public static final String ATTRIBUTE_TEXTURE_COORD = "aTexCoord";
@@ -22,9 +24,10 @@ public class GLViewShader extends Shader{
 
 	
 	public GLViewShader() {
-		colorHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_COLOR);
+		colorHandle = GLES20.glGetUniformLocation(programHandle, ATTRIBUTE_COLOR);
 		positionHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_POSITION);
 		isPressedHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_PRESSED);
+		positionOffsetHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_POSITION_OFFSET);
 
 		isTextureEnabledHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTURE_ENABLED);
 		textureHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTURE);
@@ -37,18 +40,16 @@ public class GLViewShader extends Shader{
 	@Override
 	public String getVertexShaderSrc() {
 		return 
-		"attribute 	vec4 "+ATTRIBUTE_COLOR+";														" +
-		"attribute 	vec3 "+ATTRIBUTE_POSITION+";													" +
-		"attribute 	vec2 "+ATTRIBUTE_TEXTURE_COORD+";												" +
+		"attribute 	vec2 " + ATTRIBUTE_POSITION + ";												" +
+		"uniform 	vec2 " + UNIFORM_POSITION_OFFSET + ";											" +
+		"attribute 	vec2 " + ATTRIBUTE_TEXTURE_COORD + ";											" +
 		
 		"																							" +
-		"varying 	vec4 v_Color; 																	" +
 		"varying 	vec2 v_TexCoord; 																" +
 		"																							" +
 		"void main(){																				" +
-		"	v_Color = "+ATTRIBUTE_COLOR+";															" +
-		"	v_TexCoord = "+ATTRIBUTE_TEXTURE_COORD+";												" +
-		"	gl_Position = vec4("+ATTRIBUTE_POSITION+", 1.0);										" +
+		"	v_TexCoord = " + ATTRIBUTE_TEXTURE_COORD + ";												" +
+		"	gl_Position = vec4(" + ATTRIBUTE_POSITION + " + " + UNIFORM_POSITION_OFFSET + ", 0.0, 1.0);										" +
 		"}																							";
 }
 
@@ -57,14 +58,14 @@ public class GLViewShader extends Shader{
 	public String getFragmentShaderSrc() {
 		return 			
 			"precision mediump float;																" +
+			"uniform 	vec4 " + ATTRIBUTE_COLOR + ";													" +
 			"uniform 	float "+UNIFORM_PRESSED+";													" +
 			"uniform 	float "+UNIFORM_TEXTURE_ENABLED+";													" +
 			"uniform	sampler2D "+UNIFORM_TEXTURE+ ";												" +
 
-			"varying	vec4 v_Color;																" +
 			"varying 	vec2 v_TexCoord; 															" +
 			"void main(){																			" +
-			"		vec4 resColor = v_Color;" +
+			"		vec4 resColor = " + ATTRIBUTE_COLOR + ";" +
 			"		if("+UNIFORM_TEXTURE_ENABLED+" > 0.0) {" +
 			"			resColor = texture2D("+UNIFORM_TEXTURE+", v_TexCoord);						" +
 					"}" +

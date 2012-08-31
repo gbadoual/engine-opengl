@@ -57,7 +57,7 @@ public class SkyDome {
 	    GLUtil.passTextureToShader(mVboDataHandler.textureDataHandler, mSkyBoxShader.textureHandle);
 	    GLUtil.passBufferToShader(mVboDataHandler.vboTextureCoordHandle, mSkyBoxShader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
 		
-		GLUtil.passBufferToShader(mVboDataHandler.vboVertexHandle, mSkyBoxShader.positionHandle, GLUtil.VERTEX_SIZE);
+		GLUtil.passBufferToShader(mVboDataHandler.vboVertexHandle, mSkyBoxShader.positionHandle, GLUtil.VERTEX_SIZE_3D);
 
 		GLUtil.drawElements(mVboDataHandler.vboIndexHandle, mVboDataHandler.indexDataLength);
 		
