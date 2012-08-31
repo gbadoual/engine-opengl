@@ -23,7 +23,7 @@ abstract public class GameObject extends CommonGameObject{
 	protected ObjectOuterCube outerCube;
 	
 	protected float curSpeed;
-	protected float curHealthLevel;
+	protected float healthLevel;
 	protected MovingTool movingTool;
 	protected AttackingTool attackingTool;
 	private List<PositionChangeListener> positionListenerList = new ArrayList<PositionChangeListener>();
@@ -181,10 +181,14 @@ abstract public class GameObject extends CommonGameObject{
 
 
 	public void decreaseLife(float damage) {
-		curHealthLevel-= damage;
-		if(curHealthLevel <= 0){
+		healthLevel-= damage;
+		if(healthLevel <= 0){
 			destroy();
 		}
+	}
+	
+	public float getHealthLevel(){
+		return healthLevel;
 	}
 
 

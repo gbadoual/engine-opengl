@@ -247,7 +247,7 @@ public class LoaderManager {
 		objData.facesCount = facesCount;
 		int vertCount = v.size();
 		objData.vertexData = new float[vertCount];
-		objData.textureData = new float[vertCount / GLUtil.VERTEX_SIZE * GLUtil.TEXTURE_SIZE];
+		objData.textureData = new float[vertCount / GLUtil.VERTEX_SIZE_3D * GLUtil.TEXTURE_SIZE];
 		objData.normalData = new float[vertCount];
 		objData.indexData = new int[vf.size()];
 		
@@ -255,9 +255,9 @@ public class LoaderManager {
 		int indexCount = vf.size();
 		for(int i = 0; i < indexCount; ++i){
 
-			int curDestIndexUnpacked = vf.get(i) * GLUtil.VERTEX_SIZE;
-			int curSrcIndexUnpacked = vf.get(i) * GLUtil.VERTEX_SIZE;
-			for(int j = 0; j < GLUtil.VERTEX_SIZE; ++j){
+			int curDestIndexUnpacked = vf.get(i) * GLUtil.VERTEX_SIZE_3D;
+			int curSrcIndexUnpacked = vf.get(i) * GLUtil.VERTEX_SIZE_3D;
+			for(int j = 0; j < GLUtil.VERTEX_SIZE_3D; ++j){
 				objData.vertexData[curDestIndexUnpacked + j] = v.get(curSrcIndexUnpacked + j);
 				
 			}
@@ -293,7 +293,7 @@ public class LoaderManager {
 				if(vertexStat[0][curIndex] != vtf.get(i)
 					|| vertexStat[1][curIndex] != vnf.get(i)){
 					// copying current vertex as it referenced with another texture coordinate or normal index
-					int unpackedCurIndex = curIndex * GLUtil.VERTEX_SIZE; 
+					int unpackedCurIndex = curIndex * GLUtil.VERTEX_SIZE_3D; 
 					v.add(v.get(unpackedCurIndex + 0));
 					v.add(v.get(unpackedCurIndex + 1));
 					v.add(v.get(unpackedCurIndex + 2));
@@ -308,7 +308,7 @@ public class LoaderManager {
 					vt.add(vt.get(unpackedCurIndex + 1));
 					
 					//update references
-					vf.set(i, v.size() / GLUtil.VERTEX_SIZE - 1);
+					vf.set(i, v.size() / GLUtil.VERTEX_SIZE_3D - 1);
 					vnf.set(i, vn.size() / GLUtil.NORMAL_SIZE - 1);
 					vtf.set(i, vt.size() / GLUtil.TEXTURE_SIZE - 1);
 				}				

@@ -18,19 +18,11 @@ public abstract class CommonGameObject {
 	
 	private static final String TAG = CommonGameObject.class.getSimpleName();
 
-
-	
 	public static long facesCount = 0;
 	
 	protected CommonShader shader;
-
-
 	
 	protected static Map<String, VboDataHandler> vboDataHandlerMap = new HashMap<String, VboDataHandler>();
-
-
-
-
 	
 	protected float[] modelMatrix = new float[16];
 	protected float[] mvpMatrix = new float[16];
@@ -154,7 +146,7 @@ public abstract class CommonGameObject {
 	    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
 	    GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, shader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
 
-		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE);
+		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE_3D);
 		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, shader.normalHandle, GLUtil.NORMAL_SIZE);
 
 		GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);		

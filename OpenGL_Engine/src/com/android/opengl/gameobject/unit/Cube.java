@@ -15,11 +15,9 @@ public class Cube extends GameObject{
 		super(parentScene);
 		movingTool = new Wheels(this);
 		attackingTool = new SimpleGun(this);
-		curHealthLevel = 100;
+		healthLevel = 100;
 		healthBar = new GLHealthBar(this);
 		healthBar.setVisible(true);
-		healthBar.setzOrder(200);
-//		parentScene.registerGLView(healthBar, 200);
 	}
 
 	@Override

@@ -5,10 +5,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
+
+import com.android.opengl.util.Log;
 
 public class MotionEventDispatcher {
 	
@@ -35,7 +36,7 @@ public class MotionEventDispatcher {
 			Log.i(TAG, "no any Touchable registered. Use registerTouchable(Touchable) to deliever MotionEvent");
 			return false;
 		}
-		
+		Log.i(TAG, "wrapperList = " + wrapperList);
 		boolean res = false;
 		isDispatching = true;
 		int pointerIndex = event.getActionIndex();
@@ -79,6 +80,7 @@ public class MotionEventDispatcher {
 				res = touchableWrapper.deliverTouchEvent();
 				touchableWrapper.disposeMotionEvent();
 			}
+			Log.i(TAG, "wrapperList = " + wrapperList);
 			break;
 		default:
 			for(TouchableWrapper wrapper: wrapperList){
@@ -349,6 +351,12 @@ public class MotionEventDispatcher {
 			return true;
 		}
 		
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder("[TouchableWrapper: ");
+			sb.append("touchable: " +touchable + ", event: " + motionEvent + "]");
+			return sb.toString();
+		}
 				
 	}
 	
