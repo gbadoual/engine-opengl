@@ -1,6 +1,7 @@
 package com.android.opengl.gameobject.building;
 
 
+import com.android.opengl.Clan;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.gameobject.unit.Cube;
@@ -17,8 +18,8 @@ public class MainBase extends AbstractBuilding{
 	private GLGridLayout mainPanleLayout;
 
 	
-	public MainBase(Scene parentScene) {
-		super(parentScene);
+	public MainBase(Scene parentScene, Clan clan) {
+		super(parentScene, clan);
 		initView();
 //		parentScene.registerGLView(mainPanleLayout, 50);
 		mainPanleLayout.setzOrder(50);

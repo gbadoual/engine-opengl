@@ -19,12 +19,12 @@ public class GLViewShader extends Shader{
 
 	public static final String UNIFORM_TEXTURE = "uTexture";
 	public static final String ATTRIBUTE_TEXTURE_COORD = "aTexCoord";
-	public static final String ATTRIBUTE_COLOR = "aColor";
+	public static final String UNIFORM_COLOR = "aColor";
 	public static final String ATTRIBUTE_POSITION = "aPosition";
 
 	
 	public GLViewShader() {
-		colorHandle = GLES20.glGetUniformLocation(programHandle, ATTRIBUTE_COLOR);
+		colorHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLOR);
 		positionHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_POSITION);
 		isPressedHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_PRESSED);
 		positionOffsetHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_POSITION_OFFSET);
@@ -58,14 +58,14 @@ public class GLViewShader extends Shader{
 	public String getFragmentShaderSrc() {
 		return 			
 			"precision mediump float;																" +
-			"uniform 	vec4 " + ATTRIBUTE_COLOR + ";													" +
+			"uniform 	vec4 " + UNIFORM_COLOR + ";													" +
 			"uniform 	float "+UNIFORM_PRESSED+";													" +
 			"uniform 	float "+UNIFORM_TEXTURE_ENABLED+";													" +
 			"uniform	sampler2D "+UNIFORM_TEXTURE+ ";												" +
 
 			"varying 	vec2 v_TexCoord; 															" +
 			"void main(){																			" +
-			"		vec4 resColor = " + ATTRIBUTE_COLOR + ";" +
+			"		vec4 resColor = " + UNIFORM_COLOR + ";" +
 			"		if("+UNIFORM_TEXTURE_ENABLED+" > 0.0) {" +
 			"			resColor = texture2D("+UNIFORM_TEXTURE+", v_TexCoord);						" +
 					"}" +

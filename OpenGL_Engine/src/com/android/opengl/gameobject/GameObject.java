@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.util.Log;
 
+import com.android.opengl.Clan;
 import com.android.opengl.gameobject.tools.attacking.AttackingTool;
 import com.android.opengl.gameobject.tools.attacking.EmptyAttackingTool;
 import com.android.opengl.gameobject.tools.moving.EmptyMovingTool;
@@ -13,6 +14,7 @@ import com.android.opengl.util.ObjectOuterCube;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Vector3D;
+import com.android.opengl.view.control.GLHealthBar;
 
 abstract public class GameObject extends CommonGameObject{
 
@@ -23,7 +25,13 @@ abstract public class GameObject extends CommonGameObject{
 	protected ObjectOuterCube outerCube;
 	
 	protected float curSpeed;
+	
+	private GLHealthBar healthBar;
+
 	protected float healthLevel;
+	private float maxHealthLevel;
+
+	
 	protected MovingTool movingTool;
 	protected AttackingTool attackingTool;
 	private List<PositionChangeListener> positionListenerList = new ArrayList<PositionChangeListener>();
@@ -31,11 +39,14 @@ abstract public class GameObject extends CommonGameObject{
 	public GameObject(Scene parentScene) {
 		super(parentScene.getShader(), parentScene.getResources());
 		TAG = getClass().getSimpleName();
+		initHealthLevel(100);
 		this.parentScene = parentScene;
 		this.parentScene.addGameObject(this);
 		outerCube = new ObjectOuterCube(this);
 		movingTool = new EmptyMovingTool(this);
 		attackingTool = new EmptyAttackingTool(this);
+		healthBar = new GLHealthBar(this);
+		healthBar.setVisible(true);
 	}
 
 	
@@ -45,7 +56,7 @@ abstract public class GameObject extends CommonGameObject{
 		}
         Matrix.multiplyMM(mvpMatrix, 0, parentScene.getMVPMatrix(), 0, modelMatrix, 0);
         Matrix.multiplyMM(mvMatrix, 0, parentScene.getMVMatrix(), 0, modelMatrix, 0);
-
+        
 		super.onDrawFrame();
 		
 	}
@@ -159,6 +170,8 @@ abstract public class GameObject extends CommonGameObject{
 	public void release() {
 		super.release();
 		movingTool.cancelMove();
+		attackingTool.cancelAttack();
+		healthBar.release();
 	}
 
 
@@ -194,6 +207,28 @@ abstract public class GameObject extends CommonGameObject{
 
 	private void destroy() {
 		parentScene.removeGameObject(this);
+		release();
+	}
+
+
+	public float getMaxHealthLevel() {
+		return maxHealthLevel;
+	}
+
+
+	protected void initHealthLevel(float maxHealthLevel) {
+		this.maxHealthLevel = maxHealthLevel;
+		healthLevel = maxHealthLevel;
+	}
+
+
+	public Clan getClan() {
+		return mClan;
+	}
+
+
+	public void setClan(Clan mClan) {
+		this.mClan = mClan;
 	}
 
 

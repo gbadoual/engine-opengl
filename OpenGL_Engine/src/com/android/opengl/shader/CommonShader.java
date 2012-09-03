@@ -12,6 +12,8 @@ public class CommonShader extends Shader{
 	public final int normalHandle;
 	public final int textureCoordHandle;
 	public final int textureHandle;
+	public final int instanceIdHandle;
+	public final int clanColorHandle;
 
 	
 	public final int isSelectedHandle;
@@ -30,6 +32,8 @@ public class CommonShader extends Shader{
 
 	public static final String ATTRIBUTE_NORMAL = "aNormal";
 	public static final String ATTRIBUTE_TEXTURE_COORD = "aTexCoord";
+	private static final String UNIFORM_INSTANCE_ID = "uInstanceId";
+	private static final String UNIFORM_CLAN_COLOR = "uClanColor";
 
 
 
@@ -37,7 +41,9 @@ public class CommonShader extends Shader{
 	public CommonShader() {
 		mvpMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MVP_MATRIX);
 		mvMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MV_MATRIX);
+		clanColorHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CLAN_COLOR);
 		isSelectedHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_IS_SELECTED);
+		instanceIdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INSTANCE_ID);
 		positionHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_POSITION);
 		normalHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_NORMAL);
 
@@ -52,23 +58,29 @@ public class CommonShader extends Shader{
 		"uniform 	mat4 "+UNIFORM_MVP_MATRIX + "; 													" +
 		"uniform 	mat4 "+UNIFORM_MV_MATRIX + "; 													" +
 		"uniform 	float "+UNIFORM_IS_SELECTED+";													" +
+		"uniform 	float "+UNIFORM_INSTANCE_ID+";													" +
+		"uniform 	vec4 "+UNIFORM_CLAN_COLOR+";													" +
 		"																							" +
 		"attribute 	vec4 "+ATTRIBUTE_POSITION+";													" +
 		"attribute 	vec3 "+ATTRIBUTE_NORMAL+";														" +
 		"attribute 	vec2 "+ATTRIBUTE_TEXTURE_COORD+";												" +
 		"																							" +
-		"varying 	vec4 v_Color; 																	" +
+		"varying 	vec4 v_ClanColor; 																	" +
 		"varying 	vec3 v_Position;																" +
 		"varying 	vec3 v_Normal; 																	" +
 		"varying 	vec2 v_TexCoord; 																" +
 		"varying 	float v_isSelected;																" +
 		"																							" +
 		"void main(){																				" +
-		"	v_Position = vec3("+UNIFORM_MV_MATRIX+" * "+ ATTRIBUTE_POSITION +");					" +
+		"	vec4 pos = "+ ATTRIBUTE_POSITION +";					" +
+		"	pos.x += " + UNIFORM_INSTANCE_ID + " * 2.0;" +
+		"	pos.y -= " + UNIFORM_INSTANCE_ID + " * 2.0;" +
+		"	v_ClanColor = " + UNIFORM_CLAN_COLOR + ";" +
+		"	v_Position = vec3("+UNIFORM_MV_MATRIX+" * pos);					" +
 		"	v_Normal = vec3("+UNIFORM_MV_MATRIX+" * vec4("+ ATTRIBUTE_NORMAL +", 0.0));				" +
 		"	v_isSelected = "+UNIFORM_IS_SELECTED+";													" +
 		"	v_TexCoord = "+ATTRIBUTE_TEXTURE_COORD+";													" +
-		"	gl_Position = "+UNIFORM_MVP_MATRIX+" * "+ATTRIBUTE_POSITION+";							" +
+		"	gl_Position = "+UNIFORM_MVP_MATRIX+" * pos;							" +
 		"}																							";
 }
 
@@ -83,6 +95,8 @@ public class CommonShader extends Shader{
 			"varying 	vec3 v_Normal; 																" +
 			"varying 	float v_isSelected;															" +
 			"varying 	vec2 v_TexCoord; 															" +
+			"varying 	vec4 v_ClanColor; 																	" +
+			"																					" +
 			"void main(){																			" +
 //				"	vec4 resColor;																		" +
 			"	float selectedColor = 1.0;" +
@@ -99,7 +113,7 @@ public class CommonShader extends Shader{
 //			"	diffuse = diffuse * 1.0/(1.0+(0.0001*distance*distance)) + 0.5;							" +
 //				"	gl_FragColor = resColor * diffuse * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
 //"				if(" + UNIFORM_TEXTURE + "!= null){	" +
-			"		gl_FragColor = diffuse * selectedColor * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
+			"		gl_FragColor = v_ClanColor + diffuse * selectedColor * texture2D(" + UNIFORM_TEXTURE + ", v_TexCoord);	" +
 //				"	}" +
 //				"	gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0) * diffuse * selectedColor;	" +
 			"																						" +

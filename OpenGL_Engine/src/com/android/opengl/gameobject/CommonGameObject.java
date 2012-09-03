@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.android.opengl.Clan;
 import com.android.opengl.R;
 import com.android.opengl.shader.CommonShader;
 import com.android.opengl.util.GLUtil;
@@ -35,7 +36,7 @@ public abstract class CommonGameObject {
 //	protected int indexDataLength;
 
 	protected boolean isSelected;
-	
+	protected Clan mClan = Clan.NEUTRAL;
 	
 	
 	protected LoaderManager meshLoader;
@@ -120,38 +121,28 @@ public abstract class CommonGameObject {
 	}
 
 	public void onDrawFrame(){
-		//use program and pass buffers
+		
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		GLES20.glUseProgram(shader.programHandle);
 		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
+		float[] color = mClan.getColor();
+		GLES20.glUniform4fv(shader.clanColorHandle, 1, mClan.getColor(), 0);
+//		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
         GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
         GLES20.glUniformMatrix4fv(shader.mvMatrixHandle, 1, false, mvMatrix, 0);
+        
 
-//		vertexBuffer.position(0);
-//		GLES20.glVertexAttribPointer(positionHandle, vertexElementSize , GLES20.GL_FLOAT, false, 0, vertexBuffer);
-//		GLES20.glEnableVertexAttribArray(positionHandle);
-//		
-//		colorBuffer.position(0);
-//		GLES20.glVertexAttribPointer(colorHandle, colorElementSize, GLES20.GL_FLOAT, false, 0, colorBuffer);
-//		GLES20.glEnableVertexAttribArray(colorHandle);
-//		
-//		normalBuffer.position(0);
-//		GLES20.glVertexAttribPointer(normalHandle, normalElementSize, GLES20.GL_FLOAT, true, 0, normalBuffer);
-//		GLES20.glEnableVertexAttribArray(normalHandle);
-//		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexData.length/vertexElementSize);
-
-//		-----------------------------------------------------
 // using VBOs		
-    
-	    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
 	    GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, shader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
 
 		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE_3D);
 		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, shader.normalHandle, GLUtil.NORMAL_SIZE);
 
-		GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);		
-		
-		
+		for(int i = 0; i < 1; i++){
+		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
+		    GLES20.glUniform1f(shader.instanceIdHandle, i);
+			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);
+		}
         GLES20.glUseProgram(0);
 	};
 

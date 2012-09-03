@@ -25,7 +25,7 @@ public abstract class AttackingTool{
 	public abstract void attack(GameObject gameObjectToAttack);
 
 	
-	public void cancelPrevAttack(){
+	public void cancelAttack(){
 		if(mAttackingThread != null){
 			mAttackingThread.interrupt();
 		}
@@ -37,7 +37,7 @@ public abstract class AttackingTool{
 	}
 
 	protected void beginAttack(BaseAttackingThread baseAttackingThread) {
-		cancelPrevAttack();
+		cancelAttack();
 		this.mAttackingThread = baseAttackingThread;
 		baseAttackingThread.start();
 	}
