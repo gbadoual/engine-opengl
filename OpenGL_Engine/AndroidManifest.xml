@@ -11,6 +11,7 @@
         <activity android:name=".MainActivity"
                   android:label="@string/app_name"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                  android:screenOrientation="sensorLandscape"
                   android:configChanges="keyboardHidden|orientation|screenSize"> <!-- for api level 14+ should be one param more:  screenSize -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

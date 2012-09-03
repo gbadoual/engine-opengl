@@ -1,12 +1,13 @@
 package com.android.opengl.gameobject.building;
 
+import com.android.opengl.Clan;
 import com.android.opengl.gameobject.Scene;
 
 public class Basement extends AbstractBuilding{
 
 	
-	public Basement(Scene parentScene) {
-		super(parentScene);
+	public Basement(Scene parentScene, Clan clan) {
+		super(parentScene, clan);
 		// TODO Auto-generated constructor stub
 	}
 

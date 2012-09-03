@@ -13,11 +13,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
+import com.android.opengl.Clan;
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.gameobject.building.MainBase;
 import com.android.opengl.gameobject.unit.Cube;
 import com.android.opengl.gameobject.unit.Earth;
+import com.android.opengl.gameobject.unit.vehicle.BMW;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.util.geometry.Vector3D;
@@ -44,12 +46,12 @@ public class EngineRenderer implements Renderer, Touchable{
 	private long currentFrame = 0;
 	private Handler callbackHandler;
 //	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
-	private Cube cube1;
-	private Cube cube2;
+//	private Cube cube1;
+//	private Cube cube2;
 //	private BMW bmw1;
-	private MainBase mainBase;
-//	private GameObject bmw2;
-	private Earth earth;
+//	private MainBase mainBase;
+////	private GameObject bmw2;
+//	private Earth earth;
 	private Scene scene;
 
 
@@ -116,6 +118,7 @@ public class EngineRenderer implements Renderer, Touchable{
 		CommonGameObject.facesCount = 0;
 		
 		scene = new Scene(camera);
+//		scene.setPosition(centerX, centerY, centerZ)
 //		bmw1 = new BMW(scene);
 //		bmw1.setPosition(-8, -7);
 
@@ -130,8 +133,11 @@ public class EngineRenderer implements Renderer, Touchable{
 //
 //		earth = new Earth(scene);
 //		earth.setPosition(-6, 3);
-		mainBase = new MainBase(scene);
-		mainBase.setPosition(-3, 5);
+		MainBase mainBase = new MainBase(scene, Clan.BLUE);
+		mainBase.setPosition(-40, 40);
+
+		MainBase enemyMainBase = new MainBase(scene, Clan.RED);
+		enemyMainBase.setPosition(40, -40);
 		
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));

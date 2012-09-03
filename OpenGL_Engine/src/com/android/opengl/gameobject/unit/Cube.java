@@ -9,15 +9,13 @@ import com.android.opengl.view.control.GLHealthBar;
 
 public class Cube extends GameObject{
 
-	private GLHealthBar healthBar;
 
 	public Cube(Scene parentScene) {
 		super(parentScene);
 		movingTool = new Wheels(this);
 		attackingTool = new SimpleGun(this);
-		healthLevel = 100;
-		healthBar = new GLHealthBar(this);
-		healthBar.setVisible(true);
+		initHealthLevel(100);
+
 	}
 
 	@Override
@@ -36,11 +34,6 @@ public class Cube extends GameObject{
 		return R.raw.smile;
 	}
 	
-	@Override
-	public void release() {
-		healthBar.release();
-		super.release();
-	}
 
 
 
