@@ -30,12 +30,27 @@ public abstract class MovingTool{
 
 	
 	public boolean isMoving(){
-		return movingThread != null && !movingThread.isInterrupted();
+		return movingThread != null && movingThread.isAlive();
 	}
 
 
 	
-	public abstract BaseMovingThread moveTo(Point3D destination);
+	public void moveTo(Point3D destination){
+		objectToMove.getAttackingTool().cancelAttack();
+		beginMove(new BaseMovingThread(objectToMove, destination));
+	};
+	
+	public void moveForAttackTo(Point3D destination) {
+		beginMove(new BaseMovingThread(objectToMove, destination));
+	}
+	
+	protected void beginMove(BaseMovingThread baseMovingThread){
+		cancelMove();
+		this.movingThread = baseMovingThread;
+		this.movingThread.start();
+		
+	}
+
 
 	public void cancelMove() {
 		if(movingThread != null){
