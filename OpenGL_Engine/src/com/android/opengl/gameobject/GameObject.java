@@ -232,6 +232,13 @@ abstract public class GameObject extends CommonGameObject{
 	}
 
 
+	public void moveForAttackTo(Point3D destination) {
+		movingTool.moveForAttackTo(destination);
+	}
+
+
+
+
 
 
 	

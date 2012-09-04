@@ -35,16 +35,18 @@ public class BaseAttackingThread extends Thread{
 				if(!objectToAttack.getParentScene().containsGameObject(objectToAttack)){
 					interrupt();
 				}
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					interrupt();
-				}
+
 			} else {
-				objectAttackingTool.cancelAttack();
+//				objectAttackingTool.cancelAttack();
 				if(!attackingObject.getMovingTool().isMoving()){
-					attackingObject.moveTo(objectToAttack.getPosition());
+					Log.i("taggg", "moving for attack");
+					attackingObject.moveForAttackTo(objectToAttack.getPosition());
 				}
+			}
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				interrupt();
 			}
 
 //			Vector3D destVector = new Vector3D(attackingObject.getPosition(), lastApponentPos);
@@ -66,7 +68,7 @@ public class BaseAttackingThread extends Thread{
 //			}
 			
 		}
-		Log.i("tag", "attacking thread was interrupted");
+		Log.i("taggg", "attacking thread was interrupted");
 	}
 	
 	@Override

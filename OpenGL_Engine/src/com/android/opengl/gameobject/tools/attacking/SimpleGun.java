@@ -6,7 +6,7 @@ import com.android.opengl.gameobject.GameObject;
 
 public class SimpleGun extends AttackingTool{
 	
-	public static float ATTACKING_RADIUS = 50;
+	public static float ATTACKING_RADIUS = 10;
 	public static float DAMAGE_VALUE = 10;
 	
 	public SimpleGun(GameObject attackingObject) {

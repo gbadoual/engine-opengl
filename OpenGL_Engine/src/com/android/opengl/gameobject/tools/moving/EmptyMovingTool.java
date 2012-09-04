@@ -13,9 +13,13 @@ public class EmptyMovingTool extends MovingTool{
 	}
 
 	@Override
-	public BaseMovingThread moveTo(Point3D destination) {
+	public void moveTo(Point3D destination) {
 		Log.i("tag", "Can't move. No opportunity. You can set MovintTool to make it movable");
-		return null;
+	}
+	
+	@Override
+	public void moveForAttackTo(Point3D destination) {
+		Log.i("tag", "Can't move. No opportunity. You can set MovintTool to make it movable");
 	}
 
 	@Override
