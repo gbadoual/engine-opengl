@@ -8,11 +8,11 @@ public enum Clan {
 	public float[] getColor(){
 		switch (this) {
 		case BLUE:
-			return rgbaToNormolizedColor(-64, -64, 0, 0);
+			return rgbaToNormolizedColor(-32, -32, 0, 0);
 		case RED:
-			return rgbaToNormolizedColor(64, 0, 0, 0);
+			return rgbaToNormolizedColor(32, 0, 0, 0);
 		default:
-			return rgbaToNormolizedColor(64, 64, 0, 0);
+			return rgbaToNormolizedColor(0, 0, -64, 0);
 		}
 	}
 	
