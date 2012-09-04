@@ -22,12 +22,7 @@ public class Wheels extends MovingTool{
 		return movingThread;
 	}
 
-	@Override
-	public void cancelMove() {
-		if(movingThread != null){
-			movingThread.interruptCanceled();
-		}
-	}
+
 
 
 	@Override

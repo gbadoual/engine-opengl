@@ -1,12 +1,8 @@
 package com.android.opengl.view.control;
 
-import android.opengl.GLES20;
-import android.opengl.GLU;
 import android.util.Log;
 
 import com.android.opengl.gameobject.GameObject;
-import com.android.opengl.gameobject.PositionChangeListener;
-import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.geometry.Matrix;
 
 public class GLHealthBar extends GLView{
@@ -22,8 +18,12 @@ public class GLHealthBar extends GLView{
 		camera.unregisterTouchable(this);
 
 //		gameObject.registerPositionListener(this);
-		onMeasure(10, 3);
+		onMeasure(5, 1);
 	}
+	private int[] rValues = new int[]{20, 240, 240};
+	private int[] gValues = new int[]{240, 240, 20};
+	private int[] bValues = new int[]{20, 20, 20};
+	
 	
 	@Override
 	public void onDraw() {
@@ -36,15 +36,33 @@ public class GLHealthBar extends GLView{
 		positionOffset[1] = -mvMatrix[Matrix.POS_Y_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET]*  camera.getWidthToHeightRatio() - 1;
 		Log.i("tag", "pos = " + positionOffset[0] + ", " + positionOffset[1]);
 		float h = gameObject.getHealthLevel() / gameObject.getMaxHealthLevel();
-		setColor(blend(0, 240, h), blend(200, 0, h), blend(0, 0, h), 192);
-
+		int r = evenlyInterpolate(rValues, h);
+		int g = evenlyInterpolate(gValues, h);
+		int b = evenlyInterpolate(bValues, h);
+		setColor(r, g, b, 192);
 
 		super.onDraw();
 	}
 	
-	private float blend(int f, int s, float blendCoeff){
-		return f * blendCoeff + s * (1 - blendCoeff);
+	private int evenlyInterpolate(int[] valuaes, float coeff){
+		coeff = 1 - coeff;
+		if(coeff == 1.0){
+			return valuaes[valuaes.length - 1];
+		}
+		int firstInterpIdx = (int)(coeff * (valuaes.length - 1));
+		float localCoeff = (coeff - (float)firstInterpIdx / (valuaes.length - 1)) * (valuaes.length - 1);
+		return (int)(valuaes[firstInterpIdx] * (1 - localCoeff) + valuaes[firstInterpIdx + 1] * localCoeff);
+		
 	}
+	
+//	private float blend(int f, int s, float blendCoeff){
+//		return f * blendCoeff + s * (1 - blendCoeff);
+//	}
+//	private float blend(int f, int s, int third, float leftCoeff, float rightCoeff){
+//		if(leftCoeff >= 0 && leftCoeff <= 1){
+//		}
+//		return f * blendCoeff + s * (1 - blendCoeff);
+//	}
 	
 //	public static class GLHealtgBarShader extends GLViewShader{
 //		

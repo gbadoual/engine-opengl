@@ -24,11 +24,14 @@ public class BaseAttackingThread extends Thread{
 	@Override
 	public void run() {
 //		objectToAttack.registerPositionListener(positionChangeListener);
-		AttackingTool attackingObjectTool = attackingObject.getAttackingTool();
+		AttackingTool objectAttackingTool = attackingObject.getAttackingTool();
+		attackingObject.getMovingTool().cancelMove();
 		while(!isInterrupted()){
 			float distance = getDistance(attackingObject, objectToAttack);
-			if(distance <= attackingObjectTool.mAttackingRadius){
-				attackingObjectTool.fire(objectToAttack);
+			Log.i("taggg", "distance = " + distance);
+			if(distance <= objectAttackingTool.mAttackingRadius){
+				attackingObject.getMovingTool().cancelMove();
+				objectAttackingTool.fire(objectToAttack);
 				if(!objectToAttack.getParentScene().containsGameObject(objectToAttack)){
 					interrupt();
 				}
@@ -36,6 +39,11 @@ public class BaseAttackingThread extends Thread{
 					Thread.sleep(200);
 				} catch (InterruptedException e) {
 					interrupt();
+				}
+			} else {
+				objectAttackingTool.cancelAttack();
+				if(!attackingObject.getMovingTool().isMoving()){
+					attackingObject.moveTo(objectToAttack.getPosition());
 				}
 			}
 
@@ -58,6 +66,7 @@ public class BaseAttackingThread extends Thread{
 //			}
 			
 		}
+		Log.i("tag", "attacking thread was interrupted");
 	}
 	
 	@Override
@@ -72,6 +81,15 @@ public class BaseAttackingThread extends Thread{
 	}
 	
 	
+	public GameObject getObjectToAttack() {
+		return objectToAttack;
+	}
+
+	public void setObjectToAttack(GameObject objectToAttack) {
+		this.objectToAttack = objectToAttack;
+	}
+
+
 	private PositionChangeListener positionChangeListener = new PositionChangeListener() {
 		// This callback can be executed on GLThread. Need to be careful
 		@Override

@@ -1,12 +1,14 @@
 package com.android.opengl.gameobject.tools.attacking;
 
+import android.util.Log;
+
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.gameobject.PositionChangeListener;
 
 public abstract class AttackingTool{
 	
 	protected static String TAG;
-	protected static final float MIN_ATTACKING_RADIUS = 100;
+//	protected static final float MIN_ATTACKING_RADIUS = 100;
 	
 	protected float mAttackingRadius;
 	protected float mDamage;
@@ -38,6 +40,10 @@ public abstract class AttackingTool{
 
 	protected void beginAttack(BaseAttackingThread baseAttackingThread) {
 		cancelAttack();
+		if(baseAttackingThread.getObjectToAttack().getClan() == mAttackingObject.getClan()){
+			Log.i(TAG, "No friendly fire");
+			return;
+		}
 		this.mAttackingThread = baseAttackingThread;
 		baseAttackingThread.start();
 	}

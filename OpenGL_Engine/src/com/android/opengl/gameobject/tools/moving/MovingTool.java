@@ -36,7 +36,13 @@ public abstract class MovingTool{
 
 	
 	public abstract BaseMovingThread moveTo(Point3D destination);
-	public abstract void cancelMove();
+
+	public void cancelMove() {
+		if(movingThread != null){
+			movingThread.interruptCanceled();
+			movingThread = null;
+		}
+	}
 	public abstract float getMaxSpeed();
 	
 	
