@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.android.opengl.Clan;
 import com.android.opengl.R;
-import com.android.opengl.shader.CommonShader;
+import com.android.opengl.shader.ObjectShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.geometry.Matrix;
@@ -21,7 +21,7 @@ public abstract class CommonGameObject {
 
 	public static long facesCount = 0;
 	
-	protected CommonShader shader;
+//	protected CommonShader shader;
 	
 	protected static Map<String, VboDataHandler> vboDataHandlerMap = new HashMap<String, VboDataHandler>();
 	
@@ -58,11 +58,11 @@ public abstract class CommonGameObject {
 		public int textureDataHandler = -1;
 	}
 	
-	public CommonGameObject(CommonShader shader, Resources resources) {
+	public CommonGameObject(Resources resources) {
 		Log.d(TAG, "init " + getClass().getSimpleName());
 		long time = System.currentTimeMillis(); 
 		this.resources = resources;
-		this.shader = shader;
+//		this.shader = shader;
 		meshLoader = LoaderManager.getInstance(resources);
 		initData();
 		time = System.currentTimeMillis() - time;
@@ -120,31 +120,32 @@ public abstract class CommonGameObject {
 		
 	}
 
-	public void onDrawFrame(){
-		
-		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
-		GLES20.glUseProgram(shader.programHandle);
-		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
-		float[] color = mClan.getColor();
-		GLES20.glUniform4fv(shader.clanColorHandle, 1, mClan.getColor(), 0);
+	public abstract void onDrawFrame();
+//	public void onDrawFrame(){
+//		
+//		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
+//		GLES20.glUseProgram(shader.programHandle);
 //		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
-        GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
-        GLES20.glUniformMatrix4fv(shader.mvMatrixHandle, 1, false, mvMatrix, 0);
-        
-
-// using VBOs		
-	    GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, shader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
-
-		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE_3D);
-		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, shader.normalHandle, GLUtil.NORMAL_SIZE);
-
-		for(int i = 0; i < 1; i++){
-		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
-		    GLES20.glUniform1f(shader.instanceIdHandle, i);
-			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);
-		}
-        GLES20.glUseProgram(0);
-	};
+//		float[] color = mClan.getColor();
+//		GLES20.glUniform4fv(shader.clanColorHandle, 1, mClan.getColor(), 0);
+////		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
+//        GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
+//        GLES20.glUniformMatrix4fv(shader.mvMatrixHandle, 1, false, mvMatrix, 0);
+//        
+//
+//// using VBOs		
+//	    GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, shader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
+//
+//		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE_3D);
+//		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, shader.normalHandle, GLUtil.NORMAL_SIZE);
+//
+//		for(int i = 0; i < 1; i++){
+//		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
+//		    GLES20.glUniform1f(shader.instanceIdHandle, i);
+//			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);
+//		}
+//        GLES20.glUseProgram(0);
+//	};
 
 
 
@@ -236,9 +237,9 @@ public abstract class CommonGameObject {
 				modelMatrix[Matrix.VIEX_Z_OFFSET]);
 	}
 
-	public CommonShader getShader() {
-		return shader;
-	}
+//	public CommonShader getShader() {
+//		return shader;
+//	}
 	
 	public float getPosX(){
 		return modelMatrix[Matrix.POS_X_OFFSET];

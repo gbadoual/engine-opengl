@@ -27,7 +27,7 @@ public class BaseAttackingThread extends Thread{
 		AttackingTool objectAttackingTool = attackingObject.getAttackingTool();
 		attackingObject.getMovingTool().cancelMove();
 		while(!isInterrupted()){
-			float distance = getDistance(attackingObject, objectToAttack);
+			float distance = getSquaredDistance(attackingObject, objectToAttack);
 			Log.i("taggg", "distance = " + distance);
 			if(distance <= objectAttackingTool.mAttackingRadius){
 				attackingObject.getMovingTool().cancelMove();
@@ -39,8 +39,12 @@ public class BaseAttackingThread extends Thread{
 			} else {
 //				objectAttackingTool.cancelAttack();
 				if(!attackingObject.getMovingTool().isMoving()){
+<<<<<<< .mine
+					attackingObject.moveToAttack(objectToAttack.getPosition());
+=======
 					Log.i("taggg", "moving for attack");
 					attackingObject.moveForAttackTo(objectToAttack.getPosition());
+>>>>>>> .r84
 				}
 			}
 			try {
@@ -77,9 +81,8 @@ public class BaseAttackingThread extends Thread{
 		objectToAttack.unregisterPositionListener(positionChangeListener);
 	}
 
-	private float getDistance(GameObject first, GameObject second){
-		Vector3D distanceVector = new Vector3D(first.getPosition(), second.getPosition()).normalize();
-		return distanceVector.getLength();
+	private float getSquaredDistance(GameObject first, GameObject second){
+		return Point3D.getSquaredDistance(first.getPosition(), second.getPosition());
 	}
 	
 	

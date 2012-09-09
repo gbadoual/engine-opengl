@@ -34,6 +34,25 @@ public class BaseMovingThread extends Thread{
 	public BaseMovingThread(GameObject objectToMove, Point3D destination) {
 		super("MovingThread");
 		this.objectToMove = objectToMove;
+		setPriority(MIN_PRIORITY);
+		setDestination(destination);
+	}
+
+	public BaseMovingThread(GameObject objectToMove) {
+		this.objectToMove = objectToMove;
+		speed = objectToMove.getMaxSpeed()/SPEED_SCALE_FACTOR;
+		setPriority(MIN_PRIORITY);
+	}
+	
+	public void setDestination(Point3D destination){
+		if(isAlive()){
+			Log.e(TAG, "Destination should be set before launching the thread!");
+			return;
+		}
+		if(destination == null){
+			Log.w(TAG, "Destination is null");
+			return;
+		}
 		this.destination = destination;
 		Point3D startPoint  = objectToMove.getPosition();
 		speedVector = new Vector3D(startPoint, destination).normalize();
@@ -42,11 +61,14 @@ public class BaseMovingThread extends Thread{
 		Log.i("tag", "speedVector = " + speedVector);
 		speed = objectToMove.getMaxSpeed()/SPEED_SCALE_FACTOR;
 		speedVector.setLength(speed);
-		setPriority(MIN_PRIORITY);
 	}
 
 	@Override
 	public void run() {
+		if(destination == null){
+			Log.w(TAG, "Destination is null. Thread aborting");
+			interruptCanceled();
+		}
 		long time;
 		float newX, newY, newZ;
 		objectToMove.getMovingTool().setCurState(MovingToolState.MOVING);
