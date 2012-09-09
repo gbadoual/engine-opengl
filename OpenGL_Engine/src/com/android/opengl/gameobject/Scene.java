@@ -1,21 +1,22 @@
 package com.android.opengl.gameobject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import android.content.res.Resources;
+import android.opengl.GLES20;
 import android.util.FloatMath;
 import android.util.Log;
 
 import com.android.opengl.Camera;
 import com.android.opengl.R;
-import com.android.opengl.shader.CommonShader;
+import com.android.opengl.gameobject.light.PointLight;
+import com.android.opengl.shader.SceneShader;
+import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.MeshQuadNode2D;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Vector3D;
-import com.android.opengl.view.control.GLView;
 
 public class Scene extends CommonGameObject{
 
@@ -31,21 +32,25 @@ public class Scene extends CommonGameObject{
 	private static final String TAG = Scene.class.getSimpleName();
 	
 	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
+	private List<PointLight> lightList = new ArrayList<PointLight>(); 
 
 	
 	private MeshQuadNode2D sceneQuad2D;
 	
 	
 	private Camera camera;
+	private SceneShader shader = new SceneShader();
 
 	
 	private boolean isRendingFinished = true;
 	
 	public Scene(Camera camera) {
-		super(new CommonShader(), camera.getContext().getResources());
+		super(camera.getContext().getResources());
 		this.camera = camera;
 		this.camera.setScene(this);
 		skyBox = new SkyDome(camera);
+		lightList.add(new PointLight(new Point3D(-50, 5, 0)));
+		lightList.add(new PointLight(new Point3D(40, 5, 40)));
 
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
@@ -71,26 +76,53 @@ public class Scene extends CommonGameObject{
 	
 	private SkyDome skyBox;
 	
+	private float a = 0.1f;
 	@Override
 	public void onDrawFrame() {
 		isRendingFinished = false;
 		skyBox.onDrawFrame();
-//		rotate(0, -0.5f, 0);
 		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);//mvMatrix = viewMatrix;
 		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);//mvMatrix = viewMatrix;
-		super.onDrawFrame();
-//		localDraw();
+
+		//		localDraw();
+		openGLDraw();
 
 		for(GameObject gameObject: gameObjectList){
 			gameObject.onDrawFrame();
 		}
 
+        GLES20.glUseProgram(0);
+        lightList.get(0).getPosition().incXYZ(a, 0, 0);
+        if(Math.abs(lightList.get(0).getPosition().x) > 50){
+        	a = -a;
+        }
 		
 		isRendingFinished = true;
 	}
 	
 
 	
+	private void openGLDraw() {
+		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
+		GLES20.glUseProgram(shader.programHandle);
+        GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
+        GLES20.glUniformMatrix4fv(shader.mvMatrixHandle, 1, false, mvMatrix, 0);
+		GLES20.glUniform1f(shader.lightCountHandle, lightList.size());
+
+		GLES20.glUniform3fv(shader.lightPositionHandle, lightList.size(), lightListToFloatArray(), 0);
+
+        GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, shader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
+		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE_3D);
+		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, shader.normalHandle, GLUtil.NORMAL_SIZE);
+
+		for(int i = 0; i < 1; i++){
+		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
+		    GLES20.glUniform1f(shader.instanceIdHandle, i);
+			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);
+		}
+	}
+
+
 	public void scale(float scaleFactor) {
 		float distacne = SCALING_STEP * (1 - 1/scaleFactor);
 		camera.moveForward(distacne);
@@ -231,7 +263,7 @@ public class Scene extends CommonGameObject{
 
 	public void translate(float dx, float dz) {
 //		camera.translate(dx, dz);
-		float[] position = getPosition().asFloatArray();
+		float[] position = getPosition().asFloatArray().clone();
 		float[] rotation = camera.getAngleXYZ();
 		float sinY = FloatMath.sin(rotation[1]);
 		float cosY = FloatMath.cos(rotation[1]);
@@ -257,12 +289,29 @@ public class Scene extends CommonGameObject{
 		return gameObjectList.contains(objectToAttack);
 	}
 
+		
+	public float[] lightListToFloatArray(){
+		float[] lights = new float[lightList.size() * 3];
+		float[] res = new float[4];
+		for(int i = 0 ; i < lightList.size(); ++i){
+			Matrix.multiplyMV(res, 0, mvMatrix, 0, lightList.get(i).getPosition().asFloatArray(), 0);
+			lights[i * 3 + 0] = res[0];
+			lights[i * 3 + 1] = res[1];
+			lights[i * 3 + 2] = res[2];
+		}
+		return lights;		
+	}
 
+	public int getLightListSize() {
+		return lightList.size();
+	}
 
 
 	public void onWorldUpdate() {
 		
 	}
+
+
 
 
 }

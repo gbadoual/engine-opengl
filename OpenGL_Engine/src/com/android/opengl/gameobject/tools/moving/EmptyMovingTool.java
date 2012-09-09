@@ -13,12 +13,16 @@ public class EmptyMovingTool extends MovingTool{
 	}
 
 	@Override
+<<<<<<< .mine
+	public void moveTo(Point3D destination) {
+=======
 	public void moveTo(Point3D destination) {
 		Log.i("tag", "Can't move. No opportunity. You can set MovintTool to make it movable");
 	}
 	
 	@Override
 	public void moveForAttackTo(Point3D destination) {
+>>>>>>> .r84
 		Log.i("tag", "Can't move. No opportunity. You can set MovintTool to make it movable");
 	}
 
@@ -30,6 +34,12 @@ public class EmptyMovingTool extends MovingTool{
 	@Override
 	public float getMaxSpeed() {
 		return 0;
+	}
+
+	@Override
+	protected BaseMovingThread obtainMovingThread() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

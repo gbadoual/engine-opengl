@@ -96,7 +96,7 @@ public class Camera {
 	}
 	
 	public void translate(float dx, float dz){
-		float[] position = getPosition().asFloatArray();
+		float[] position = getPosition().asFloatArray().clone();
 		float sinX = (float)Math.sin(angleX);
 		float cosX = 1 - sinX * sinX;
 		position[0] += -dx;

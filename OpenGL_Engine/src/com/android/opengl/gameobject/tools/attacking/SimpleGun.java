@@ -6,11 +6,16 @@ import com.android.opengl.gameobject.GameObject;
 
 public class SimpleGun extends AttackingTool{
 	
+<<<<<<< .mine
+	public static float ATTACKING_RADIUS_SQUARE = 20 * 20;
+	
+=======
 	public static float ATTACKING_RADIUS = 10;
+>>>>>>> .r84
 	public static float DAMAGE_VALUE = 10;
 	
 	public SimpleGun(GameObject attackingObject) {
-		super(attackingObject, ATTACKING_RADIUS, DAMAGE_VALUE);
+		super(attackingObject, ATTACKING_RADIUS_SQUARE, DAMAGE_VALUE);
 	}
 
 	@Override

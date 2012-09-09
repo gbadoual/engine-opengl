@@ -7,6 +7,9 @@ public abstract class Shader {
 
 	private static final String TAG = Shader.class.getSimpleName();
 
+	public static final int MAX_LIGHT_COUNT = 5;
+	public static final float INITIAL_DIFFUSE = 0.3f;
+
 	
 	public final int programHandle;
 	

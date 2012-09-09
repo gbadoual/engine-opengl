@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import com.android.opengl.Camera;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
+import com.android.opengl.shader.SceneShader;
 import com.android.opengl.shader.Shader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
@@ -107,7 +108,7 @@ public class SkyDome {
 			"																							" +
 			"void main(){																				" +
 			"	v_TexCoord = "+ATTRIBUTE_TEXTURE_COORD+";												" +
-			"	vec3 pos = mat3(" +UNIFORM_MVP_MATRIX+ ") * ("+ATTRIBUTE_POSITION+" * 2.0);" +
+			"	vec3 pos = mat3(" +UNIFORM_MVP_MATRIX+ ") * ("+ATTRIBUTE_POSITION+" * 2.4);" +
 			"	gl_Position =  vec4(pos.xy, 0.99997, 1.0);										" +
 			"}																							";
 	}
@@ -121,7 +122,7 @@ public class SkyDome {
 
 				"varying 	vec2 v_TexCoord; 															" +
 				"void main(){																			" +
-				"		gl_FragColor = texture2D("+UNIFORM_TEXTURE+", v_TexCoord);						" +
+				"		gl_FragColor = texture2D("+UNIFORM_TEXTURE+", v_TexCoord) * " + INITIAL_DIFFUSE + ";						" +
 				"}																						";	
 			}
 		

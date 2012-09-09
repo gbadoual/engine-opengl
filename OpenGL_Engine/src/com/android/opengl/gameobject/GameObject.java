@@ -3,13 +3,17 @@ package com.android.opengl.gameobject;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.opengl.GLES20;
 import android.util.Log;
 
 import com.android.opengl.Clan;
+import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
 import com.android.opengl.gameobject.tools.attacking.AttackingTool;
 import com.android.opengl.gameobject.tools.attacking.EmptyAttackingTool;
 import com.android.opengl.gameobject.tools.moving.EmptyMovingTool;
 import com.android.opengl.gameobject.tools.moving.MovingTool;
+import com.android.opengl.shader.ObjectShader;
+import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.ObjectOuterCube;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
@@ -23,6 +27,7 @@ abstract public class GameObject extends CommonGameObject{
 	
 	protected Scene parentScene;
 	protected ObjectOuterCube outerCube;
+	protected ObjectShader shader = new ObjectShader();
 	
 	protected float curSpeed;
 	
@@ -37,7 +42,7 @@ abstract public class GameObject extends CommonGameObject{
 	private List<PositionChangeListener> positionListenerList = new ArrayList<PositionChangeListener>();
 	
 	public GameObject(Scene parentScene) {
-		super(parentScene.getShader(), parentScene.getResources());
+		super(parentScene.getResources());
 		TAG = getClass().getSimpleName();
 		initHealthLevel(100);
 		this.parentScene = parentScene;
@@ -57,8 +62,30 @@ abstract public class GameObject extends CommonGameObject{
         Matrix.multiplyMM(mvpMatrix, 0, parentScene.getMVPMatrix(), 0, modelMatrix, 0);
         Matrix.multiplyMM(mvMatrix, 0, parentScene.getMVMatrix(), 0, modelMatrix, 0);
         
-		super.onDrawFrame();
+        openGLDraw();
 		
+	}
+
+
+	private void openGLDraw() {
+		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
+		GLES20.glUseProgram(shader.programHandle);
+		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
+		GLES20.glUniform4fv(shader.clanColorHandle, 1, mClan.getColor(), 0);
+		GLES20.glUniform1f(shader.lightCountHandle, parentScene.getLightListSize());
+		GLES20.glUniform3fv(shader.lightPositionHandle, parentScene.getLightListSize(), parentScene.lightListToFloatArray(), 0);
+        GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
+        GLES20.glUniformMatrix4fv(shader.mvMatrixHandle, 1, false, mvMatrix, 0);
+
+        GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, shader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
+		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE_3D);
+		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, shader.normalHandle, GLUtil.NORMAL_SIZE);
+
+		for(int i = 0; i < 1; i++){
+		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
+		    GLES20.glUniform1f(shader.instanceIdHandle, i);
+			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);
+		}
 	}
 
 
@@ -232,6 +259,14 @@ abstract public class GameObject extends CommonGameObject{
 	}
 
 
+<<<<<<< .mine
+	public void moveToAttack(Point3D destination) {
+		movingTool.moveToAttack(destination);
+		
+	}
+
+
+=======
 	public void moveForAttackTo(Point3D destination) {
 		movingTool.moveForAttackTo(destination);
 	}
@@ -239,6 +274,7 @@ abstract public class GameObject extends CommonGameObject{
 
 
 
+>>>>>>> .r84
 
 
 	

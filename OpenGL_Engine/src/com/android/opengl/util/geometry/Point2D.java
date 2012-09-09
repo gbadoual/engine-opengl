@@ -3,6 +3,7 @@ package com.android.opengl.util.geometry;
 public class Point2D {
 	public float x, y;
 	
+
 	public Point2D(){
 		
 	}
