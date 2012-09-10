@@ -17,8 +17,12 @@ public class BaseAttackingThread extends Thread{
 	
 	
 	public BaseAttackingThread(GameObject attackingObject, GameObject objectToAttack) {
-		this.attackingObject = attackingObject;
+		this(attackingObject);
 		this.objectToAttack = objectToAttack;
+	}
+
+	public BaseAttackingThread(GameObject attackingObject) {
+		this.attackingObject = attackingObject;
 	}
 
 	@Override
@@ -29,7 +33,7 @@ public class BaseAttackingThread extends Thread{
 		while(!isInterrupted()){
 			float distance = getSquaredDistance(attackingObject, objectToAttack);
 			Log.i("taggg", "distance = " + distance);
-			if(distance <= objectAttackingTool.mAttackingRadius){
+			if(distance <= objectAttackingTool.mAttackingRadiusSquared){
 				attackingObject.getMovingTool().cancelMove();
 				objectAttackingTool.fire(objectToAttack);
 				if(!objectToAttack.getParentScene().containsGameObject(objectToAttack)){
@@ -39,12 +43,9 @@ public class BaseAttackingThread extends Thread{
 			} else {
 //				objectAttackingTool.cancelAttack();
 				if(!attackingObject.getMovingTool().isMoving()){
-<<<<<<< .mine
 					attackingObject.moveToAttack(objectToAttack.getPosition());
-=======
 					Log.i("taggg", "moving for attack");
-					attackingObject.moveForAttackTo(objectToAttack.getPosition());
->>>>>>> .r84
+
 				}
 			}
 			try {
@@ -91,6 +92,11 @@ public class BaseAttackingThread extends Thread{
 	}
 
 	public void setObjectToAttack(GameObject objectToAttack) {
+		if(isAlive()){
+			interrupt();
+			Log.w(TAG, "Setting objectToAttack while thread is already executes. Aborting the thread");
+			return;
+		}
 		this.objectToAttack = objectToAttack;
 	}
 

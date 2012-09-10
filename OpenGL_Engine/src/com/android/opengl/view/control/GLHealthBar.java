@@ -34,7 +34,7 @@ public class GLHealthBar extends GLView{
 		}
 		positionOffset[0] = -mvMatrix[Matrix.POS_X_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] +1;
 		positionOffset[1] = -mvMatrix[Matrix.POS_Y_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET]*  camera.getWidthToHeightRatio() - 1;
-		Log.i("tag", "pos = " + positionOffset[0] + ", " + positionOffset[1]);
+//		Log.i("tag", "pos = " + positionOffset[0] + ", " + positionOffset[1]);
 		float h = gameObject.getHealthLevel() / gameObject.getMaxHealthLevel();
 		int r = evenlyInterpolate(rValues, h);
 		int g = evenlyInterpolate(gValues, h);

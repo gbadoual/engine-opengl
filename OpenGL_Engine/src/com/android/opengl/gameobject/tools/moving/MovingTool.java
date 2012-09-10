@@ -20,7 +20,6 @@ public abstract class MovingTool{
 	protected BaseMovingThread movingThread;
 	
 	protected GameObject objectToMove;
-	protected Point3D curDestination;
 	private MovingToolState curState;
 	private List<MovingToolStateListener> toolStateListeners = new ArrayList<MovingTool.MovingToolStateListener>();
 	
@@ -36,55 +35,32 @@ public abstract class MovingTool{
 
 
 	
-<<<<<<< .mine
 	public void moveTo(Point3D destination){
 		objectToMove.getAttackingTool().cancelAttack();
-		cancelMove();
-		curDestination = destination;
-		beginMove();
+		beginMove(destination);
 	};
 
 	public void moveToAttack(Point3D destination) {
-		cancelMove();
-		curDestination = destination;
-		beginMove();
+		beginMove(destination);
 	}
 	
-	protected void beginMove(){
+	protected void beginMove(Point3D destination){
+		cancelMove();
 		this.movingThread = obtainMovingThread();
 		if(this.movingThread != null){
-			this.movingThread.setDestination(curDestination);
+			this.movingThread.setDestination(destination);
 			this.movingThread.start();
 		}
 	}
 
 	protected abstract BaseMovingThread obtainMovingThread();
 
-=======
-	public void moveTo(Point3D destination){
-		objectToMove.getAttackingTool().cancelAttack();
-		beginMove(new BaseMovingThread(objectToMove, destination));
-	};
-	
-	public void moveForAttackTo(Point3D destination) {
-		beginMove(new BaseMovingThread(objectToMove, destination));
-	}
-	
-	protected void beginMove(BaseMovingThread baseMovingThread){
-		cancelMove();
-		this.movingThread = baseMovingThread;
-		this.movingThread.start();
-		
-	}
-
->>>>>>> .r84
 
 	public void cancelMove() {
 		if(movingThread != null){
 			movingThread.interruptCanceled();
 			movingThread = null;
 		}
-		curDestination = null;
 	}
 	public abstract float getMaxSpeed();
 	
