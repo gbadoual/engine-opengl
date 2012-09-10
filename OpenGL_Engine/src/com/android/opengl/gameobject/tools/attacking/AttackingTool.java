@@ -3,49 +3,67 @@ package com.android.opengl.gameobject.tools.attacking;
 import android.util.Log;
 
 import com.android.opengl.gameobject.GameObject;
-import com.android.opengl.gameobject.PositionChangeListener;
 
 public abstract class AttackingTool{
 	
 	protected static String TAG;
 //	protected static final float MIN_ATTACKING_RADIUS = 100;
 	
-	protected float mAttackingRadius;
+	protected float mAttackingRadiusSquared;
 	protected float mDamage;
 	protected GameObject mAttackingObject;
 	protected BaseAttackingThread mAttackingThread;
 	
 	
 	public AttackingTool(GameObject attackingObject, float attackingRadius, float damage) {
-		TAG = getClass().getSimpleName();
+		TAG = AttackingTool.class.getSimpleName() + ": " + getClass().getSimpleName();
 		this.mAttackingObject = attackingObject;
-		mAttackingRadius = attackingRadius;
+		mAttackingRadiusSquared = attackingRadius * attackingRadius;
 		mDamage = damage;
 	}
 
 	
-	public abstract void attack(GameObject gameObjectToAttack);
+	public void attack(GameObject gameObjectToAttack){
+		if(gameObjectToAttack == null){
+			Log.i(TAG, "incoming gameObjectToAttack is null. Skipping the attack");
+			return;
+		}
+		if(mAttackingObject == gameObjectToAttack){
+			Log.i(TAG, "Object can't attack itself");
+			return;
+		}
+		beginAttack(gameObjectToAttack);				
+	};
+	public abstract BaseAttackingThread obtainAttackingThread();
 
 	
 	public void cancelAttack(){
 		if(mAttackingThread != null){
 			mAttackingThread.interrupt();
+			mAttackingThread = null;
+			Log.i(TAG, "Attack was cancelled: " + this);
 		}
 		
 	}
 
 	public float getAttackingRadius() {
-		return mAttackingRadius;
+		return mAttackingRadiusSquared;
 	}
 
-	protected void beginAttack(BaseAttackingThread baseAttackingThread) {
+	protected void beginAttack(GameObject gameObjectToAttack) {
 		cancelAttack();
-		if(baseAttackingThread.getObjectToAttack().getClan() == mAttackingObject.getClan()){
-			Log.i(TAG, "No friendly fire");
+		if(gameObjectToAttack.getClan() == mAttackingObject.getClan()){
+			Log.w(TAG, "No friendly fire");
 			return;
 		}
-		this.mAttackingThread = baseAttackingThread;
-		baseAttackingThread.start();
+		mAttackingThread = obtainAttackingThread();
+		if(mAttackingThread != null){
+			Log.i(TAG, "Begin attack: " + mAttackingObject.getClass().getSimpleName() + " -> " + gameObjectToAttack.getClass().getSimpleName());
+			mAttackingThread.setObjectToAttack(gameObjectToAttack);
+			mAttackingThread.start();
+		} else {
+			Log.i(TAG, "Attacking thread is null. The object cannot attack anybody");
+		}
 	}
 
 

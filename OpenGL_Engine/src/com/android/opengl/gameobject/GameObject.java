@@ -258,30 +258,8 @@ abstract public class GameObject extends CommonGameObject{
 		this.mClan = mClan;
 	}
 
-
-<<<<<<< .mine
 	public void moveToAttack(Point3D destination) {
 		movingTool.moveToAttack(destination);
-		
 	}
-
-
-=======
-	public void moveForAttackTo(Point3D destination) {
-		movingTool.moveForAttackTo(destination);
-	}
-
-
-
-
->>>>>>> .r84
-
-
-	
-	
-	
-	
-
-	
 
 }

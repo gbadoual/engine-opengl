@@ -12,20 +12,6 @@ public class Wheels extends MovingTool{
 	public Wheels(GameObject objectToMove) {
 		super(objectToMove);
 	}
-<<<<<<< .mine
-	
-
-//	@Override
-//	public void moveTo(Point3D destination) {
-////		cancelMove();
-////		movingThread = new BaseMovingThread(objectToMove, destination);
-////		movingThread.start();
-//	}
-
-
-
-=======
->>>>>>> .r84
 
 	@Override
 	public float getMaxSpeed() {

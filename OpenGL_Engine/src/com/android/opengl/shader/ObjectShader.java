@@ -79,7 +79,7 @@ public class ObjectShader extends SceneShader{
 //				"	vec4 resColor;																		" +
 			"	vec4 selectedColor = vec4(.0, .0, .0, .0);" +
 			"	if (v_isSelected > 0.0){															" +
-			"		selectedColor = vec4(0.5, 0.5, 0.5, 0.0);" +
+			"		selectedColor = vec4(.3, .3, .3, .0);" +
 			"	}" +
 			"	float diffuse = " + INITIAL_DIFFUSE + ";								" +
 			"	int count = 2;" +
