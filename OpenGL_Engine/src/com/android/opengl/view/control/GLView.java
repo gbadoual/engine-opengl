@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import android.opengl.GLES20;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
@@ -14,11 +13,15 @@ import com.android.opengl.gameobject.Scene;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
+import com.android.opengl.util.Log;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;
 import com.android.opengl.view.Touchable;
 
 public abstract class GLView implements Touchable{
+	
+	protected float percentToScreenRatio;
+
 	
 	private float mParentShiftX = 0;
 	private float mParentShiftY = 0;
@@ -28,7 +31,16 @@ public abstract class GLView implements Touchable{
 	protected float mTopCoord;
 	protected float mWidth;
 	protected float mHeight;
+	private float mBorderWidth;
+
+	protected float mScaledWidth;
+	protected float mScaledHeight;
+	protected float mScaledBorderWidth;
+	protected float mScaledBorderHeight;
 	protected Rect2D mBoundariesRectInPixel;
+	
+	protected float percentToWorldRatioX;
+	protected float percentToWorldRatioY;
 	
 	
 	protected float[] bkgColor = new float[4];
@@ -47,7 +59,13 @@ public abstract class GLView implements Touchable{
 	
 	private boolean isVisible = true;
 	
-	private final int[] indexData = new int[]{0, 2, 3, 0, 1, 2};
+	private final int[] indexData = new int[]{0, 2, 3, 0, 1, 2,
+											  4, 5, 6, 4, 6, 7,
+											  8, 9, 10, 8, 10, 11,
+											  12, 13, 14, 12, 14, 15,
+											  16, 17, 18, 16, 18, 19}; 
+	private final float[] instanceIdData = new float[]	{1, 1, 1, 1};
+	
 	private final float[] textureCoord = new float[]{0, 1,
 												   1, 1, 
 												   1, 0, 
@@ -77,21 +95,24 @@ public abstract class GLView implements Touchable{
 	}
 	
 	private void init() {
+		setBorderWidth(0.2f);
 		this.mGLViewShader = new GLViewShader();
 		mVboDataHandler = new VboDataHandler();
 		mBoundariesRectInPixel = new Rect2D();
 
-		int[] vboBufs = new int[4];
+		int[] vboBufs = new int[5];
 		GLES20.glGenBuffers(vboBufs.length, vboBufs, 0);
 
 		mVboDataHandler.vboVertexHandle = vboBufs[0];
 		mVboDataHandler.vboColorHandle = vboBufs[1];
 		mVboDataHandler.vboIndexHandle = vboBufs[2];
 		mVboDataHandler.vboTextureCoordHandle = vboBufs[3];
+		mVboDataHandler.vboInstanceIdHandle = vboBufs[4];
 
 		setColor(128, 128, 128, 192);
 		invalidate();
 		GLUtil.attachArrayToHandler(textureCoord, mVboDataHandler.vboTextureCoordHandle);
+		GLUtil.attachArrayToHandler(instanceIdData, mVboDataHandler.vboInstanceIdHandle);
 		GLUtil.attachIndexesToHandler(indexData, mVboDataHandler.vboIndexHandle);
 		if(mParent == null){
 			camera.registerGLView(this, zOrder);
@@ -100,7 +121,7 @@ public abstract class GLView implements Touchable{
 
 
 	
-	public void onDraw(){
+	public void onDrawFrame(){
 		if(isVisible){
 
 			GLUtil.setGLState(GLES20.GL_DEPTH_TEST, false);
@@ -127,6 +148,7 @@ public abstract class GLView implements Touchable{
 			
 			GLUtil.passBufferToShader(mVboDataHandler.vboVertexHandle, mGLViewShader.positionHandle, 
 					  GLUtil.VERTEX_SIZE_2D);
+			GLUtil.passBufferToShader(mVboDataHandler.vboInstanceIdHandle, mGLViewShader.instanceIdHandle, 1);
 			
 			GLUtil.drawElements(mVboDataHandler.vboIndexHandle, indexData.length);
 	        
@@ -137,7 +159,7 @@ public abstract class GLView implements Touchable{
 			GLUtil.restorePrevGLState(GLES20.GL_BLEND);
 	        
 			for(GLView glView: mChildren){
-				glView.onDraw();
+				glView.onDrawFrame();
 			}
 
 		}				
@@ -172,31 +194,87 @@ public abstract class GLView implements Touchable{
 		notifyBoundsChange();
 	} 
 	
+	
 	private void notifyBoundsChange(){
-		float aspectRatio = ((float)camera.getViewportWidth())/camera.getViewportHeight();
-		float aspectRatioX;
-		float aspectRatioY;
-
-		if(aspectRatio > 1){
-			aspectRatioX = 2.0f / 100;
-			aspectRatioY = 2.0f / (100 / aspectRatio);
-		} else {
-			aspectRatioX = 2.0f / (100 * aspectRatio);
-			aspectRatioY = 2.0f / 100;
-		}
-		float scaledLeftCoord = (mLeftCoord + mParentShiftX) * aspectRatioX - 1;
-		float scaledTopCoord = 1 - (mTopCoord + mParentShiftY)* aspectRatioY;
-		float scaledWidth = mWidth * aspectRatioX;
-		float scaledHeight =  - mHeight * aspectRatioY;
+		recalculateScreenRatioIfNeeded();
 		
-		float[] vertexData = new float[]{scaledLeftCoord, scaledTopCoord, 
-				scaledLeftCoord + scaledWidth, scaledTopCoord,
-				scaledLeftCoord + scaledWidth, scaledTopCoord + scaledHeight,
-				scaledLeftCoord, scaledTopCoord + scaledHeight};		
-		GLUtil.attachArrayToHandler(vertexData, mVboDataHandler.vboVertexHandle);
-		float percentToPixelRatio = Math.max(camera.getViewportWidth(), camera.getViewportHeight()) / 100f;
+		float scaledLeftCoord = scalePercentToWorldX(mLeftCoord + mParentShiftX);
+		float scaledTopCoord = scalePercentToWorldY(mTopCoord + mParentShiftY);
+		mScaledWidth = mWidth * percentToWorldRatioX;
+		mScaledHeight = - mHeight * percentToWorldRatioY;
+		
+		float scaledRightCoord = scaledLeftCoord + mScaledWidth;
+		float scaledBottomCoord = scaledTopCoord + mScaledHeight;
 
-		mBoundariesRectInPixel = new Rect2D((mLeftCoord + mParentShiftX) * percentToPixelRatio, (mTopCoord + mParentShiftY)*percentToPixelRatio, mWidth * percentToPixelRatio, mHeight * percentToPixelRatio);
+		float[] vertexData = new float[]{
+				//inner field
+				scaledLeftCoord + mScaledBorderWidth, scaledTopCoord - mScaledBorderHeight, 
+				scaledRightCoord - mScaledBorderWidth, scaledTopCoord - mScaledBorderHeight,
+				scaledRightCoord - mScaledBorderWidth, scaledBottomCoord + mScaledBorderHeight,
+				scaledLeftCoord + mScaledBorderWidth, scaledBottomCoord + mScaledBorderHeight,
+
+				//border
+				scaledLeftCoord, scaledTopCoord, 
+				scaledLeftCoord + mScaledBorderWidth, scaledTopCoord,
+				scaledLeftCoord + mScaledBorderWidth, scaledBottomCoord,
+				scaledLeftCoord, scaledBottomCoord,
+
+				scaledRightCoord, scaledTopCoord, 
+				scaledRightCoord - mScaledBorderWidth, scaledTopCoord,
+				scaledRightCoord - mScaledBorderWidth, scaledBottomCoord,
+				scaledRightCoord, scaledBottomCoord,
+				
+				scaledLeftCoord + mScaledBorderWidth, scaledTopCoord, 
+				scaledRightCoord - mScaledBorderWidth, scaledTopCoord,
+				scaledRightCoord - mScaledBorderWidth, scaledTopCoord - mScaledBorderHeight,
+				scaledLeftCoord + mScaledBorderWidth, scaledTopCoord - mScaledBorderHeight,
+				
+				scaledLeftCoord + mScaledBorderWidth, scaledBottomCoord, 
+				scaledRightCoord - mScaledBorderWidth, scaledBottomCoord,
+				scaledRightCoord - mScaledBorderWidth, scaledBottomCoord + mScaledBorderHeight,
+				scaledLeftCoord + mScaledBorderWidth, scaledBottomCoord + mScaledBorderHeight,
+				
+				};		
+		GLUtil.attachArrayToHandler(vertexData, mVboDataHandler.vboVertexHandle);
+
+
+		mBoundariesRectInPixel = new Rect2D((mLeftCoord + mParentShiftX) * percentToScreenRatio, 
+											(mTopCoord + mParentShiftY)*percentToScreenRatio, 
+											mWidth * percentToScreenRatio, 
+											mHeight * percentToScreenRatio);
+	}
+	
+	private float scalePercentToWorldY(float screenCoordY) {
+		return 1 - screenCoordY * percentToWorldRatioY;
+	}
+	private float scalePercentToWorldX(float screenCoordX) {
+		return screenCoordX  * percentToWorldRatioX - 1;
+	}
+
+	private float lastScreenRatio;
+	private void recalculateScreenRatioIfNeeded() {
+		float aspectRatio = camera.getWidthToHeightRatio();
+		if(aspectRatio == lastScreenRatio){
+			Log.d("tag", "ratio is not changed");
+			return;
+		}
+		lastScreenRatio = aspectRatio;
+
+		percentToScreenRatio = Math.max(camera.getViewportWidth(), camera.getViewportHeight()) / 100f;
+		if(aspectRatio > 1){
+			percentToWorldRatioX = 2.0f / 100;
+			percentToWorldRatioY = 2.0f / (100 / aspectRatio);
+		} else {
+			percentToWorldRatioX = 2.0f / (100 * aspectRatio);
+			percentToWorldRatioY = 2.0f / 100;
+		}
+		setScaledBorderWidth();
+
+	}
+	
+	private void setScaledBorderWidth() {
+		mScaledBorderWidth = mBorderWidth * percentToWorldRatioX;
+		mScaledBorderHeight = mBorderWidth * percentToWorldRatioY;
 	}
 	
 	public void setColor(float r, float g, float b, float a){
@@ -356,6 +434,16 @@ public abstract class GLView implements Touchable{
 		this.mOnTapListener = onTapListener;
 	}
 	
+	protected void setPositionOffset(float xOffset, float yOffset) {
+		positionOffset[0] = xOffset;		
+		positionOffset[1] = yOffset;		
+	}
+	protected void setPositionOffsetFromScreenCoords(float xOffset, float yOffset) {
+		
+		positionOffset[0] = scalePercentToWorldX(xOffset);		
+		positionOffset[1] = scalePercentToWorldY(yOffset);		
+	}
+	
 	@Override
 	public Rect2D getBoundariesRectInPixel() {
 		if(isVisible){
@@ -379,6 +467,15 @@ public abstract class GLView implements Touchable{
 		if(mParent == null && camera.containsGLView(this)){
 			camera.notifyGLViewzOrderChanged();
 		}
+	}
+
+
+	public float getBorderWidth() {
+		return mBorderWidth;
+	}
+	public void setBorderWidth(float borderWidth) {
+		mBorderWidth = borderWidth;
+		setScaledBorderWidth();
 	}
 
 

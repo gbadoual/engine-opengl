@@ -49,6 +49,7 @@ public abstract class CommonGameObject {
 		public int vboColorHandle;
 		public int vboTextureCoordHandle;
 		public int vboNormalHandle;
+		public int vboInstanceIdHandle;
 		public int vboIndexHandle;
 		public int indexDataLength;
 		public float[] vertexData;

@@ -257,7 +257,7 @@ public class Camera {
 	public void onDrawFrame() {
 		scene.onDrawFrame();
 		for(GLView glView: glViewList){
-			glView.onDraw();
+			glView.onDrawFrame();
 		}		
 	};
 	

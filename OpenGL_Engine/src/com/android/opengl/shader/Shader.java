@@ -12,10 +12,15 @@ public abstract class Shader {
 
 	
 	public final int programHandle;
-	
+	public final int instanceIdHandle;
+
+	public static final String UNIFORM_INSTANCE_ID = "uInstanceId";
+
 
 	public Shader() {
 		programHandle = createAndLinkProgram();
+		instanceIdHandle = GLES20.glGetAttribLocation(programHandle, UNIFORM_INSTANCE_ID);
+
 	}
 	
 

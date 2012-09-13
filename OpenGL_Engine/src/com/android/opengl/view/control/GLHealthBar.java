@@ -1,7 +1,5 @@
 package com.android.opengl.view.control;
 
-import android.util.Log;
-
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.util.geometry.Matrix;
 
@@ -18,6 +16,8 @@ public class GLHealthBar extends GLView{
 		camera.unregisterTouchable(this);
 
 //		gameObject.registerPositionListener(this);
+		setBorderWidth(0.1f);
+
 		onMeasure(5, 1);
 	}
 	private int[] rValues = new int[]{20, 240, 240};
@@ -26,24 +26,26 @@ public class GLHealthBar extends GLView{
 	
 	
 	@Override
-	public void onDraw() {
+	public void onDrawFrame() {
 		Matrix.multiplyMM(mvMatrix, 0, gameObject.getParentScene().getMVMatrix(), 0, 
 				gameObject.getModelMatrix(), 0);
 		if(mvMatrix[Matrix.POS_Z_OFFSET] > 0 || mvMatrix[Matrix.POS_Z_OFFSET] < -70){
 			return;
 		}
-		positionOffset[0] = -mvMatrix[Matrix.POS_X_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] +1;
-		positionOffset[1] = -mvMatrix[Matrix.POS_Y_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET]*  camera.getWidthToHeightRatio() - 1;
-//		Log.i("tag", "pos = " + positionOffset[0] + ", " + positionOffset[1]);
+		float xOffset = -mvMatrix[Matrix.POS_X_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] + 1 - mScaledWidth / 2;
+		float yOffset = -mvMatrix[Matrix.POS_Y_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] * camera.getWidthToHeightRatio() - 1;
+		setPositionOffset(xOffset, yOffset);
 		float h = gameObject.getHealthLevel() / gameObject.getMaxHealthLevel();
 		int r = evenlyInterpolate(rValues, h);
 		int g = evenlyInterpolate(gValues, h);
 		int b = evenlyInterpolate(bValues, h);
 		setColor(r, g, b, 192);
 
-		super.onDraw();
+		super.onDrawFrame();
 	}
 	
+
+
 	private int evenlyInterpolate(int[] valuaes, float coeff){
 		coeff = 1 - coeff;
 		if(coeff == 1.0){

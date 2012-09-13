@@ -32,7 +32,6 @@ public class GLViewShader extends Shader{
 		isTextureEnabledHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTURE_ENABLED);
 		textureHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTURE);
 		textureCoordHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_TEXTURE_COORD);
-		
 
 	}
 	
@@ -40,14 +39,18 @@ public class GLViewShader extends Shader{
 	@Override
 	public String getVertexShaderSrc() {
 		return 
-		"attribute 	vec2 " + ATTRIBUTE_POSITION + ";												" +
 		"uniform 	vec2 " + UNIFORM_POSITION_OFFSET + ";											" +
+
+		"attribute 	vec2 " + ATTRIBUTE_POSITION + ";												" +
 		"attribute 	vec2 " + ATTRIBUTE_TEXTURE_COORD + ";											" +
+		"attribute 	float " + UNIFORM_INSTANCE_ID + ";											" +
 		
 		"																							" +
-		"varying 	vec2 v_TexCoord; 																" +
+		"varying vec2 v_TexCoord; 																" +
+		"varying float vInstanceID;" +
 		"																							" +
 		"void main(){																				" +
+		"	vInstanceID = " + UNIFORM_INSTANCE_ID + ";" +
 		"	v_TexCoord = " + ATTRIBUTE_TEXTURE_COORD + ";												" +
 		"	gl_Position = vec4(" + ATTRIBUTE_POSITION + " + " + UNIFORM_POSITION_OFFSET + ", 0.0, 1.0);										" +
 		"}																							";
@@ -63,15 +66,21 @@ public class GLViewShader extends Shader{
 			"uniform 	float "+UNIFORM_TEXTURE_ENABLED+";													" +
 			"uniform	sampler2D "+UNIFORM_TEXTURE+ ";												" +
 
+			"varying float vInstanceID;" +
+
 			"varying 	vec2 v_TexCoord; 															" +
 			"void main(){																			" +
 			"		vec4 resColor = " + UNIFORM_COLOR + ";" +
-			"		if("+UNIFORM_TEXTURE_ENABLED+" > 0.0) {" +
-			"			resColor = texture2D("+UNIFORM_TEXTURE+", v_TexCoord);						" +
-					"}" +
-			"		if("+ UNIFORM_PRESSED+" > 0.0){													" +
-			"			resColor *=  1.6;				" +
-			"		}																				" +
+			"		if(vInstanceID == 1.0){" +
+			"			if("+UNIFORM_TEXTURE_ENABLED+" > 0.0) {" +
+			"				resColor = texture2D("+UNIFORM_TEXTURE+", v_TexCoord);						" +
+			"			}" +
+			"			if("+ UNIFORM_PRESSED+" > 0.0){													" +
+			"				resColor +=  vec4(0.3, 0.3, 0.3, 0.5);				" +
+			"			}																				" +
+			"		} else {" +
+			"			resColor = vec4(0.3, 0.4, 0.3, 0.7);" +
+			"		}" +
 			"		gl_FragColor = resColor;	" +
 			"}																						";	
 		}
