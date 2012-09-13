@@ -12,7 +12,6 @@ public class SceneShader extends Shader{
 	public final int normalHandle;
 	public final int textureCoordHandle;
 	public final int textureHandle;
-	public final int instanceIdHandle;
 
 	public final int lightPositionHandle;
 	public final int lightCountHandle;
@@ -31,13 +30,11 @@ public class SceneShader extends Shader{
 
 	public static final String ATTRIBUTE_NORMAL = "aNormal";
 	public static final String ATTRIBUTE_TEXTURE_COORD = "aTexCoord";
-	public static final String UNIFORM_INSTANCE_ID = "uInstanceId";
 	public static final String UNIFORM_LIGHT_COUNT = "uLightCount";
 
 	public SceneShader() {
 		mvpMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MVP_MATRIX);
 		mvMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MV_MATRIX);
-		instanceIdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INSTANCE_ID);
 		lightPositionHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_LIGHT_POSITION);
 		lightCountHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_LIGHT_COUNT);
 		positionHandle = GLES20.glGetAttribLocation(programHandle, ATTRIBUTE_POSITION);
