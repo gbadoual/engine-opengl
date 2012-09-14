@@ -1,6 +1,11 @@
 package com.android.opengl.view.control;
 
+import android.opengl.GLES20;
+
 import com.android.opengl.gameobject.GameObject;
+import com.android.opengl.shader.GLViewShader;
+import com.android.opengl.util.GLUtil;
+import com.android.opengl.util.Log;
 import com.android.opengl.util.geometry.Matrix;
 
 public class GLHealthBar extends GLView{
@@ -12,11 +17,11 @@ public class GLHealthBar extends GLView{
 	public GLHealthBar(GameObject gameObject) {
 		super(gameObject.getParentScene());
 		this.gameObject = gameObject;
+		mShader = new GLHealtBarShader();
 		//healthBar should not be touched
 		camera.unregisterTouchable(this);
 
-//		gameObject.registerPositionListener(this);
-		setBorderWidth(0.1f);
+		setBorderWidth(0.2f);
 
 		onMeasure(5, 1);
 	}
@@ -30,8 +35,10 @@ public class GLHealthBar extends GLView{
 		Matrix.multiplyMM(mvMatrix, 0, gameObject.getParentScene().getMVMatrix(), 0, 
 				gameObject.getModelMatrix(), 0);
 		if(mvMatrix[Matrix.POS_Z_OFFSET] > 0 || mvMatrix[Matrix.POS_Z_OFFSET] < -70){
+//			Log.i("ddd", "mvMatrix[Matrix.POS_Z_OFFSET] = " + mvMatrix[Matrix.POS_Z_OFFSET] + "[" + gameObject.getClan() + "] skipping");
 			return;
 		}
+//		Log.i("ddd", "mvMatrix[Matrix.POS_Z_OFFSET] = " + mvMatrix[Matrix.POS_Z_OFFSET] + "[" + gameObject.getClan() + "]");
 		float xOffset = -mvMatrix[Matrix.POS_X_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] + 1 - mScaledWidth / 2;
 		float yOffset = -mvMatrix[Matrix.POS_Y_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] * camera.getWidthToHeightRatio() - 1;
 		setPositionOffset(xOffset, yOffset);
@@ -40,10 +47,18 @@ public class GLHealthBar extends GLView{
 		int g = evenlyInterpolate(gValues, h);
 		int b = evenlyInterpolate(bValues, h);
 		setColor(r, g, b, 192);
-
+		GLUtil.glUseProgram(mShader.programHandle);
+		float screenAlignedHealthLevel = mWidth * h * percentToScreenRatio + worldToScreenX(xOffset);
+		GLES20.glUniform1f(((GLHealtBarShader)mShader).healthLevelHandle, screenAlignedHealthLevel);
 		super.onDrawFrame();
 	}
 	
+
+
+	private float worldToScreenX(float coord) {
+		return coord / 2 * camera.getViewportWidth();
+	}
+
 
 
 	private int evenlyInterpolate(int[] valuaes, float coeff){
@@ -57,34 +72,70 @@ public class GLHealthBar extends GLView{
 		
 	}
 	
-//	private float blend(int f, int s, float blendCoeff){
-//		return f * blendCoeff + s * (1 - blendCoeff);
-//	}
-//	private float blend(int f, int s, int third, float leftCoeff, float rightCoeff){
-//		if(leftCoeff >= 0 && leftCoeff <= 1){
-//		}
-//		return f * blendCoeff + s * (1 - blendCoeff);
-//	}
+
 	
-//	public static class GLHealtgBarShader extends GLViewShader{
-//		
-//		
-//		@Override
-//		public String getFragmentShaderSrc() {
-//			// TODO Auto-generated method stub
-//			return super.getFragmentShaderSrc();
-//		}
-//		
-//		@Override
-//		public String getVertexShaderSrc() {
-//			// TODO Auto-generated method stub
-//			return super.getVertexShaderSrc();
-//		}
-//	} 
-//	@Override
-//	public void onPositionChanged(float x, float y, float z) {
-//		onLayout(50, 10);
-//		
-//	}
+	public GameObject getGameObject() {
+		return gameObject;
+	}
+
+
+
+	public static class GLHealtBarShader extends GLViewShader{
+
+		public final int healthLevelHandle;
+		
+		private static final String UNIFORM_HEALTH_LEVEL = "uHealthLevel";
+
+		public GLHealtBarShader() {
+			super();
+			healthLevelHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_HEALTH_LEVEL);
+		}
+		
+		@Override
+		public String getVertexShaderSrc() {
+			return 
+			"uniform 	vec2 " + UNIFORM_POSITION_OFFSET + ";											" +
+
+			"attribute 	vec2 " + ATTRIBUTE_POSITION + ";												" +
+			"attribute 	float " + UNIFORM_INSTANCE_ID + ";											" +
+			"uniform 	float " + UNIFORM_HEALTH_LEVEL + ";											" +
+			
+			"																							" +
+			"varying float vInstanceID;" +
+			"varying float vHealthLevel;" +
+			"																							" +
+			"void main(){																				" +
+			"	vInstanceID = " + UNIFORM_INSTANCE_ID + ";" +
+			"	vHealthLevel = " + UNIFORM_HEALTH_LEVEL + ";" +
+			"	gl_Position = vec4(" + ATTRIBUTE_POSITION + " + " + UNIFORM_POSITION_OFFSET + ", 0.0, 1.0);										" +
+			"}																							";
+	}
+
+
+		@Override
+		public String getFragmentShaderSrc() {
+			return 			
+				"precision mediump float;																" +
+				"uniform 	vec4 " + UNIFORM_COLOR + ";													" +
+
+				"varying float vHealthLevel;" +
+				"varying float vInstanceID;" +
+
+				"varying 	vec2 v_TexCoord; 															" +
+				"void main(){																			" +
+				"		vec4 resColor = " + UNIFORM_COLOR + ";" +
+				"		if(vInstanceID != 1.0){" +
+				"			resColor = vec4(0.2, 0.3, 0.2, 0.7);" +
+				"		} else {" +
+				"			if(gl_FragCoord.x > vHealthLevel){" +
+				"				resColor = vec4(0.0);" +
+				"			};" +
+				"		}" +
+				"		gl_FragColor = resColor;	" +
+				"}																						";	
+			}
+
+	} 
+
 
 }

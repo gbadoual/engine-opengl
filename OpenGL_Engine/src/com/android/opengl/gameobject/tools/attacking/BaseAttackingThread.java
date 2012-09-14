@@ -30,13 +30,20 @@ public class BaseAttackingThread extends Thread{
 //		objectToAttack.registerPositionListener(positionChangeListener);
 		AttackingTool objectAttackingTool = attackingObject.getAttackingTool();
 		attackingObject.getMovingTool().cancelMove();
+		objectToAttack.registerPositionListener(new PositionChangeListener() {
+			
+			@Override
+			public void onPositionChanged(float x, float y, float z) {
+				
+			}
+		});
 		while(!isInterrupted()){
 			float distance = getSquaredDistance(attackingObject, objectToAttack);
 			Log.i("taggg", "distance = " + distance);
 			if(distance <= objectAttackingTool.mAttackingRadiusSquared){
 				attackingObject.getMovingTool().cancelMove();
 				objectAttackingTool.fire(objectToAttack);
-				if(!objectToAttack.getParentScene().containsGameObject(objectToAttack)){
+				if(!objectToAttack.isAlive()){
 					interrupt();
 				}
 

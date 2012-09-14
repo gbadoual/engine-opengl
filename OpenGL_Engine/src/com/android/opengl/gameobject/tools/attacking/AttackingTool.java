@@ -52,10 +52,10 @@ public abstract class AttackingTool{
 
 	protected void beginAttack(GameObject gameObjectToAttack) {
 		cancelAttack();
-		if(gameObjectToAttack.getClan() == mAttackingObject.getClan()){
-			Log.w(TAG, "No friendly fire");
-			return;
-		}
+//		if(gameObjectToAttack.getClan() == mAttackingObject.getClan()){
+//			Log.w(TAG, "No friendly fire");
+//			return;
+//		}
 		mAttackingThread = obtainAttackingThread();
 		if(mAttackingThread != null){
 			Log.i(TAG, "Begin attack: " + mAttackingObject.getClass().getSimpleName() + " -> " + gameObjectToAttack.getClass().getSimpleName());

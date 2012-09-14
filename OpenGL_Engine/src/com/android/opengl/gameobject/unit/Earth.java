@@ -10,6 +10,7 @@ public class Earth extends GameObject{
 	public Earth(Scene parentScene) {
 		super(parentScene);
 		setMovingTool(new Wheels(this));
+		setHealthLevel(500);
 	}
 
 	@Override

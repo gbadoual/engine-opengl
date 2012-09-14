@@ -14,7 +14,7 @@ public abstract class AbstractBuilding extends GameObject {
 	public AbstractBuilding(Scene parentScene, Clan clan) {
 		super(parentScene);
 		mClan = clan;
-		initHealthLevel(1000);
+		setHealthLevel(1000);
 	}
 	
 	private final float distance = 80;

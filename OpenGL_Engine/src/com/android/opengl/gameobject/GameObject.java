@@ -40,11 +40,16 @@ abstract public class GameObject extends CommonGameObject{
 	protected MovingTool movingTool;
 	protected AttackingTool attackingTool;
 	private List<PositionChangeListener> positionListenerList = new ArrayList<PositionChangeListener>();
+
+
+	private boolean isAlive;
 	
 	public GameObject(Scene parentScene) {
 		super(parentScene.getResources());
+		isAlive = true;
+		vboDataHandlerMap.get(getClass().getSimpleName()).indexData = null;
 		TAG = getClass().getSimpleName();
-		initHealthLevel(100);
+		setHealthLevel(100);
 		this.parentScene = parentScene;
 		this.parentScene.addGameObject(this);
 		outerCube = new ObjectOuterCube(this);
@@ -84,7 +89,7 @@ abstract public class GameObject extends CommonGameObject{
 		for(int i = 0; i < 1; i++){
 		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
 		    GLES20.glUniform1f(shader.instanceIdHandle, i);
-			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);
+			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexDataLength);
 		}
 	}
 
@@ -222,7 +227,7 @@ abstract public class GameObject extends CommonGameObject{
 
 	public void decreaseLife(float damage) {
 		healthLevel-= damage;
-		if(healthLevel <= 0){
+		if(healthLevel <= 0 && isAlive){
 			destroy();
 		}
 	}
@@ -233,8 +238,11 @@ abstract public class GameObject extends CommonGameObject{
 
 
 	private void destroy() {
-		parentScene.removeGameObject(this);
-		release();
+		isAlive = false;
+		//TODO "synchronized" is just workaround
+		synchronized (parentScene) {
+			parentScene.removeGameObject(this);
+		}
 	}
 
 
@@ -243,7 +251,7 @@ abstract public class GameObject extends CommonGameObject{
 	}
 
 
-	protected void initHealthLevel(float maxHealthLevel) {
+	protected void setHealthLevel(float maxHealthLevel) {
 		this.maxHealthLevel = maxHealthLevel;
 		healthLevel = maxHealthLevel;
 	}
@@ -261,5 +269,11 @@ abstract public class GameObject extends CommonGameObject{
 	public void moveToAttack(Point3D destination) {
 		movingTool.moveToAttack(destination);
 	}
+
+
+	public boolean isAlive() {
+		return isAlive;
+	}
+
 
 }

@@ -256,9 +256,12 @@ public class Camera {
 	
 	public void onDrawFrame() {
 		scene.onDrawFrame();
-		for(GLView glView: glViewList){
-			glView.onDrawFrame();
-		}		
+		//TODO "synchronized" is just workaround		
+		synchronized (scene) {
+			for(GLView glView: glViewList){
+				glView.onDrawFrame();
+			}		
+		}
 	};
 	
 	public void release(){
@@ -267,7 +270,9 @@ public class Camera {
 			glView.release();
 			unregisterGLView(glView);
 		}
-		scene.release();
+		if(scene != null){
+			scene.release();
+		}
 	}
 
 	public void notifyGLViewzOrderChanged() {

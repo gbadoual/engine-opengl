@@ -52,6 +52,7 @@ public abstract class CommonGameObject {
 		public int vboInstanceIdHandle;
 		public int vboIndexHandle;
 		public int indexDataLength;
+		public int refCount;
 		public float[] vertexData;
 		public int [] indexData;
 
@@ -103,6 +104,7 @@ public abstract class CommonGameObject {
 			GLUtil.attachArrayToHandler(meshData.normalData, vboDataHandler.vboNormalHandle);
 			GLUtil.attachArrayToHandler(meshData.textureData, vboDataHandler.vboTextureCoordHandle);
 			GLUtil.attachIndexesToHandler(meshData.indexData, vboDataHandler.vboIndexHandle);
+			vboDataHandler.indexDataLength = meshData.indexData.length;
 
 //			vboDataHandler.vboVertexHandle = GLRenderHelper.attachArrayToHandler(meshData.vertexData);
 //			vboDataHandler.vboNormalHandle = GLRenderHelper.attachArrayToHandler(meshData.normalData);
@@ -111,13 +113,23 @@ public abstract class CommonGameObject {
 
 
 		}
+		vboDataHandler.refCount++;
 		facesCount+=vboDataHandler.facesCount;
 		
 
 	}
 
 	public void release() {
-		
+		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
+		if(vboDataHandler != null){
+			vboDataHandler.refCount--;
+			facesCount -= vboDataHandler.facesCount;
+			Log.i("ddd", "release: vboDataHandler.facesCount = " + vboDataHandler.facesCount);
+			// TODO it is not save because of multi-threading
+//			if(vboDataHandler.refCount <= 0){
+//				vboDataHandlerMap.remove(getClass().getSimpleName());
+//			}
+		}
 	}
 
 	public abstract void onDrawFrame();
