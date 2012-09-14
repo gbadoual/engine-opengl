@@ -92,4 +92,12 @@ public class GLUtil {
 		}
 	}
 
+	private static int curProgram;
+	public static void glUseProgram(int programHandle) {
+		if(curProgram != programHandle){
+			curProgram = programHandle;
+			GLES20.glUseProgram(programHandle);
+		}
+	}
+
 }

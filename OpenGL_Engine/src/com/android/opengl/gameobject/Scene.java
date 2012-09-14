@@ -64,7 +64,7 @@ public class Scene extends CommonGameObject{
 
 	public boolean removeGameObject(GameObject gameObject){
 		boolean res = gameObjectList.remove(gameObject);
-		if(res){
+		if(gameObject != null){
 			gameObject.release();
 		}
 		return res;
@@ -87,8 +87,11 @@ public class Scene extends CommonGameObject{
 		//		localDraw();
 		openGLDraw();
 
-		for(GameObject gameObject: gameObjectList){
-			gameObject.onDrawFrame();
+		//TODO "synchronized" is just workaround
+		synchronized (this) {
+			for(GameObject gameObject: gameObjectList){
+				gameObject.onDrawFrame();
+			}
 		}
 
         GLES20.glUseProgram(0);
@@ -118,7 +121,7 @@ public class Scene extends CommonGameObject{
 		for(int i = 0; i < 1; i++){
 		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
 		    GLES20.glUniform1f(shader.instanceIdHandle, i);
-			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexData.length);
+			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexDataLength);
 		}
 	}
 
@@ -284,12 +287,6 @@ public class Scene extends CommonGameObject{
 		this.camera = camera;
 	}
 
-
-	public boolean containsGameObject(GameObject objectToAttack) {
-		return gameObjectList.contains(objectToAttack);
-	}
-
-		
 	public float[] lightListToFloatArray(){
 		float[] lights = new float[lightList.size() * 3];
 		float[] res = new float[4];

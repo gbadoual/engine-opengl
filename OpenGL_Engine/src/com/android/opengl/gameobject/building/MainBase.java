@@ -24,6 +24,7 @@ public class MainBase extends AbstractBuilding{
 //		parentScene.registerGLView(mainPanleLayout, 50);
 		mainPanleLayout.setzOrder(50);
 		mainPanleLayout.setVisible(isSelected);
+		setHealthLevel(2000);
 		
 	}
 

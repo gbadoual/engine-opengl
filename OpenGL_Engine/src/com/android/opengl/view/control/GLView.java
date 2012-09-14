@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import android.opengl.GLES20;
+import android.util.FloatMath;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
@@ -14,6 +15,7 @@ import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.Log;
+import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;
 import com.android.opengl.view.Touchable;
@@ -21,6 +23,7 @@ import com.android.opengl.view.Touchable;
 public abstract class GLView implements Touchable{
 	
 	protected float percentToScreenRatio;
+	protected float screenToPercentRatio;
 
 	
 	private float mParentShiftX = 0;
@@ -45,8 +48,8 @@ public abstract class GLView implements Touchable{
 	
 	protected float[] bkgColor = new float[4];
 
-	protected GLViewShader mGLViewShader;
-	private VboDataHandler mVboDataHandler;
+	protected GLViewShader mShader;
+	protected VboDataHandler mVboHandler;
 	private OnTapListener mOnTapListener;
 
 	protected GLView mFocusedView;
@@ -59,11 +62,11 @@ public abstract class GLView implements Touchable{
 	
 	private boolean isVisible = true;
 	
-	private final int[] indexData = new int[]{0, 2, 3, 0, 1, 2,
-											  4, 5, 6, 4, 6, 7,
-											  8, 9, 10, 8, 10, 11,
-											  12, 13, 14, 12, 14, 15,
-											  16, 17, 18, 16, 18, 19}; 
+	protected final int[] indexData = new int[]{0, 2, 3, 0, 1, 2,
+											  4, 6, 7, 4, 5, 6,
+											  8, 10, 11, 8, 9, 10,
+											  12, 14, 15, 12, 13, 14,
+											  16, 18, 19, 16, 17, 18}; 
 	private final float[] instanceIdData = new float[]	{1, 1, 1, 1};
 	
 	private final float[] textureCoord = new float[]{0, 1,
@@ -95,25 +98,25 @@ public abstract class GLView implements Touchable{
 	}
 	
 	private void init() {
-		setBorderWidth(0.2f);
-		this.mGLViewShader = new GLViewShader();
-		mVboDataHandler = new VboDataHandler();
+		this.mShader = new GLViewShader();
+		mVboHandler = new VboDataHandler();
 		mBoundariesRectInPixel = new Rect2D();
 
 		int[] vboBufs = new int[5];
 		GLES20.glGenBuffers(vboBufs.length, vboBufs, 0);
 
-		mVboDataHandler.vboVertexHandle = vboBufs[0];
-		mVboDataHandler.vboColorHandle = vboBufs[1];
-		mVboDataHandler.vboIndexHandle = vboBufs[2];
-		mVboDataHandler.vboTextureCoordHandle = vboBufs[3];
-		mVboDataHandler.vboInstanceIdHandle = vboBufs[4];
+		mVboHandler.vboVertexHandle = vboBufs[0];
+		mVboHandler.vboColorHandle = vboBufs[1];
+		mVboHandler.vboIndexHandle = vboBufs[2];
+		mVboHandler.vboTextureCoordHandle = vboBufs[3];
+		mVboHandler.vboInstanceIdHandle = vboBufs[4];
 
 		setColor(128, 128, 128, 192);
 		invalidate();
-		GLUtil.attachArrayToHandler(textureCoord, mVboDataHandler.vboTextureCoordHandle);
-		GLUtil.attachArrayToHandler(instanceIdData, mVboDataHandler.vboInstanceIdHandle);
-		GLUtil.attachIndexesToHandler(indexData, mVboDataHandler.vboIndexHandle);
+		setBorderWidth(0.2f);
+		GLUtil.attachArrayToHandler(textureCoord, mVboHandler.vboTextureCoordHandle);
+		GLUtil.attachArrayToHandler(instanceIdData, mVboHandler.vboInstanceIdHandle);
+		GLUtil.attachIndexesToHandler(indexData, mVboHandler.vboIndexHandle);
 		if(mParent == null){
 			camera.registerGLView(this, zOrder);
 		}
@@ -131,33 +134,31 @@ public abstract class GLView implements Touchable{
 			GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
 			
-			GLES20.glUseProgram(mGLViewShader.programHandle);
+			GLUtil.glUseProgram(mShader.programHandle);
 			
-			GLES20.glUniform2fv(mGLViewShader.positionOffsetHandle, 1, positionOffset , 0);
+			GLES20.glUniform2fv(mShader.positionOffsetHandle, 1, positionOffset , 0);
 			int isSelected = getFocusedView() == this?1:0;
-			GLES20.glUniform1f(mGLViewShader.isPressedHandle, isSelected);
+			GLES20.glUniform1f(mShader.isPressedHandle, isSelected);
 
-			GLES20.glUniform1f(mGLViewShader.isTextureEnabledHandle, isBackgroundEnabled()? 1 : 0);
+			GLES20.glUniform1f(mShader.isTextureEnabledHandle, isBackgroundEnabled()? 1 : 0);
 			if(isBackgroundEnabled()){
-			    GLUtil.passTextureToShader(mVboDataHandler.textureDataHandler, mGLViewShader.textureHandle);
-			    GLUtil.passBufferToShader(mVboDataHandler.vboTextureCoordHandle, mGLViewShader.textureCoordHandle, 
-			    								  GLUtil.TEXTURE_SIZE);
+			    GLUtil.passTextureToShader(mVboHandler.textureDataHandler, mShader.textureHandle);
+			    GLUtil.passBufferToShader(mVboHandler.vboTextureCoordHandle, mShader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
 			} else {
-				GLES20.glUniform4fv(mGLViewShader.colorHandle, 1, bkgColor, 0);
+				GLES20.glUniform4fv(mShader.colorHandle, 1, bkgColor, 0);
 			}
 			
-			GLUtil.passBufferToShader(mVboDataHandler.vboVertexHandle, mGLViewShader.positionHandle, 
-					  GLUtil.VERTEX_SIZE_2D);
-			GLUtil.passBufferToShader(mVboDataHandler.vboInstanceIdHandle, mGLViewShader.instanceIdHandle, 1);
+			GLUtil.passBufferToShader(mVboHandler.vboVertexHandle, mShader.positionHandle, GLUtil.VERTEX_SIZE_2D);
+			GLUtil.passBufferToShader(mVboHandler.vboInstanceIdHandle, mShader.instanceIdHandle, 1);
 			
-			GLUtil.drawElements(mVboDataHandler.vboIndexHandle, indexData.length);
+			GLUtil.drawElements(mVboHandler.vboIndexHandle, indexData.length);
 	        
-	        GLES20.glUseProgram(0);	
+	        GLUtil.glUseProgram(0);	
 
 	        GLUtil.restorePrevGLState(GLES20.GL_DEPTH_TEST);
 			GLUtil.restorePrevGLState(GLES20.GL_CULL_FACE);
 			GLUtil.restorePrevGLState(GLES20.GL_BLEND);
-	        
+
 			for(GLView glView: mChildren){
 				glView.onDrawFrame();
 			}
@@ -200,8 +201,8 @@ public abstract class GLView implements Touchable{
 		
 		float scaledLeftCoord = scalePercentToWorldX(mLeftCoord + mParentShiftX);
 		float scaledTopCoord = scalePercentToWorldY(mTopCoord + mParentShiftY);
-		mScaledWidth = mWidth * percentToWorldRatioX;
-		mScaledHeight = - mHeight * percentToWorldRatioY;
+		mScaledWidth = ensurePercentToPixelAligment(mWidth) * percentToWorldRatioX;
+		mScaledHeight = - ensurePercentToPixelAligment(mHeight) * percentToWorldRatioY;
 		
 		float scaledRightCoord = scaledLeftCoord + mScaledWidth;
 		float scaledBottomCoord = scaledTopCoord + mScaledHeight;
@@ -235,7 +236,7 @@ public abstract class GLView implements Touchable{
 				scaledLeftCoord + mScaledBorderWidth, scaledBottomCoord + mScaledBorderHeight,
 				
 				};		
-		GLUtil.attachArrayToHandler(vertexData, mVboDataHandler.vboVertexHandle);
+		GLUtil.attachArrayToHandler(vertexData, mVboHandler.vboVertexHandle);
 
 
 		mBoundariesRectInPixel = new Rect2D((mLeftCoord + mParentShiftX) * percentToScreenRatio, 
@@ -261,6 +262,7 @@ public abstract class GLView implements Touchable{
 		lastScreenRatio = aspectRatio;
 
 		percentToScreenRatio = Math.max(camera.getViewportWidth(), camera.getViewportHeight()) / 100f;
+		screenToPercentRatio = 1 / percentToScreenRatio;
 		if(aspectRatio > 1){
 			percentToWorldRatioX = 2.0f / 100;
 			percentToWorldRatioY = 2.0f / (100 / aspectRatio);
@@ -273,8 +275,13 @@ public abstract class GLView implements Touchable{
 	}
 	
 	private void setScaledBorderWidth() {
-		mScaledBorderWidth = mBorderWidth * percentToWorldRatioX;
-		mScaledBorderHeight = mBorderWidth * percentToWorldRatioY;
+		float pixelEnsuredBorderWidth = ensurePercentToPixelAligment(mBorderWidth);
+
+		mScaledBorderWidth = pixelEnsuredBorderWidth * percentToWorldRatioX;
+		mScaledBorderHeight = pixelEnsuredBorderWidth * percentToWorldRatioY;
+	}
+	protected float ensurePercentToPixelAligment(float value){
+		return Math.round(value * percentToScreenRatio) * screenToPercentRatio;
 	}
 	
 	public void setColor(float r, float g, float b, float a){
@@ -282,14 +289,6 @@ public abstract class GLView implements Touchable{
 		bkgColor[1] = g / 255.0f;
 		bkgColor[2] = b / 255.0f;
 		bkgColor[3] = a / 255.0f;
-
-//		float[] colorData = new float[]{bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-//				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-//				bkgColorR, bkgColorG, bkgColorB, bkgColorA,
-//				bkgColorR, bkgColorG, bkgColorB, bkgColorA				};
-//		
-//		GLUtil.attachArrayToHandler(colorData, mVboDataHandler.vboColorHandle);
-
 	}
 	
 	public void invalidate(){
@@ -401,14 +400,14 @@ public abstract class GLView implements Touchable{
 	
 	
 	public void setBackground(int resourceId){
-		mVboDataHandler.textureDataHandler = -1;
+		mVboHandler.textureDataHandler = -1;
 		if(resourceId > 0){
-			mVboDataHandler.textureDataHandler = LoaderManager.getInstance(camera.getContext()).loadTexture(resourceId);
+			mVboHandler.textureDataHandler = LoaderManager.getInstance(camera.getContext()).loadTexture(resourceId);
 		}
 	}
 	
 	public boolean isBackgroundEnabled(){
-		return mVboDataHandler.textureDataHandler > 0;
+		return mVboHandler.textureDataHandler > 0;
 	}
 	
 	

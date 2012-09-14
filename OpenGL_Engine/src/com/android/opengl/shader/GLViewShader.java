@@ -15,7 +15,7 @@ public class GLViewShader extends Shader{
 	
 	public static final String UNIFORM_PRESSED = "uPressed";
 	public static final String UNIFORM_TEXTURE_ENABLED = "uTextureEnabled";
-	public static final String UNIFORM_POSITION_OFFSET = "u_PositionOffset";		
+	public static final String UNIFORM_POSITION_OFFSET = "uPositionOffset";		
 
 	public static final String UNIFORM_TEXTURE = "uTexture";
 	public static final String ATTRIBUTE_TEXTURE_COORD = "aTexCoord";
@@ -67,8 +67,8 @@ public class GLViewShader extends Shader{
 			"uniform	sampler2D "+UNIFORM_TEXTURE+ ";												" +
 
 			"varying float vInstanceID;" +
+			"varying vec2 v_TexCoord; 															" +
 
-			"varying 	vec2 v_TexCoord; 															" +
 			"void main(){																			" +
 			"		vec4 resColor = " + UNIFORM_COLOR + ";" +
 			"		if(vInstanceID == 1.0){" +
