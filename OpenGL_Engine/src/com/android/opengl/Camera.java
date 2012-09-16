@@ -341,12 +341,9 @@ public class Camera {
 	
 	public void onDrawFrame() {
 		mScene.onDrawFrame();
-		//TODO "synchronized" is just workaround		
-		synchronized (mScene) {
-			for(GLView glView: glViewList){
-				glView.onDrawFrame();
-			}		
-		}
+		for(GLView glView: glViewList){
+			glView.onDrawFrame();
+		}		
 	};
 	
 	public void release(){

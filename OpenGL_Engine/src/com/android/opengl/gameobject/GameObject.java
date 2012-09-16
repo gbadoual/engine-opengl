@@ -244,10 +244,7 @@ abstract public class GameObject extends CommonGameObject{
 
 	private void destroy() {
 		isAlive = false;
-		//TODO "synchronized" is just workaround
-		synchronized (parentScene) {
-			parentScene.removeGameObject(this);
-		}
+		parentScene.removeGameObject(this);
 	}
 
 
