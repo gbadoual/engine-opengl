@@ -92,7 +92,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 	}
 	
 	private void init() {
-		this.mShader = new GLViewShader();
+		mShader = new GLViewShader();
 		mVboHandler = new VboDataHandler();
 		mBoundariesRectInPixel = new Rect2D();
 
@@ -479,7 +479,15 @@ public class GLView implements Touchable, ViewportChangeListener{
 			return 0;
 		}
 	};
+	public void removeChildren() {
+		mChildren.clear();
+		invalidate();
+	}
 	
+	public List<GLView> getChildren(){
+		return mChildren;
+	}
+
 	public static interface OnTapListener{
 		public void onTap(GLView glView);
 	}
