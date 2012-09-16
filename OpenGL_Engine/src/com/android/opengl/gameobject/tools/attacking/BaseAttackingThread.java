@@ -4,9 +4,7 @@ import android.util.Log;
 
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.gameobject.PositionChangeListener;
-import com.android.opengl.gameobject.tools.moving.BaseMovingThread;
 import com.android.opengl.util.geometry.Point3D;
-import com.android.opengl.util.geometry.Vector3D;
 
 public class BaseAttackingThread extends Thread{
 	

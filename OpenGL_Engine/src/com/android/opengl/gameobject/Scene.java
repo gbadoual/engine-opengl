@@ -197,17 +197,10 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 	}
 
 	public boolean removeGameObject(final GameObject gameObject){
-		Camera.postOnGLThread(new Runnable() {
-			
-			@Override
-			public void run() {
-				if(selectedGameObjectList.remove(gameObject)){
-					mCamera.notifySelectedObjectsChanged(selectedGameObjectList);
-				};
+		if(selectedGameObjectList.remove(gameObject)){
+			mCamera.notifySelectedObjectsChanged(selectedGameObjectList);
+		};
 				
-			}
-		});
-		
 		boolean res = gameObjectList.remove(gameObject);
 		if(gameObject != null){
 			gameObject.release();

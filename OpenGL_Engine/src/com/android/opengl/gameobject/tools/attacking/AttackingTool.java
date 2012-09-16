@@ -67,8 +67,14 @@ public abstract class AttackingTool{
 	}
 
 
-	public void fire(GameObject objectToAttack) {
-		objectToAttack.decreaseLife(mDamage);
+	public void fire(final GameObject objectToAttack) {
+		objectToAttack.getParentScene().getCamera().postOnGLThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				objectToAttack.decreaseLife(mDamage);
+			}
+		});
 	}
 
 
