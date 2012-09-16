@@ -36,6 +36,19 @@ public class Rect2D {
 	public static Rect2D getEmpyRect() {
 		return new Rect2D(0, 0, -1, -1);
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("{rec: ");
+		builder.append("left/top: ").append(mLeftCoord).append("/").append(mTopCoord);
+		builder.append(", width/height: ").append(mWidth).append("/").append(mHeight).append("}");
+		return builder.toString();
+	}
+
+	public void normalize() {
+		if(mWidth < 0){mLeftCoord += mWidth; mWidth = -mWidth;}
+		if(mHeight < 0){mTopCoord += mHeight; mHeight = -mHeight;}
+	}
 
 
 }

@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import android.opengl.GLES20;
-import android.util.FloatMath;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
@@ -15,15 +14,13 @@ import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.Log;
-import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;
 import com.android.opengl.view.Touchable;
 
-public abstract class GLView implements Touchable{
+public class GLView implements Touchable{
 	
-	protected float percentToScreenRatio;
-	protected float screenToPercentRatio;
+	private static final String TAG = GLView.class.getSimpleName();
 
 	
 	private float mParentShiftX = 0;
@@ -42,8 +39,11 @@ public abstract class GLView implements Touchable{
 	protected float mScaledBorderHeight;
 	protected Rect2D mBoundariesRectInPixel;
 	
-	protected float percentToWorldRatioX;
-	protected float percentToWorldRatioY;
+	protected static float percentToWorldRatioX;
+	protected static float percentToWorldRatioY;
+
+	protected static float percentToScreenRatio;
+	protected static float screenToPercentRatio;
 	
 	
 	protected float[] bkgColor = new float[4];
@@ -57,7 +57,7 @@ public abstract class GLView implements Touchable{
 	protected GLView mParent;
 	protected List<GLView> mChildren = new ArrayList<GLView>();
 	
-	protected Camera camera;
+	protected Camera mCamera;
 	private int zOrder;
 	
 	private boolean isVisible = true;
@@ -76,7 +76,7 @@ public abstract class GLView implements Touchable{
 	protected float[] positionOffset = new float[2];
 	
 	public GLView(Scene scene) {
-		this.camera = scene.getCamera();
+		this.mCamera = scene.getCamera();
 		init();
 	}
 	public GLView(Scene scene, float left, float top, float width, float height) {
@@ -84,12 +84,12 @@ public abstract class GLView implements Touchable{
 	}
 
 	public GLView(Camera camera) {
-		this.camera = camera;
+		this.mCamera = camera;
 		init();
 	}
 	
 	public GLView(Camera camera, float left, float top, float width, float height) {
-		this.camera = camera;
+		this.mCamera = camera;
 		this.mLeftCoord = left;
 		this.mTopCoord = top;
 		this.mWidth = width;
@@ -118,7 +118,7 @@ public abstract class GLView implements Touchable{
 		GLUtil.attachArrayToHandler(instanceIdData, mVboHandler.vboInstanceIdHandle);
 		GLUtil.attachIndexesToHandler(indexData, mVboHandler.vboIndexHandle);
 		if(mParent == null){
-			camera.registerGLView(this, zOrder);
+			mCamera.registerGLView(this, zOrder);
 		}
 	}
 
@@ -190,9 +190,11 @@ public abstract class GLView implements Touchable{
 	}
 
 	protected void onMeasure(float width, float height) {
-		this.mWidth = width;
-		this.mHeight = height;
-		notifyBoundsChange();
+		if(mWidth != width || mHeight != height){
+			this.mWidth = width;
+			this.mHeight = height;
+			notifyBoundsChange();
+		}
 	} 
 	
 	
@@ -201,9 +203,13 @@ public abstract class GLView implements Touchable{
 		
 		float scaledLeftCoord = scalePercentToWorldX(mLeftCoord + mParentShiftX);
 		float scaledTopCoord = scalePercentToWorldY(mTopCoord + mParentShiftY);
+		float xFlip = mWidth > 0 ? 1:-1;
+		float yFlip = mHeight > 0 ? 1:-1;
+ 
 		mScaledWidth = ensurePercentToPixelAligment(mWidth) * percentToWorldRatioX;
 		mScaledHeight = - ensurePercentToPixelAligment(mHeight) * percentToWorldRatioY;
-		
+		mScaledBorderWidth *= xFlip;
+		mScaledBorderHeight *= yFlip;
 		float scaledRightCoord = scaledLeftCoord + mScaledWidth;
 		float scaledBottomCoord = scaledTopCoord + mScaledHeight;
 
@@ -243,6 +249,8 @@ public abstract class GLView implements Touchable{
 											(mTopCoord + mParentShiftY)*percentToScreenRatio, 
 											mWidth * percentToScreenRatio, 
 											mHeight * percentToScreenRatio);
+		mScaledBorderWidth *= xFlip;
+		mScaledBorderHeight *= yFlip;
 	}
 	
 	private float scalePercentToWorldY(float screenCoordY) {
@@ -252,16 +260,16 @@ public abstract class GLView implements Touchable{
 		return screenCoordX  * percentToWorldRatioX - 1;
 	}
 
-	private float lastScreenRatio;
+	private static float lastScreenRatio;
 	private void recalculateScreenRatioIfNeeded() {
-		float aspectRatio = camera.getWidthToHeightRatio();
+		float aspectRatio = mCamera.getWidthToHeightRatio();
 		if(aspectRatio == lastScreenRatio){
-			Log.d("tag", "ratio is not changed");
 			return;
 		}
+		Log.d(TAG, "ratio has changed: " + aspectRatio);
 		lastScreenRatio = aspectRatio;
 
-		percentToScreenRatio = Math.max(camera.getViewportWidth(), camera.getViewportHeight()) / 100f;
+		percentToScreenRatio = Math.max(mCamera.getViewportWidth(), mCamera.getViewportHeight()) / 100f;
 		screenToPercentRatio = 1 / percentToScreenRatio;
 		if(aspectRatio > 1){
 			percentToWorldRatioX = 2.0f / 100;
@@ -327,9 +335,9 @@ public abstract class GLView implements Touchable{
 	public void setParent(GLView parent) {
 		this.mParent = parent;
 		if(mParent == null){
-			camera.registerGLView(this, zOrder);
+			mCamera.registerGLView(this, zOrder);
 		} else{
-			camera.unregisterGLView(this);
+			mCamera.unregisterGLView(this);
 		}
 	}
 	
@@ -402,7 +410,7 @@ public abstract class GLView implements Touchable{
 	public void setBackground(int resourceId){
 		mVboHandler.textureDataHandler = -1;
 		if(resourceId > 0){
-			mVboHandler.textureDataHandler = LoaderManager.getInstance(camera.getContext()).loadTexture(resourceId);
+			mVboHandler.textureDataHandler = LoaderManager.getInstance(mCamera.getContext()).loadTexture(resourceId);
 		}
 	}
 	
@@ -443,6 +451,14 @@ public abstract class GLView implements Touchable{
 		positionOffset[1] = scalePercentToWorldY(yOffset);		
 	}
 	
+	public float getPositionOffsetX(){
+		return positionOffset[0];
+	}
+
+	public float getPositionOffsetY(){
+		return positionOffset[1];
+	}
+	
 	@Override
 	public Rect2D getBoundariesRectInPixel() {
 		if(isVisible){
@@ -453,7 +469,7 @@ public abstract class GLView implements Touchable{
 	}
 
 	public void release(){
-		camera.unregisterGLView(this);		
+		mCamera.unregisterGLView(this);		
 		mChildren.clear();
 	}
 	
@@ -463,8 +479,8 @@ public abstract class GLView implements Touchable{
 	
 	public void setzOrder(int zOrder) {
 		this.zOrder = zOrder;
-		if(mParent == null && camera.containsGLView(this)){
-			camera.notifyGLViewzOrderChanged();
+		if(mParent == null && mCamera.containsGLView(this)){
+			mCamera.notifyGLViewzOrderChanged();
 		}
 	}
 
@@ -478,11 +494,13 @@ public abstract class GLView implements Touchable{
 	}
 
 
+	// to ensure view be on the top it should be drawn the last 
+	// unlike touchable which should be touched first
 	public static class GLViewComparator implements Comparator<GLView> {
 		@Override
 		public int compare(GLView lhs, GLView rhs) {
 			if(lhs != null && rhs != null){
-				return lhs.zOrder - rhs.zOrder; 
+				return rhs.zOrder - lhs.zOrder; 
 			}
 			return 0;
 		}

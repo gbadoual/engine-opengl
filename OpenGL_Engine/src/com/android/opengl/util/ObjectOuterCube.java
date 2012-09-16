@@ -133,7 +133,7 @@ public class ObjectOuterCube {
 	
 
 
-	private void generatePlanes(float[] mvMatrix) {
+	private void generatePlanes(float[] modelMatrix) {
 		float coordLeft 	= 	this.coordLeft;
 		float coordRight 	= 	this.coordRight;
 		float coordTop 		= 	this.coordTop;
@@ -149,7 +149,7 @@ public class ObjectOuterCube {
 		Point3D p6 = new Point3D(coordRight, coordBottom, coordFar); 
 		Point3D p7 = new Point3D(coordRight, coordTop, coordFar); 
 		
- 		if(mvMatrix != null){
+ 		if(modelMatrix != null){
  			int P0_OFFSET = 0;
  			int P1_OFFSET = 4;
  			int P2_OFFSET = 8;
@@ -167,8 +167,8 @@ public class ObjectOuterCube {
 
  			float[] trLeftPlane = new float[16];
  			float[] trRightPlane = new float[16];
- 			Matrix.multiplyMM(trLeftPlane, 0, mvMatrix, 0, leftPlane, 0);
- 			Matrix.multiplyMM(trRightPlane, 0, mvMatrix, 0, rightPlane, 0);
+ 			Matrix.multiplyMM(trLeftPlane, 0, modelMatrix, 0, leftPlane, 0);
+ 			Matrix.multiplyMM(trRightPlane, 0, modelMatrix, 0, rightPlane, 0);
  			p0 = new Point3D(trLeftPlane,  P0_OFFSET); 
  			p1 = new Point3D(trLeftPlane,  P1_OFFSET); 
  			p2 = new Point3D(trLeftPlane,  P2_OFFSET); 

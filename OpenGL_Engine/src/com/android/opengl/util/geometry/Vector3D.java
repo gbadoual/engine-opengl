@@ -14,6 +14,8 @@ public class Vector3D {
 	private boolean isNormalized;
 
 	public Vector3D() {
+		position = new Point3D();
+		direction = new Point3D();
 
 	}
 
@@ -49,6 +51,11 @@ public class Vector3D {
 	
 
 
+
+	public Vector3D(float[] direction) {
+		this.direction = new Point3D(direction);
+		this.position = new Point3D();
+	}
 
 	public Point3D getTargetPoint(){
 		return getTargetPoint(length);

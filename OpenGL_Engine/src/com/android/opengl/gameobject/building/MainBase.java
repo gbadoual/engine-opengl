@@ -23,7 +23,7 @@ public class MainBase extends AbstractBuilding{
 		initView();
 //		parentScene.registerGLView(mainPanleLayout, 50);
 		mainPanleLayout.setzOrder(50);
-		mainPanleLayout.setVisible(isSelected);
+		mainPanleLayout.setVisible(isSelected());
 		setHealthLevel(2000);
 		
 	}
@@ -92,8 +92,9 @@ public class MainBase extends AbstractBuilding{
 	}
 	
 	@Override
-	public void onObjectFocusChanged(boolean hasFocus) {
-		mainPanleLayout.setVisible(hasFocus);						
+	public void setSelected(boolean isSelected) {
+		mainPanleLayout.setVisible(isSelected);						
+		super.setSelected(isSelected);
 	}
 	
 	@Override

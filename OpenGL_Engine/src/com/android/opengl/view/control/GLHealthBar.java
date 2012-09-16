@@ -5,11 +5,11 @@ import android.opengl.GLES20;
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
-import com.android.opengl.util.Log;
 import com.android.opengl.util.geometry.Matrix;
 
 public class GLHealthBar extends GLView{
 	
+	public static final int GLHEALTHBAR_Z_ORDER_DEFAULT = 1000;
 	private GameObject gameObject;
 	float[] mvMatrix = new float[16];
 	
@@ -18,8 +18,9 @@ public class GLHealthBar extends GLView{
 		super(gameObject.getParentScene());
 		this.gameObject = gameObject;
 		mShader = new GLHealtBarShader();
+		setzOrder(GLHEALTHBAR_Z_ORDER_DEFAULT);
 		//healthBar should not be touched
-		camera.unregisterTouchable(this);
+		mCamera.unregisterTouchable(this);
 
 		setBorderWidth(0.2f);
 
@@ -40,7 +41,7 @@ public class GLHealthBar extends GLView{
 		}
 //		Log.i("ddd", "mvMatrix[Matrix.POS_Z_OFFSET] = " + mvMatrix[Matrix.POS_Z_OFFSET] + "[" + gameObject.getClan() + "]");
 		float xOffset = -mvMatrix[Matrix.POS_X_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] + 1 - mScaledWidth / 2;
-		float yOffset = -mvMatrix[Matrix.POS_Y_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] * camera.getWidthToHeightRatio() - 1;
+		float yOffset = -mvMatrix[Matrix.POS_Y_OFFSET] / mvMatrix[Matrix.POS_Z_OFFSET] * mCamera.getWidthToHeightRatio() - 1;
 		setPositionOffset(xOffset, yOffset);
 		float h = gameObject.getHealthLevel() / gameObject.getMaxHealthLevel();
 		int r = evenlyInterpolate(rValues, h);
@@ -56,17 +57,17 @@ public class GLHealthBar extends GLView{
 
 
 	private float worldToScreenX(float coord) {
-		return coord / 2 * camera.getViewportWidth();
+		return coord / 2 * mCamera.getViewportWidth();
 	}
 
 
 
 	private int evenlyInterpolate(int[] valuaes, float coeff){
 		coeff = 1 - coeff;
-		if(coeff == 1.0){
+		int firstInterpIdx = (int)(coeff * (valuaes.length - 1));
+		if(firstInterpIdx >= valuaes.length - 1){
 			return valuaes[valuaes.length - 1];
 		}
-		int firstInterpIdx = (int)(coeff * (valuaes.length - 1));
 		float localCoeff = (coeff - (float)firstInterpIdx / (valuaes.length - 1)) * (valuaes.length - 1);
 		return (int)(valuaes[firstInterpIdx] * (1 - localCoeff) + valuaes[firstInterpIdx + 1] * localCoeff);
 		

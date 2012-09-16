@@ -77,7 +77,7 @@ public class WorldView extends GLSurfaceView{
 		
 		worldRenderer = new EngineRenderer(this, handler);
 		motionEventDispatcher = new MotionEventDispatcher();
-		motionEventDispatcher.registerToucheble(worldRenderer, 100);
+		motionEventDispatcher.registerToucheble(worldRenderer, 10000);
 		setEGLContextClientVersion(2);
 		setRenderer(worldRenderer);
 	}

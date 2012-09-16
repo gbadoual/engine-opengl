@@ -35,7 +35,6 @@ public abstract class CommonGameObject {
 //	protected float[] vertexData;
 //	protected int indexDataLength;
 
-	protected boolean isSelected;
 	protected Clan mClan = Clan.NEUTRAL;
 	
 	
@@ -150,11 +149,6 @@ public abstract class CommonGameObject {
 		
 	}
 	
-	public void onSelected(){
-		isSelected = true;
-	}
-
-
 
 	public void setModelMatrix(float[] modelMatrix) {
 		this.modelMatrix = modelMatrix;
@@ -191,13 +185,8 @@ public abstract class CommonGameObject {
 		setPosition(position[0], position[1], position[2]);
 	}
 	
-	public void onObjectFocusChanged(boolean hasFocus) {
-	}
 
 
-	public boolean isSelected() {
-		return isSelected;
-	}
 	
 	public abstract int getMeshResource();
 	
@@ -242,5 +231,6 @@ public abstract class CommonGameObject {
 	public void notifyViewportChanged(int width, int height) {
 		
 	}
+
 
 }
