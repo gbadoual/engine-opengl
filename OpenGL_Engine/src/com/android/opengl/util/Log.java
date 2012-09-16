@@ -28,5 +28,15 @@ public class Log {
 			android.util.Log.w(tag, message);
 		}
 	}
+	
+	public static void printStackTrace(String tag){
+		if(!isLogginEnabled){
+			return;
+		}
+		StackTraceElement[] elements = Thread.getAllStackTraces().get(Thread.currentThread());
+		for(StackTraceElement element: elements){
+			Log.i(tag, element.toString());
+		}
+	}
 
 }

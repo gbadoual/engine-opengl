@@ -6,31 +6,34 @@ import java.util.List;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
+import com.android.opengl.R;
+import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.util.Log;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;
+import com.android.opengl.view.Touchable;
 
 public class GLSelectionRegion extends GLView{
 	
-	private GLSelectionBorder mGLSelectionSurface;
+	private GLSelectionSurface mGLSelectionSurface;
 
 	public GLSelectionRegion(Camera camera) {
 		super(camera);
 		onMeasure(10, 10);
+		onLayout(5, 40);
 		setzOrder(40);
-		mGLSelectionSurface = new GLSelectionBorder(camera, 0, 0, 100, 100);
-		camera.unregisterGLView(mGLSelectionSurface);
+		mGLSelectionSurface = new GLSelectionSurface(camera);
 	}
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		switch (event.getActionMasked()) {
 		case MotionEvent.ACTION_DOWN:
-			mCamera.registerGLView(mGLSelectionSurface, getzOrder());
+			mCamera.registerTouchable(mGLSelectionSurface, getzOrder());
 			break;
 		case MotionEvent.ACTION_UP:
 		case MotionEvent.ACTION_CANCEL:
-			mCamera.unregisterGLView(mGLSelectionSurface);
+			mCamera.unregisterTouchable(mGLSelectionSurface);
 			mGLSelectionSurface.onTouchEvent(MotionEventDispatcher.obtainCancelEvent());
 			break;
 
@@ -58,30 +61,33 @@ public class GLSelectionRegion extends GLView{
 		super.release();
 	}
 
+	@Override
+	public void onViewportChanged(Rect2D newViewportRect) {
+		mGLSelectionSurface.onViewportChanged(newViewportRect);
+		super.onViewportChanged(newViewportRect);
+	}
 	
-	public static class GLSelectionBorder extends GLView{
+	public static class GLSelectionSurface implements Touchable, ViewportChangeListener	{
 		private List<RegionSelectionListener> mRegionSelectionListenerList = new ArrayList<GLSelectionRegion.RegionSelectionListener>();
 		private GLView mSelectionRectangle;
-
-		public GLSelectionBorder(Camera camera) {
-			super(camera);
-			initLocal();
-		}
-
-		public GLSelectionBorder(Camera camera, float left, float top, float width, float height) {
-			super(camera, left, top, width, height);
-			initLocal();
-		}
-		@Override
-		public void onDrawFrame() {
-			//This view is transparent and needs only to capture the whole screen
-		}
+		private Camera mCamera;
 		
-		@Override
+		private Rect2D mSurfaceBounds = new Rect2D();
+		
+
+		public GLSelectionSurface(Camera camera) {
+			mCamera = camera;
+			mSurfaceBounds = new Rect2D(0, 0, mCamera.getViewportWidth(), mCamera.getViewportHeight());
+			mSelectionRectangle = new GLView(mCamera);
+			mCamera.unregisterGLView(mSelectionRectangle);
+			mSelectionRectangle.setColor(0, 40, 50, 0);
+			mSelectionRectangle.setBorderWidth(0.3f);
+		}
+
+		
 		public void release() {
 			mRegionSelectionListenerList.clear();
 			mSelectionRectangle.release();
-			super.release();
 		}
 		
 		public boolean registerSelectionListener(RegionSelectionListener listener){
@@ -91,31 +97,25 @@ public class GLSelectionRegion extends GLView{
 			return mRegionSelectionListenerList.remove(listener);
 		}
 
-		public Rect2D getBorderBounds(){
+		public Rect2D getSelectionRectangleBounds(){
 			return mSelectionRectangle.getBoundariesRectInPixel();
 		}
 
-		private void initLocal() {
-			mSelectionRectangle = new GLView(mCamera);
-			mCamera.unregisterGLView(mSelectionRectangle);
-			mSelectionRectangle.setColor(0, 40, 50, 0);
-			mSelectionRectangle.setBorderWidth(0.3f);
-		}
 		
 		public void setBorderPosition(float screenX, float screenY){
 //			Log.d("tag", "setPos x/y: " + screenX + "/" + screenY);
-			mSelectionRectangle.onLayout(screenX * screenToPercentRatio, screenY * screenToPercentRatio);
+			mSelectionRectangle.onLayout(screenX * Camera.screenToPercentRatio, screenY * Camera.screenToPercentRatio);
 		}
 		
 		public void setBorderDimensions(float screenX, float screenY) {
-			float width = screenX * screenToPercentRatio - mSelectionRectangle.mLeftCoord;
-			float height = screenY * screenToPercentRatio - mSelectionRectangle.mTopCoord;
+			float width = screenX * Camera.screenToPercentRatio - mSelectionRectangle.mLeftCoord;
+			float height = screenY * Camera.screenToPercentRatio - mSelectionRectangle.mTopCoord;
 //			Log.d("tag", "setDim w/h: " + width + "/" + height);
 			mSelectionRectangle.onMeasure(width, height);
 		}
-		public void initBorder(){
+		public void initSelectionRectangle(){
 			mCamera.unregisterGLView(mSelectionRectangle);
-			mCamera.registerGLView(mSelectionRectangle, 39);
+			mCamera.registerGLView(mSelectionRectangle, 100);
 			mCamera.unregisterTouchable(mSelectionRectangle);
 			mSelectionRectangle.onMeasure(0, 0);
 		}
@@ -126,14 +126,14 @@ public class GLSelectionRegion extends GLView{
 			switch (event.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
 				setBorderPosition(event.getX(), event.getY());
-				initBorder();
+				initSelectionRectangle();
 				break;
 			case MotionEvent.ACTION_MOVE:
 //				Log.d("tag", "move x/y: " + border.mLeftCoord + "/" + border.mTopCoord);
 				setBorderDimensions(event.getX(), event.getY());
 				break;
 			case MotionEvent.ACTION_UP:
-				Rect2D selectedRegion = getBorderBounds();
+				Rect2D selectedRegion = getSelectionRectangleBounds();
 				selectedRegion.normalize();
 				if(selectedRegion.mWidth > 0 && selectedRegion.mHeight > 0){
 					Log.d("tag", "regionSelected: " + selectedRegion);
@@ -149,6 +149,19 @@ public class GLSelectionRegion extends GLView{
 				break;
 			}
 			return true;
+		}
+
+		@Override
+		public Rect2D getBoundariesRectInPixel() {
+			return mSurfaceBounds;
+		}
+
+		@Override
+		public void onViewportChanged(Rect2D newViewportRect) {
+			mSurfaceBounds.mLeftCoord = newViewportRect.mLeftCoord;			
+			mSurfaceBounds.mTopCoord = newViewportRect.mTopCoord;			
+			mSurfaceBounds.mWidth = newViewportRect.mWidth;			
+			mSurfaceBounds.mHeight = newViewportRect.mHeight;			
 		}
 		
 		

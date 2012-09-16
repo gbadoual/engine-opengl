@@ -3,8 +3,8 @@ package com.android.opengl.util.geometry;
 public class Rect2D {
 	public float mLeftCoord;
 	public float mTopCoord;
-	public float mWidth;
-	public float mHeight;
+	public float mWidth = -1;
+	public float mHeight = -1;
 	
 	
 	
@@ -33,9 +33,6 @@ public class Rect2D {
 				y >= mTopCoord && y <= mTopCoord + mHeight;
 	}
 
-	public static Rect2D getEmpyRect() {
-		return new Rect2D(0, 0, -1, -1);
-	}
 	
 	@Override
 	public String toString() {

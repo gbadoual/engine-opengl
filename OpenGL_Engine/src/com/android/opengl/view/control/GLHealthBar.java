@@ -2,6 +2,7 @@ package com.android.opengl.view.control;
 
 import android.opengl.GLES20;
 
+import com.android.opengl.Camera;
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
@@ -49,7 +50,7 @@ public class GLHealthBar extends GLView{
 		int b = evenlyInterpolate(bValues, h);
 		setColor(r, g, b, 192);
 		GLUtil.glUseProgram(mShader.programHandle);
-		float screenAlignedHealthLevel = mWidth * h * percentToScreenRatio + worldToScreenX(xOffset);
+		float screenAlignedHealthLevel = mWidth * h * Camera.percentToScreenRatio + worldToScreenX(xOffset);
 		GLES20.glUniform1f(((GLHealtBarShader)mShader).healthLevelHandle, screenAlignedHealthLevel);
 		super.onDrawFrame();
 	}
