@@ -3,18 +3,24 @@ package com.android.opengl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
+import com.android.opengl.view.control.GLGridLayout;
+import com.android.opengl.view.control.GLSelectionRegion;
+import com.android.opengl.view.control.GLUnitIcon;
 import com.android.opengl.view.control.GLView;
 
 public class Camera {
@@ -58,8 +64,51 @@ public class Camera {
 		this.worldView = worldView;
 		initViewMatrix(viewMatrix);
 		setViewport(worldView.getMeasuredWidth(), worldView.getMeasuredHeight());
+		initControls();
 	}
 	
+	GLGridLayout glUnitIconLayout;
+	private void initControls() {
+		glUnitIconLayout = new GLGridLayout(this, 5, 5, 15, 0);
+		glUnitIconLayout.setSpacing(1, 1);
+		
+		glUnitIconLayout.setVisible(false);
+		GLSelectionRegion glSelectionRegion = new GLSelectionRegion(this);
+		glSelectionRegion.registerSelectionListener(new GLSelectionRegion.RegionSelectionListener() {
+			
+			@Override
+			public void onRegionSelected(Rect2D region) {
+				if(mScene != null){
+					Log.i("tag", "scene: region received (" + region + ")");
+					mScene.checkRegionIntersection(region);
+				}
+			}
+		});
+		
+	}
+	
+	public void notifySelectedObjectsChanged(List<GameObject> gameObjectList){
+		glUnitIconLayout.removeChildren();
+		HashSet<String> set = new HashSet<String>();
+		if(gameObjectList != null && !gameObjectList.isEmpty()){
+			for(GameObject gameObject: gameObjectList){
+				if(glUnitIconLayout.getChildren().size() >= 8){
+					break;
+				}
+				if(!set.contains(gameObject.getClass().getSimpleName())){
+//					set.add(gameObject.getClass().getSimpleName());
+					GLUnitIcon glUnitIcon = new GLUnitIcon(this);
+					glUnitIcon.setBackground(gameObject.getTextureResource());
+					glUnitIconLayout.addChild(glUnitIcon);
+				}
+			}
+			glUnitIconLayout.setVisible(true);
+
+		} else{
+			glUnitIconLayout.setVisible(false);
+		}
+	}
+
 	private float[] calculateProjectionMatrix(int width, int height) {
 		float ratio = (float) width / height;
 		float left = -1;
@@ -332,6 +381,10 @@ public class Camera {
 	
 	public static interface ViewportChangeListener{
 		public void onViewportChanged(Rect2D newViewportRect);
+	}
+
+	public void postOnGLThread(Runnable runnable) {
+		worldView.queueEvent(runnable);		
 	}
 
 

@@ -298,6 +298,7 @@ abstract public class GameObject extends CommonGameObject{
 		this.isSelected = isSelected;
 	}
 	
+//	public abstract int getUnitIcon();
 
 
 }
