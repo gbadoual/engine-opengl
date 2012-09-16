@@ -15,8 +15,11 @@ import com.android.opengl.shader.SceneShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.MeshQuadNode2D;
 import com.android.opengl.util.geometry.Matrix;
+import com.android.opengl.util.geometry.Plane;
 import com.android.opengl.util.geometry.Point3D;
+import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.util.geometry.Vector3D;
+import com.android.opengl.view.control.GLSelectionRegion;
 
 public class Scene extends CommonGameObject{
 
@@ -39,6 +42,7 @@ public class Scene extends CommonGameObject{
 	
 	
 	private Camera camera;
+	private SkyDome skyDome;
 	private SceneShader shader = new SceneShader();
 
 	
@@ -48,15 +52,148 @@ public class Scene extends CommonGameObject{
 		super(camera.getContext().getResources());
 		this.camera = camera;
 		this.camera.setScene(this);
-		skyBox = new SkyDome(camera);
+		skyDome = new SkyDome(camera);
 		lightList.add(new PointLight(new Point3D(-50, 5, 0)));
 		lightList.add(new PointLight(new Point3D(40, 5, 40)));
 
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		sceneQuad2D = new MeshQuadNode2D(vboDataHandler.vertexData, vboDataHandler.indexData);
 		rotate((float)Math.toRadians(45), (float)Math.toRadians(-30), 0);
+		GLSelectionRegion glSelectionRegion = new GLSelectionRegion(camera);
+		glSelectionRegion.registerSelectionListener(new GLSelectionRegion.RegionSelectionListener() {
+			
+			@Override
+			public void onRegionSelected(Rect2D region) {
+				Log.i("tag", "scene: region received (" + region + ")");
+				float left = region.mLeftCoord;
+				float top = region.mTopCoord;
+				float right = region.mWidth + left;
+				float bottom = region.mHeight + top;
+				checkRegionIntersection(left, top, right, bottom);
+
+			}
+		});
+
 	}
 	
+
+	public void checkRegionIntersection(float left, float top, float right,
+			float bottom) {
+		Plane[] boundingPlanes = getUnprojectedPlanes(left, top, right, bottom);
+		for(GameObject gameObject: gameObjectList){
+			if(gameObject.isVisible()){
+				boolean isWithinRect = true;
+				for(Plane plane: boundingPlanes){
+//					Matrix.multiplyMV(resPosition, 0, gameObject.getModelMatrix(), 0, gameObject.getPosition().asFloatArray(), 0);
+					if(plane.getPointPlainPosition(gameObject.getPosition().asFloatArray()) == Plane.RelativePosition.NEGATIVE_HALFPLANE){
+						isWithinRect = false;
+						break;
+					};
+				}
+				gameObject.setSelected(isWithinRect);
+			}else{
+				gameObject.setSelected(false);
+			}
+		}
+		
+	}
+
+
+	protected Plane[] getUnprojectedPlanes(float left, float top, float right, float bottom) {
+		float[] pointsToUnproj = new float[3 * 8];
+		top = camera.getViewportHeight() - top;
+		bottom = camera.getViewportHeight() - bottom;
+		pointsToUnproj[0 * 3 + 0] = left;
+		pointsToUnproj[0 * 3 + 1] = top;
+		pointsToUnproj[0 * 3 + 2] = 0;
+		
+		pointsToUnproj[1 * 3 + 0] = left;
+		pointsToUnproj[1 * 3 + 1] = top;
+		pointsToUnproj[1 * 3 + 2] = 1;
+		
+		pointsToUnproj[2 * 3 + 0] = right;
+		pointsToUnproj[2 * 3 + 1] = top;
+		pointsToUnproj[2 * 3 + 2] = 0;
+		
+		pointsToUnproj[3 * 3 + 0] = right;
+		pointsToUnproj[3 * 3 + 1] = top;
+		pointsToUnproj[3 * 3 + 2] = 1;
+		
+		pointsToUnproj[4 * 3 + 0] = right;
+		pointsToUnproj[4 * 3 + 1] = bottom;
+		pointsToUnproj[4 * 3 + 2] = 0;
+		
+		pointsToUnproj[5 * 3 + 0] = right;
+		pointsToUnproj[5 * 3 + 1] = bottom;
+		pointsToUnproj[5 * 3 + 2] = 1;
+		
+		pointsToUnproj[6 * 3 + 0] = left;
+		pointsToUnproj[6 * 3 + 1] = bottom;
+		pointsToUnproj[6 * 3 + 2] = 0;
+		
+		pointsToUnproj[7 * 3 + 0] = left;
+		pointsToUnproj[7 * 3 + 1] = bottom;
+		pointsToUnproj[7 * 3 + 2] = 1;
+
+		int[] screenDimens = new int[]{0, 0, Scene.this.camera.getViewportWidth(), Scene.this.camera.getViewportHeight()};
+		float[] unprojectedPoints = new float[pointsToUnproj.length];
+		GLUtil.glUnproj(pointsToUnproj, getMVMatrix(), getProjectionMatrix(), screenDimens, unprojectedPoints);
+		Plane[] boundingPlanes = new Plane[5];
+		boundingPlanes[0] = getLeftPlane(unprojectedPoints);
+		boundingPlanes[1] = getTopPlane(unprojectedPoints);
+		boundingPlanes[2] = getRightPlane(unprojectedPoints);
+		boundingPlanes[3] = getBottomPlane(unprojectedPoints);
+		boundingPlanes[4] = getNearPlane(unprojectedPoints);
+		
+		return boundingPlanes;
+	}
+
+
+	private Plane getNearPlane(float[] unprojectedPoints) {
+		
+		return getPlane(2, 0, 4, unprojectedPoints);
+	}
+
+
+	private Plane getBottomPlane(float[] unprojectedPoints) {
+		return getPlane(5, 4, 7, unprojectedPoints);
+	}
+
+
+	private Plane getRightPlane(float[] unprojectedPoints) {
+		return getPlane(5, 3, 4, unprojectedPoints);
+	}
+
+
+	private Plane getTopPlane(float[] unprojectedPoints) {
+		return getPlane(3, 1, 2, unprojectedPoints);
+	}
+
+
+	private Plane getLeftPlane(float[] unprojectedPoints) {
+		return getPlane(1, 7, 0, unprojectedPoints);
+	}
+	
+	private Plane getPlane(int f, int s, int t, float[] unprojectedPoints){
+		float x = unprojectedPoints[f * 3 + 0];
+		float y = unprojectedPoints[f * 3 + 1];
+		float z = unprojectedPoints[f * 3 + 2];
+		Point3D pointOnPlane = new Point3D(x, y, z);
+
+		float[] v1 = new float[3];
+		v1[0] = unprojectedPoints[s * 3 + 0] - x;
+		v1[1] = unprojectedPoints[s * 3 + 1] - y;
+		v1[2] = unprojectedPoints[s * 3 + 2] - z;
+		
+		float[] v2 = new float[3];
+		v2[0] = unprojectedPoints[t * 3 + 0] - x;
+		v2[1] = unprojectedPoints[t * 3 + 1] - y;
+		v2[2] = unprojectedPoints[t * 3 + 2] - z;
+		
+		Vector3D normal = new Vector3D(Vector3D.vectorProduct(v1, v2));
+		return new Plane(pointOnPlane, normal);
+	}
+
 
 	public boolean addGameObject(GameObject gameObject){
 		return this.gameObjectList.add(gameObject);
@@ -74,13 +211,12 @@ public class Scene extends CommonGameObject{
 		gameObjectList.clear();
 	}
 	
-	private SkyDome skyBox;
 	
 	private float a = 0.1f;
 	@Override
 	public void onDrawFrame() {
 		isRendingFinished = false;
-		skyBox.onDrawFrame();
+		skyDome.onDrawFrame();
 		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);//mvMatrix = viewMatrix;
 		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);//mvMatrix = viewMatrix;
 
@@ -188,7 +324,8 @@ public class Scene extends CommonGameObject{
 	
 	List<GameObject> selectedObjectToMove = new ArrayList<GameObject>();
 	
-	public void checkObjectRayIntersection(Vector3D ray) {
+	//TODO "synchronized" is just workaround
+	public synchronized void checkObjectRayIntersection(Vector3D ray) {
 		boolean isAnyGameObgectSelected = false;
 		selectedObjectToMove.clear();		
 		for(GameObject gameObject: gameObjectList){

@@ -1,5 +1,7 @@
 package com.android.opengl.util.geometry;
 
+import com.android.opengl.util.geometry.Plane.RelativePosition;
+
 import android.util.Log;
 
 public class Plane {
@@ -22,6 +24,12 @@ public class Plane {
 	private Point3D p4 = new Point3D();
 	private Vector3D normal = new Vector3D();
 
+	public static enum RelativePosition{
+		POSITIVE_HALFPLANE, 
+		NEGATIVE_HALFPLANE,
+		ON_PLANE
+	};
+	
 	public Plane() {
 		p1 = new Point3D();
 		p2 = new Point3D();
@@ -33,6 +41,11 @@ public class Plane {
 	public Plane(Point3D pointOnPlane, Vector3D normal){
 		this.normal = new Vector3D(normal.getDirection());
 		this.normal.position = pointOnPlane;
+	}
+
+	public Plane(float[] pointOnPlane, float[] normal){
+		this.normal = new Vector3D(normal);
+		this.normal.position = new Point3D(pointOnPlane);
 	}
 
 	public Plane(Point3D p1, Point3D p2, Point3D p3, Point3D p4) {
@@ -162,6 +175,8 @@ public class Plane {
 	}
 
 
+//	public
+	
 
 	@Override
 	public String toString() {
@@ -188,6 +203,20 @@ public class Plane {
 
 	public Vector3D getNormal() {
 		return normal;
+	}
+
+	public RelativePosition getPointPlainPosition(float[] position) {
+		float x = position[0] - normal.position.x;
+		float y = position[1] - normal.position.y;
+		float z = position[2] - normal.position.z;
+		float res = x * normal.direction.x + y * normal.direction.y + z * normal.direction.z;
+		if(res > 0 ){
+			return RelativePosition.POSITIVE_HALFPLANE;			
+		}
+		if(res < 0 ){
+			return RelativePosition.NEGATIVE_HALFPLANE;			
+		}
+		return RelativePosition.ON_PLANE;
 	}
 	
 	

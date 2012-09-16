@@ -23,6 +23,7 @@ import com.android.opengl.gameobject.unit.vehicle.BMW;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.util.geometry.Vector3D;
+import com.android.opengl.view.control.GLButton;
 import com.android.opengl.view.state.EngineState;
 import com.android.opengl.view.state.GameInProgressState;
 import com.android.opengl.view.state.LoadingLevelState;
@@ -67,7 +68,6 @@ public class EngineRenderer implements Renderer, Touchable{
 		this.worldView = worldView;
 		this.callbackHandler = handler;
 		this.mViewBoundaries = new Rect2D(worldView.getLeft(), worldView.getTop(), worldView.getWidth(), worldView.getHeight());
-		camera = new Camera(worldView, 100, 100);
 		initStates();
 	}
 
@@ -80,6 +80,7 @@ public class EngineRenderer implements Renderer, Touchable{
 
 	@Override
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
+		camera = new Camera(worldView);
 		currentEngineState = loadingLevelState;
 		currentEngineState.loadLevel();		
 	}

@@ -15,6 +15,7 @@ import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
+import com.android.opengl.view.control.GLSelectionRegion;
 import com.android.opengl.view.control.GLView;
 
 public class Camera {
@@ -34,7 +35,15 @@ public class Camera {
 	
 	private int viewportWidth;
 	private int viewportHeight;
+	
 	private float aspectRatio;
+
+	protected float percentToWorldRatioX;
+	protected float percentToWorldRatioY;
+
+	protected float percentToScreenRatio;
+	protected float screenToPercentRatio;
+	
 	
 	private float angleX;
 	private float angleY;
@@ -46,10 +55,10 @@ public class Camera {
 	
 
 	
-	public Camera(WorldView worldView, int width, int height) {
+	public Camera(WorldView worldView) {
 		this.worldView = worldView;
 		initViewMatrix(viewMatrix);
-		setViewport(width, height);
+		setViewport(worldView.getMeasuredWidth(), worldView.getMeasuredHeight());
 	}
 	
 	private float[] calculateProjectionMatrix(int width, int height) {
@@ -174,7 +183,7 @@ public class Camera {
 	public void setViewport(int width, int height) {
 		viewportWidth = width;
 		viewportHeight = height;
-		aspectRatio = ((float)viewportWidth)/viewportHeight;
+		initRatioCoeffitients();
 		GLES20.glViewport(0, 0, width, height);
 		projectionMatrix = calculateProjectionMatrix(viewportWidth, viewportHeight);
 		notifyVPMatrixChanged();
@@ -184,6 +193,16 @@ public class Camera {
 		for(GLView glView: glViewList){
 			glView.invalidate();
 		}
+	}
+
+	private void initRatioCoeffitients() {
+		aspectRatio = ((float)viewportWidth)/viewportHeight;
+		//this coefs should be recalculated here. Notification should be send to the listeners  
+//		protected float percentToWorldRatioX;
+//		protected float percentToWorldRatioY;
+//
+//		protected float percentToScreenRatio;
+//		protected float screenToPercentRatio;
 	}
 
 	public int getViewportHeight() {
@@ -276,7 +295,7 @@ public class Camera {
 	}
 
 	public void notifyGLViewzOrderChanged() {
-		Collections.sort(glViewList, new GLView.GLViewComparator());				
+		Collections.sort(glViewList, new GLView.GLViewComparator());
 	}
 
 	public float getWidthToHeightRatio() {

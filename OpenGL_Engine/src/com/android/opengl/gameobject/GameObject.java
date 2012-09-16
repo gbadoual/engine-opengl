@@ -35,6 +35,9 @@ abstract public class GameObject extends CommonGameObject{
 
 	protected float healthLevel;
 	private float maxHealthLevel;
+	
+	protected boolean isSelected;
+
 
 	
 	protected MovingTool movingTool;
@@ -43,6 +46,9 @@ abstract public class GameObject extends CommonGameObject{
 
 
 	private boolean isAlive;
+
+
+	private boolean isVisible = true;
 	
 	public GameObject(Scene parentScene) {
 		super(parentScene.getResources());
@@ -75,7 +81,7 @@ abstract public class GameObject extends CommonGameObject{
 	private void openGLDraw() {
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		GLES20.glUseProgram(shader.programHandle);
-		GLES20.glUniform1f(shader.isSelectedHandle, isSelected?1:0);
+		GLES20.glUniform1f(shader.isSelectedHandle, isSelected()?1:0);
 		GLES20.glUniform4fv(shader.clanColorHandle, 1, mClan.getColor(), 0);
 		GLES20.glUniform1f(shader.lightCountHandle, parentScene.getLightListSize());
 		GLES20.glUniform3fv(shader.lightPositionHandle, parentScene.getLightListSize(), parentScene.lightListToFloatArray(), 0);
@@ -104,8 +110,7 @@ abstract public class GameObject extends CommonGameObject{
 	}
 	
 	public boolean checkObjectRayIntersection(Vector3D vector) {
-		isSelected = outerCube.isIntersected(vector);
-		onObjectFocusChanged(isSelected);
+		setSelected(outerCube.isIntersected(vector));
 		return isSelected;
 	}
 	
@@ -274,6 +279,25 @@ abstract public class GameObject extends CommonGameObject{
 	public boolean isAlive() {
 		return isAlive;
 	}
+
+//TODO implement object-camera clipping
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+
+	public void setVisible(boolean isVisible) {
+		this.isVisible = isVisible;
+	}
+
+	public boolean isSelected() {
+		return isSelected;
+	}
+	
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
+	}
+	
 
 
 }

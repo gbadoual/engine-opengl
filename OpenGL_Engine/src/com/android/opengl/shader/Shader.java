@@ -43,7 +43,7 @@ public abstract class Shader {
 		if (compiled[0] == 0) {
 			throw new RuntimeException(TAG
 					+ "loadShader()   Could not compile shader " + type + ":"
-					+ GLES20.glGetShaderInfoLog(shader));
+					+ GLES20.glGetShaderInfoLog(shader) + " src: " + shaderCode);
 			// GLES20.glDeleteShader(shader);
 			// shader = 0;
 		}

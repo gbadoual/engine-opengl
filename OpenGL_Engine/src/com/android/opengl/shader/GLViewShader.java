@@ -76,7 +76,7 @@ public class GLViewShader extends Shader{
 			"				resColor = texture2D("+UNIFORM_TEXTURE+", v_TexCoord);						" +
 			"			}" +
 			"			if("+ UNIFORM_PRESSED+" > 0.0){													" +
-			"				resColor +=  vec4(0.3, 0.3, 0.3, 0.5);				" +
+			"				resColor +=  vec4(0.3, 0.3, 0.3, 0.3);				" +
 			"			}																				" +
 			"		} else {" +
 			"			resColor = vec4(0.3, 0.4, 0.3, 0.7);" +

@@ -7,7 +7,10 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.android.opengl.util.geometry.Point3D;
+
 import android.opengl.GLES20;
+import android.opengl.GLU;
 
 public class GLUtil {
 	
@@ -100,4 +103,25 @@ public class GLUtil {
 		}
 	}
 
+	//TODO compute invert matrix only once
+	public static void glUnproj(float[] pointsToUnproj, float[] mvMatrix, 
+			float[] projectionMatrix, int[] screenDimens,
+			float[] unprojectedPoints) {
+		
+		float[] resXYZ0 = new float[4];
+		int i = 0;
+		while (i < pointsToUnproj.length){
+			float x = pointsToUnproj[i + 0];
+			float y = pointsToUnproj[i + 1];
+			float z = pointsToUnproj[i + 2];
+			GLU.gluUnProject(x, y, z, mvMatrix, 0, projectionMatrix, 0, screenDimens, 0, resXYZ0, 0);
+			unprojectedPoints[i + 0] = resXYZ0[0] / resXYZ0[3];
+			unprojectedPoints[i + 1] = resXYZ0[1] / resXYZ0[3];
+			unprojectedPoints[i + 2] = resXYZ0[2] / resXYZ0[3];
+			i += 3;
+		}
+	}
+
 }
+
+	
