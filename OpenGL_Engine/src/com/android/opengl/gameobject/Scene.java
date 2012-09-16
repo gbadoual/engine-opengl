@@ -9,6 +9,7 @@ import android.util.FloatMath;
 import android.util.Log;
 
 import com.android.opengl.Camera;
+import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.light.PointLight;
 import com.android.opengl.shader.SceneShader;
@@ -21,7 +22,7 @@ import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.util.geometry.Vector3D;
 import com.android.opengl.view.control.GLSelectionRegion;
 
-public class Scene extends CommonGameObject{
+public class Scene extends CommonGameObject implements ViewportChangeListener{
 
 	
 //	private static final float MIN_ANGLE = -90;
@@ -41,7 +42,7 @@ public class Scene extends CommonGameObject{
 	private MeshQuadNode2D sceneQuad2D;
 	
 	
-	private Camera camera;
+	private Camera mCamera;
 	private SkyDome skyDome;
 	private SceneShader shader = new SceneShader();
 
@@ -50,8 +51,9 @@ public class Scene extends CommonGameObject{
 	
 	public Scene(Camera camera) {
 		super(camera.getContext().getResources());
-		this.camera = camera;
-		this.camera.setScene(this);
+		mCamera = camera;
+		mCamera.setScene(this);
+		mCamera.registerViewportChangeListener(this);
 		skyDome = new SkyDome(camera);
 		lightList.add(new PointLight(new Point3D(-50, 5, 0)));
 		lightList.add(new PointLight(new Point3D(40, 5, 40)));
@@ -65,11 +67,7 @@ public class Scene extends CommonGameObject{
 			@Override
 			public void onRegionSelected(Rect2D region) {
 				Log.i("tag", "scene: region received (" + region + ")");
-				float left = region.mLeftCoord;
-				float top = region.mTopCoord;
-				float right = region.mWidth + left;
-				float bottom = region.mHeight + top;
-				checkRegionIntersection(left, top, right, bottom);
+				checkRegionIntersection(region);
 
 			}
 		});
@@ -77,9 +75,8 @@ public class Scene extends CommonGameObject{
 	}
 	
 
-	public void checkRegionIntersection(float left, float top, float right,
-			float bottom) {
-		Plane[] boundingPlanes = getUnprojectedPlanes(left, top, right, bottom);
+	public void checkRegionIntersection(Rect2D region) {
+		Plane[] boundingPlanes = getUnprojectedPlanes(region);
 		for(GameObject gameObject: gameObjectList){
 			if(gameObject.isVisible()){
 				boolean isWithinRect = true;
@@ -99,10 +96,14 @@ public class Scene extends CommonGameObject{
 	}
 
 
-	protected Plane[] getUnprojectedPlanes(float left, float top, float right, float bottom) {
+	protected Plane[] getUnprojectedPlanes(Rect2D region) {
 		float[] pointsToUnproj = new float[3 * 8];
-		top = camera.getViewportHeight() - top;
-		bottom = camera.getViewportHeight() - bottom;
+		float left = region.mLeftCoord;
+		float top = region.mTopCoord; 
+		float right = left + region.mWidth;
+		float bottom = top + region.mHeight;
+		top = mCamera.getViewportHeight() - top;
+		bottom = mCamera.getViewportHeight() - bottom;
 		pointsToUnproj[0 * 3 + 0] = left;
 		pointsToUnproj[0 * 3 + 1] = top;
 		pointsToUnproj[0 * 3 + 2] = 0;
@@ -135,7 +136,7 @@ public class Scene extends CommonGameObject{
 		pointsToUnproj[7 * 3 + 1] = bottom;
 		pointsToUnproj[7 * 3 + 2] = 1;
 
-		int[] screenDimens = new int[]{0, 0, Scene.this.camera.getViewportWidth(), Scene.this.camera.getViewportHeight()};
+		int[] screenDimens = new int[]{0, 0, Scene.this.mCamera.getViewportWidth(), Scene.this.mCamera.getViewportHeight()};
 		float[] unprojectedPoints = new float[pointsToUnproj.length];
 		GLUtil.glUnproj(pointsToUnproj, getMVMatrix(), getProjectionMatrix(), screenDimens, unprojectedPoints);
 		Plane[] boundingPlanes = new Plane[5];
@@ -217,8 +218,8 @@ public class Scene extends CommonGameObject{
 	public void onDrawFrame() {
 		isRendingFinished = false;
 		skyDome.onDrawFrame();
-		Matrix.multiplyMM(mvMatrix, 0, camera.getViewMatrix(), 0, modelMatrix, 0);//mvMatrix = viewMatrix;
-		Matrix.multiplyMM(mvpMatrix, 0, camera.getProjectionMatrix(), 0, mvMatrix, 0);//mvMatrix = viewMatrix;
+		Matrix.multiplyMM(mvMatrix, 0, mCamera.getViewMatrix(), 0, modelMatrix, 0);//mvMatrix = viewMatrix;
+		Matrix.multiplyMM(mvpMatrix, 0, mCamera.getProjectionMatrix(), 0, mvMatrix, 0);//mvMatrix = viewMatrix;
 
 		//		localDraw();
 		openGLDraw();
@@ -264,7 +265,7 @@ public class Scene extends CommonGameObject{
 
 	public void scale(float scaleFactor) {
 		float distacne = SCALING_STEP * (1 - 1/scaleFactor);
-		camera.moveForward(distacne);
+		mCamera.moveForward(distacne);
 		notifyMVPMatrixChanged();
 	}
 
@@ -288,33 +289,29 @@ public class Scene extends CommonGameObject{
 	
 	@Override
 	public void rotate(float[] dAngleXYZ) {
-		camera.rotate(dAngleXYZ[0], dAngleXYZ[1], dAngleXYZ[2]);
+		mCamera.rotate(dAngleXYZ[0], dAngleXYZ[1], dAngleXYZ[2]);
 		notifyMVPMatrixChanged();
 	}
 
 	
 	public void notifyMVPMatrixChanged(){
-		Matrix.multiplyMM(mvMatrix, 0, camera.getVpMatrix(), 0, modelMatrix, 0);
-	}
-
-	public void notifyViewportChanged(int width, int height) {
-		notifyMVPMatrixChanged();
+		Matrix.multiplyMM(mvMatrix, 0, mCamera.getVpMatrix(), 0, modelMatrix, 0);
 	}
 
 	public void setViewMatrix(float[] viewMatrix) {
-		camera.setViewMatrix(viewMatrix);
+		mCamera.setViewMatrix(viewMatrix);
 		notifyMVPMatrixChanged();
 	}
 
 
 	
 	public float[] getProjectionMatrix() {
-		return camera.getProjectionMatrix();
+		return mCamera.getProjectionMatrix();
 	}
 
 
 	public float[] getViewMatrix() {
-		return camera.getViewMatrix();
+		return mCamera.getViewMatrix();
 	}
 
 
@@ -377,8 +374,10 @@ public class Scene extends CommonGameObject{
 
 	@Override
 	public void release() {
-		super.release();
-		Log.d(TAG, "deinit");
+		Log.d(TAG, "release");
+		if(mCamera != null){
+			mCamera.unregisterViewportChangeListener(this);
+		}
 		for(GameObject gameObject: gameObjectList){
 			gameObject.release();
 		}
@@ -387,6 +386,7 @@ public class Scene extends CommonGameObject{
 		if(meshLoader != null){
 			meshLoader.release();
 		}
+		super.release();
 	}
 	
 	public float[] getMVMatrix(){
@@ -404,7 +404,7 @@ public class Scene extends CommonGameObject{
 	public void translate(float dx, float dz) {
 //		camera.translate(dx, dz);
 		float[] position = getPosition().asFloatArray().clone();
-		float[] rotation = camera.getAngleXYZ();
+		float[] rotation = mCamera.getAngleXYZ();
 		float sinY = FloatMath.sin(rotation[1]);
 		float cosY = FloatMath.cos(rotation[1]);
 		position[0] = position[0] + -dx * cosY + dz * sinY;
@@ -416,12 +416,12 @@ public class Scene extends CommonGameObject{
 
 
 	public Camera getCamera() {
-		return camera;
+		return mCamera;
 	}
 
 
 	public void setCamera(Camera camera) {
-		this.camera = camera;
+		this.mCamera = camera;
 	}
 
 	public float[] lightListToFloatArray(){
@@ -443,6 +443,12 @@ public class Scene extends CommonGameObject{
 
 	public void onWorldUpdate() {
 		
+	}
+
+
+	@Override
+	public void onViewportChanged(Rect2D newViewportRect) {
+		notifyMVPMatrixChanged();
 	}
 
 

@@ -8,6 +8,7 @@ import android.opengl.GLES20;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
+import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.shader.GLViewShader;
@@ -18,7 +19,7 @@ import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;
 import com.android.opengl.view.Touchable;
 
-public class GLView implements Touchable{
+public class GLView implements Touchable, ViewportChangeListener{
 	
 	private static final String TAG = GLView.class.getSimpleName();
 
@@ -38,13 +39,6 @@ public class GLView implements Touchable{
 	protected float mScaledBorderWidth;
 	protected float mScaledBorderHeight;
 	protected Rect2D mBoundariesRectInPixel;
-	
-	protected static float percentToWorldRatioX;
-	protected static float percentToWorldRatioY;
-
-	protected static float percentToScreenRatio;
-	protected static float screenToPercentRatio;
-	
 	
 	protected float[] bkgColor = new float[4];
 
@@ -119,6 +113,7 @@ public class GLView implements Touchable{
 		GLUtil.attachIndexesToHandler(indexData, mVboHandler.vboIndexHandle);
 		if(mParent == null){
 			mCamera.registerGLView(this, zOrder);
+			mCamera.registerViewportChangeListener(this);
 		}
 	}
 
@@ -199,15 +194,14 @@ public class GLView implements Touchable{
 	
 	
 	private void notifyBoundsChange(){
-		recalculateScreenRatioIfNeeded();
 		
 		float scaledLeftCoord = scalePercentToWorldX(mLeftCoord + mParentShiftX);
 		float scaledTopCoord = scalePercentToWorldY(mTopCoord + mParentShiftY);
 		float xFlip = mWidth > 0 ? 1:-1;
 		float yFlip = mHeight > 0 ? 1:-1;
  
-		mScaledWidth = ensurePercentToPixelAligment(mWidth) * percentToWorldRatioX;
-		mScaledHeight = - ensurePercentToPixelAligment(mHeight) * percentToWorldRatioY;
+		mScaledWidth = ensurePercentToPixelAligment(mWidth) * Camera.percentToWorldRatioX;
+		mScaledHeight = - ensurePercentToPixelAligment(mHeight) * Camera.percentToWorldRatioY;
 		mScaledBorderWidth *= xFlip;
 		mScaledBorderHeight *= yFlip;
 		float scaledRightCoord = scaledLeftCoord + mScaledWidth;
@@ -245,51 +239,30 @@ public class GLView implements Touchable{
 		GLUtil.attachArrayToHandler(vertexData, mVboHandler.vboVertexHandle);
 
 
-		mBoundariesRectInPixel = new Rect2D((mLeftCoord + mParentShiftX) * percentToScreenRatio, 
-											(mTopCoord + mParentShiftY)*percentToScreenRatio, 
-											mWidth * percentToScreenRatio, 
-											mHeight * percentToScreenRatio);
+		mBoundariesRectInPixel = new Rect2D((mLeftCoord + mParentShiftX) * Camera.percentToScreenRatio, 
+											(mTopCoord + mParentShiftY) * Camera.percentToScreenRatio, 
+											mWidth * Camera.percentToScreenRatio, 
+											mHeight * Camera.percentToScreenRatio);
 		mScaledBorderWidth *= xFlip;
 		mScaledBorderHeight *= yFlip;
 	}
 	
 	private float scalePercentToWorldY(float screenCoordY) {
-		return 1 - screenCoordY * percentToWorldRatioY;
+		return 1 - screenCoordY * Camera.percentToWorldRatioY;
 	}
 	private float scalePercentToWorldX(float screenCoordX) {
-		return screenCoordX  * percentToWorldRatioX - 1;
+		return screenCoordX  * Camera.percentToWorldRatioX - 1;
 	}
 
-	private static float lastScreenRatio;
-	private void recalculateScreenRatioIfNeeded() {
-		float aspectRatio = mCamera.getWidthToHeightRatio();
-		if(aspectRatio == lastScreenRatio){
-			return;
-		}
-		Log.d(TAG, "ratio has changed: " + aspectRatio);
-		lastScreenRatio = aspectRatio;
-
-		percentToScreenRatio = Math.max(mCamera.getViewportWidth(), mCamera.getViewportHeight()) / 100f;
-		screenToPercentRatio = 1 / percentToScreenRatio;
-		if(aspectRatio > 1){
-			percentToWorldRatioX = 2.0f / 100;
-			percentToWorldRatioY = 2.0f / (100 / aspectRatio);
-		} else {
-			percentToWorldRatioX = 2.0f / (100 * aspectRatio);
-			percentToWorldRatioY = 2.0f / 100;
-		}
-		setScaledBorderWidth();
-
-	}
 	
 	private void setScaledBorderWidth() {
 		float pixelEnsuredBorderWidth = ensurePercentToPixelAligment(mBorderWidth);
 
-		mScaledBorderWidth = pixelEnsuredBorderWidth * percentToWorldRatioX;
-		mScaledBorderHeight = pixelEnsuredBorderWidth * percentToWorldRatioY;
+		mScaledBorderWidth = pixelEnsuredBorderWidth * Camera.percentToWorldRatioX;
+		mScaledBorderHeight = pixelEnsuredBorderWidth * Camera.percentToWorldRatioY;
 	}
 	protected float ensurePercentToPixelAligment(float value){
-		return Math.round(value * percentToScreenRatio) * screenToPercentRatio;
+		return Math.round(value * Camera.percentToScreenRatio) * Camera.screenToPercentRatio;
 	}
 	
 	public void setColor(float r, float g, float b, float a){
@@ -300,6 +273,7 @@ public class GLView implements Touchable{
 	}
 	
 	public void invalidate(){
+		setScaledBorderWidth();
 		onLayout(mLeftCoord, mTopCoord);
 		for(GLView glView: mChildren){
 			glView.reMeasure();
@@ -464,7 +438,7 @@ public class GLView implements Touchable{
 		if(isVisible){
 			return mBoundariesRectInPixel ;
 		} else{
-			return Rect2D.getEmpyRect();
+			return new Rect2D(); // returns empty rect
 		}
 	}
 
@@ -508,6 +482,11 @@ public class GLView implements Touchable{
 	
 	public static interface OnTapListener{
 		public void onTap(GLView glView);
+	}
+
+	@Override
+	public void onViewportChanged(Rect2D newViewportRect) {
+		invalidate();
 	}
 	
 }

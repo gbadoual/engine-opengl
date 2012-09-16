@@ -7,15 +7,14 @@ import java.util.List;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.opengl.gameobject.Scene;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
+import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
-import com.android.opengl.view.control.GLSelectionRegion;
 import com.android.opengl.view.control.GLView;
 
 public class Camera {
@@ -38,11 +37,10 @@ public class Camera {
 	
 	private float aspectRatio;
 
-	protected float percentToWorldRatioX;
-	protected float percentToWorldRatioY;
-
-	protected float percentToScreenRatio;
-	protected float screenToPercentRatio;
+	public static float percentToWorldRatioX;
+	public static float percentToWorldRatioY;
+	public static float percentToScreenRatio;
+	public static float screenToPercentRatio;
 	
 	
 	private float angleX;
@@ -50,8 +48,9 @@ public class Camera {
 	private float angleZ;
 	
 	private WorldView worldView;
-	private Scene scene;
+	private Scene mScene;
 	private List<GLView> glViewList = new ArrayList<GLView>();
+	private List<ViewportChangeListener> viewportChangeListenerList = new ArrayList<ViewportChangeListener>();
 	
 
 	
@@ -181,22 +180,37 @@ public class Camera {
 	}
 
 	public void setViewport(int width, int height) {
+		Log.i(TAG, "viewport changed: new w/h = " + width + "/" + height);
 		viewportWidth = width;
 		viewportHeight = height;
 		initRatioCoeffitients();
 		GLES20.glViewport(0, 0, width, height);
+		Rect2D newViewportRect = new Rect2D(0, 0, width, height);
 		projectionMatrix = calculateProjectionMatrix(viewportWidth, viewportHeight);
 		notifyVPMatrixChanged();
-		if(scene != null){
-			scene.notifyViewportChanged(width, height);
+		for(ViewportChangeListener listener: viewportChangeListenerList){
+			listener.onViewportChanged(newViewportRect);
 		}
-		for(GLView glView: glViewList){
-			glView.invalidate();
-		}
+//		if(scene != null){
+//			scene.notifyViewportChanged(width, height);
+//		}
+//		for(GLView glView: glViewList){
+//			glView.invalidate();
+//		}
 	}
 
 	private void initRatioCoeffitients() {
 		aspectRatio = ((float)viewportWidth)/viewportHeight;
+		percentToScreenRatio = Math.max(viewportWidth, viewportHeight) / 100f;
+		screenToPercentRatio = 1 / percentToScreenRatio;
+		if(aspectRatio > 1){
+			percentToWorldRatioX = 2.0f / 100;
+			percentToWorldRatioY = 2.0f * (aspectRatio/100);
+		} else {
+			percentToWorldRatioX = 2.0f / (100 * aspectRatio);
+			percentToWorldRatioY = 2.0f / 100;
+		}
+		
 		//this coefs should be recalculated here. Notification should be send to the listeners  
 //		protected float percentToWorldRatioX;
 //		protected float percentToWorldRatioY;
@@ -218,11 +232,14 @@ public class Camera {
 	}
 
 	public Scene getScene() {
-		return scene;
+		return mScene;
 	}
 
 	public void setScene(Scene scene) {
-		this.scene = scene;
+		if(mScene != null){
+			Log.w(TAG, "setScene: scene was alredy set");
+		}
+		mScene = scene;
 	}
 
 	public float[] getVpMatrix() {
@@ -270,13 +287,13 @@ public class Camera {
 	
 
 	public void onWorldUpdate(){
-		scene.onWorldUpdate();
+		mScene.onWorldUpdate();
 	}
 	
 	public void onDrawFrame() {
-		scene.onDrawFrame();
+		mScene.onDrawFrame();
 		//TODO "synchronized" is just workaround		
-		synchronized (scene) {
+		synchronized (mScene) {
 			for(GLView glView: glViewList){
 				glView.onDrawFrame();
 			}		
@@ -289,9 +306,11 @@ public class Camera {
 			glView.release();
 			unregisterGLView(glView);
 		}
-		if(scene != null){
-			scene.release();
+		if(mScene != null){
+			mScene.release();
+			mScene = null;
 		}
+		viewportChangeListenerList.clear();
 	}
 
 	public void notifyGLViewzOrderChanged() {
@@ -302,6 +321,18 @@ public class Camera {
 		return aspectRatio;
 	}
 
+
+	public boolean registerViewportChangeListener(ViewportChangeListener listener){
+		return viewportChangeListenerList.add(listener);
+	}
+
+	public boolean unregisterViewportChangeListener(ViewportChangeListener listener){
+		return viewportChangeListenerList.remove(listener);
+	}
+	
+	public static interface ViewportChangeListener{
+		public void onViewportChanged(Rect2D newViewportRect);
+	}
 
 
 }

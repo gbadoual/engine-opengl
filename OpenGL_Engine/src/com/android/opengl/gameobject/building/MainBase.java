@@ -30,10 +30,10 @@ public class MainBase extends AbstractBuilding{
 
 
 	private void initView() {
-		mainPanleLayout = new GLGridLayout(parentScene, 5, 10, 30, 0);
+		mainPanleLayout = new GLGridLayout(parentScene, 70, 30, 26, 0);
 		mainPanleLayout.setColor(128, 150, 128, 192);
 				
-		GLView child = new GLButton(parentScene, 50, 20, 30, 10);
+//		GLView child = new GLButton(parentScene, 50, 20, 30, 10);
 		GLView child1 = new GLButton(parentScene, 5, 2, 10, 10);
 		child1.setBackground(R.raw.icon_cube);
 		child1.setOnTapListener(new GLView.OnTapListener() {
@@ -48,8 +48,8 @@ public class MainBase extends AbstractBuilding{
 		GLView child2 = new GLButton(parentScene, 5, 2, 10, 10);
 		GLView child3 = new GLButton(parentScene, 5, 2, 10, 5);
 		GLView child4 = new GLButton(parentScene, 5, 2, 10, 5);
-		GLView child5 = new GLButton(parentScene, 5, 2, 10, 5);
-		GLView child6 = new GLButton(parentScene, 5, 2, 10, 5);
+//		GLView child5 = new GLButton(parentScene, 5, 2, 10, 5);
+//		GLView child6 = new GLButton(parentScene, 5, 2, 10, 5);
 		child2.setBackground(R.raw.icon_earth);
 		child2.setOnTapListener(new GLView.OnTapListener() {
 			
@@ -64,9 +64,9 @@ public class MainBase extends AbstractBuilding{
 		mainPanleLayout.addChild(child2);
 		mainPanleLayout.addChild(child3);
 		mainPanleLayout.addChild(child4);
-		mainPanleLayout.addChild(child5);
-		mainPanleLayout.addChild(child6);
-		mainPanleLayout.addChild(child);
+//		mainPanleLayout.addChild(child5);
+//		mainPanleLayout.addChild(child6);
+//		mainPanleLayout.addChild(child);
 		mainPanleLayout.setOnTapListener(new GLView.OnTapListener() {
 			
 			@Override
