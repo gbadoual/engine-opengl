@@ -13,12 +13,17 @@ import android.util.Log;
 
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.gameobject.Scene;
+import com.android.opengl.shader.GLViewShader;
+import com.android.opengl.shader.ObjectShader;
+import com.android.opengl.shader.SceneShader;
+import com.android.opengl.util.ShaderManager;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
 import com.android.opengl.view.control.GLGridLayout;
+import com.android.opengl.view.control.GLIconGridLayout;
 import com.android.opengl.view.control.GLSelectionRegion;
 import com.android.opengl.view.control.GLUnitIcon;
 import com.android.opengl.view.control.GLView;
@@ -67,9 +72,9 @@ public class Camera {
 		initControls();
 	}
 	
-	GLGridLayout glUnitIconLayout;
+	GLIconGridLayout glUnitIconLayout;
 	private void initControls() {
-		glUnitIconLayout = new GLGridLayout(this, 5, 5, 15, 0);
+		glUnitIconLayout = new GLIconGridLayout(this, 2, 2, 15, 0);
 		glUnitIconLayout.setSpacing(1, 1);
 		
 		glUnitIconLayout.setVisible(false);
@@ -89,21 +94,9 @@ public class Camera {
 	
 	public void notifySelectedObjectsChanged(List<GameObject> gameObjectList){
 		glUnitIconLayout.removeChildren();
-		HashSet<String> set = new HashSet<String>();
-		if(gameObjectList != null && !gameObjectList.isEmpty()){
-			for(GameObject gameObject: gameObjectList){
-				if(glUnitIconLayout.getChildren().size() >= 8){
-					break;
-				}
-				if(!set.contains(gameObject.getClass().getSimpleName())){
-//					set.add(gameObject.getClass().getSimpleName());
-					GLUnitIcon glUnitIcon = new GLUnitIcon(this);
-					glUnitIcon.setBackground(gameObject.getTextureResource());
-					glUnitIconLayout.addChild(glUnitIcon);
-				}
-			}
+		glUnitIconLayout.addUnitIconList(gameObjectList);
+		if(!glUnitIconLayout.getChildren().isEmpty()){
 			glUnitIconLayout.setVisible(true);
-
 		} else{
 			glUnitIconLayout.setVisible(false);
 		}

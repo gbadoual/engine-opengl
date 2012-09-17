@@ -15,6 +15,7 @@ import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.Log;
+import com.android.opengl.util.ShaderManager;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;
 import com.android.opengl.view.Touchable;
@@ -92,7 +93,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 	}
 	
 	private void init() {
-		mShader = new GLViewShader();
+		mShader = ShaderManager.getInstance().getShader(GLViewShader.class);
 		mVboHandler = new VboDataHandler();
 		mBoundariesRectInPixel = new Rect2D();
 

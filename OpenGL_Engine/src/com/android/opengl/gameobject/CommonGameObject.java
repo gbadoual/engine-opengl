@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.android.opengl.Clan;
 import com.android.opengl.R;
-import com.android.opengl.shader.ObjectShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.geometry.Matrix;
@@ -63,7 +62,6 @@ public abstract class CommonGameObject {
 		Log.d(TAG, "init " + getClass().getSimpleName());
 		long time = System.currentTimeMillis(); 
 		this.resources = resources;
-//		this.shader = shader;
 		meshLoader = LoaderManager.getInstance(resources);
 		initData();
 		time = System.currentTimeMillis() - time;
@@ -213,9 +211,6 @@ public abstract class CommonGameObject {
 				modelMatrix[Matrix.VIEX_Z_OFFSET]);
 	}
 
-//	public CommonShader getShader() {
-//		return shader;
-//	}
 	
 	public float getPosX(){
 		return modelMatrix[Matrix.POS_X_OFFSET];

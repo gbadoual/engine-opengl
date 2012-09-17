@@ -24,4 +24,9 @@ public class Earth extends GameObject{
 		super.onDrawFrame();
 	}
 
+	@Override
+	public int getUnitIconResId() {
+		return getTextureResource();
+	}
+
 }

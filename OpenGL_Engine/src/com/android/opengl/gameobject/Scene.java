@@ -15,6 +15,7 @@ import com.android.opengl.gameobject.light.PointLight;
 import com.android.opengl.shader.SceneShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.MeshQuadNode2D;
+import com.android.opengl.util.ShaderManager;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Plane;
 import com.android.opengl.util.geometry.Point3D;
@@ -45,7 +46,7 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 	
 	private Camera mCamera;
 	private SkyDome skyDome;
-	private SceneShader shader = new SceneShader();
+	private SceneShader shader = ShaderManager.getInstance().getShader(SceneShader.class);
 
 	
 	private boolean isRendingFinished = true;
@@ -80,7 +81,7 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 					};
 				}
 				gameObject.setSelected(isWithinRect);
-				if(gameObject.isSelected){
+				if(gameObject.mIsSelected){
 					selectedGameObjectList.add(gameObject);
 				}
 			}else{
@@ -335,7 +336,7 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 
 		for(GameObject gameObject: gameObjectList){
 			isAnyGameObgectSelected |= gameObject.checkObjectRayIntersection(ray);
-			if(gameObject.isSelected){
+			if(gameObject.mIsSelected){
 				selectedGameObjectList.add(gameObject);
 			}
 			if(gameObject.isSelected() && !prevSelectedObj.isEmpty()){
@@ -393,6 +394,7 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 			meshLoader.release();
 		}
 		super.release();
+		ShaderManager.getInstance().release();
 	}
 	
 	public float[] getMVMatrix(){

@@ -12,18 +12,11 @@ public class Cube extends GameObject{
 
 	public Cube(Scene parentScene) {
 		super(parentScene);
-		movingTool = new Wheels(this);
-		attackingTool = new SimpleGun(this);
+		mMovingTool = new Wheels(this);
+		mAttackingTool = new SimpleGun(this);
 		setHealthLevel(100);
 
 	}
-
-	@Override
-	public void onDrawFrame() {
-		super.onDrawFrame();
-
-	}
-
 	@Override
 	public int getMeshResource() {
 		return R.raw.cube_data;
@@ -32,6 +25,11 @@ public class Cube extends GameObject{
 	@Override
 	public int getTextureResource() {
 		return R.raw.smile;
+	}
+
+	@Override
+	public int getUnitIconResId() {
+		return getTextureResource();
 	}
 	
 
