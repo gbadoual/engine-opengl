@@ -24,8 +24,12 @@ public class BMW extends AbstractVehicle{
 	
 	@Override
 	public int getTextureResource() {
-		// TODO Auto-generated method stub
 		return R.raw.smile;
+	}
+
+	@Override
+	public int getUnitIconResId() {
+		return getTextureResource();
 	}
 
 }

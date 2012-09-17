@@ -6,6 +6,7 @@ import com.android.opengl.Camera;
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
+import com.android.opengl.util.ShaderManager;
 import com.android.opengl.util.geometry.Matrix;
 
 public class GLHealthBar extends GLView{
@@ -18,7 +19,7 @@ public class GLHealthBar extends GLView{
 	public GLHealthBar(GameObject gameObject) {
 		super(gameObject.getParentScene());
 		this.gameObject = gameObject;
-		mShader = new GLHealtBarShader();
+		mShader = ShaderManager.getInstance().getShader(GLHealtBarShader.class);
 		setzOrder(GLHEALTHBAR_Z_ORDER_DEFAULT);
 		//healthBar should not be touched
 		mCamera.unregisterTouchable(this);

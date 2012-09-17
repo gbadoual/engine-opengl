@@ -26,7 +26,7 @@ public abstract class AbstractBuilding extends GameObject {
 		gameObject.setClan(mClan);
 		float x = r.nextFloat() * distance - distance/2;
 		float z = r.nextFloat() * distance - distance/2;
-		float y = parentScene.getAltitude(x, z);
+		float y = mParentScene.getAltitude(x, z);
 		gameObject.getMovingTool().moveTo(new Point3D(x, y, z));
 	}
 	

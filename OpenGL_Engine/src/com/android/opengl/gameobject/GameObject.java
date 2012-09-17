@@ -7,7 +7,6 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 import com.android.opengl.Clan;
-import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
 import com.android.opengl.gameobject.tools.attacking.AttackingTool;
 import com.android.opengl.gameobject.tools.attacking.EmptyAttackingTool;
 import com.android.opengl.gameobject.tools.moving.EmptyMovingTool;
@@ -15,123 +14,125 @@ import com.android.opengl.gameobject.tools.moving.MovingTool;
 import com.android.opengl.shader.ObjectShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.ObjectOuterCube;
+import com.android.opengl.util.ShaderManager;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Vector3D;
 import com.android.opengl.view.control.GLHealthBar;
+import com.android.opengl.view.control.GLUnitIcon;
 
 abstract public class GameObject extends CommonGameObject{
 
 	private String TAG;
 	
 	
-	protected Scene parentScene;
-	protected ObjectOuterCube outerCube;
-	protected ObjectShader shader = new ObjectShader();
+	protected Scene mParentScene;
+	protected ObjectOuterCube mOuterCube;
+	protected ObjectShader mShader = ShaderManager.getInstance().getShader(ObjectShader.class);
 	
-	protected float curSpeed;
+	protected float mCurSpeed;
 	
-	private GLHealthBar healthBar;
+	protected GLHealthBar mHealthBar;
+	private GLUnitIcon mUnitIcon;
 
-	protected float healthLevel;
-	private float maxHealthLevel;
+	protected float mHhealthLevel;
+	private float mMaxHealthLevel;
 	
-	protected boolean isSelected;
+	protected boolean mIsSelected;
 
 
 	
-	protected MovingTool movingTool;
-	protected AttackingTool attackingTool;
-	private List<PositionChangeListener> positionListenerList = new ArrayList<PositionChangeListener>();
+	protected MovingTool mMovingTool;
+	protected AttackingTool mAttackingTool;
+	private List<PositionChangeListener> mPositionListenerList = new ArrayList<PositionChangeListener>();
 
 
-	private boolean isAlive;
+	private boolean mIsAlive;
 
 
-	private boolean isVisible = true;
+	private boolean mIsVisible = true;
 	
 	public GameObject(Scene parentScene) {
 		super(parentScene.getResources());
-		isAlive = true;
+		mIsAlive = true;
 		vboDataHandlerMap.get(getClass().getSimpleName()).indexData = null;
 		TAG = getClass().getSimpleName();
 		setHealthLevel(100);
-		this.parentScene = parentScene;
-		this.parentScene.addGameObject(this);
-		outerCube = new ObjectOuterCube(this);
-		movingTool = new EmptyMovingTool(this);
-		attackingTool = new EmptyAttackingTool(this);
-		healthBar = new GLHealthBar(this);
-		healthBar.setVisible(true);
+		mParentScene = parentScene;
+		mParentScene.addGameObject(this);
+		mOuterCube = new ObjectOuterCube(this);
+		mMovingTool = new EmptyMovingTool(this);
+		mAttackingTool = new EmptyAttackingTool(this);
+		mHealthBar = new GLHealthBar(this);
+		mUnitIcon = new GLUnitIcon(this);
+		parentScene.getCamera().unregisterGLView(mUnitIcon);
 	}
 
 	
 	public void onDrawFrame() {
-		if(parentScene.isRendingFinished()){
+		if(mParentScene.isRendingFinished()){
 			throw new IllegalStateException("Scene shoud be rendered before rendering object of this scene");
 		}
-        Matrix.multiplyMM(mvpMatrix, 0, parentScene.getMVPMatrix(), 0, modelMatrix, 0);
-        Matrix.multiplyMM(mvMatrix, 0, parentScene.getMVMatrix(), 0, modelMatrix, 0);
-        
+        Matrix.multiplyMM(mvpMatrix, 0, mParentScene.getMVPMatrix(), 0, modelMatrix, 0);
+        Matrix.multiplyMM(mvMatrix, 0, mParentScene.getMVMatrix(), 0, modelMatrix, 0);
         openGLDraw();
-		
 	}
 
 
 	private void openGLDraw() {
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
-		GLES20.glUseProgram(shader.programHandle);
-		GLES20.glUniform1f(shader.isSelectedHandle, isSelected()?1:0);
-		GLES20.glUniform4fv(shader.clanColorHandle, 1, mClan.getColor(), 0);
-		GLES20.glUniform1f(shader.lightCountHandle, parentScene.getLightListSize());
-		GLES20.glUniform3fv(shader.lightPositionHandle, parentScene.getLightListSize(), parentScene.lightListToFloatArray(), 0);
-        GLES20.glUniformMatrix4fv(shader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
-        GLES20.glUniformMatrix4fv(shader.mvMatrixHandle, 1, false, mvMatrix, 0);
+		GLES20.glUseProgram(mShader.programHandle);
+		GLES20.glUniform1f(mShader.isSelectedHandle, isSelected()?1:0);
+		GLES20.glUniform4fv(mShader.clanColorHandle, 1, mClan.getColor(), 0);
+		GLES20.glUniform1f(mShader.lightCountHandle, mParentScene.getLightListSize());
+		GLES20.glUniform3fv(mShader.lightPositionHandle, mParentScene.getLightListSize(), mParentScene.lightListToFloatArray(), 0);
+        GLES20.glUniformMatrix4fv(mShader.mvpMatrixHandle, 1, false, mvpMatrix, 0);
+        GLES20.glUniformMatrix4fv(mShader.mvMatrixHandle, 1, false, mvMatrix, 0);
 
-        GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, shader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
-		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, shader.positionHandle, GLUtil.VERTEX_SIZE_3D);
-		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, shader.normalHandle, GLUtil.NORMAL_SIZE);
+        GLUtil.passBufferToShader(vboDataHandler.vboTextureCoordHandle, mShader.textureCoordHandle, GLUtil.TEXTURE_SIZE);
+		GLUtil.passBufferToShader(vboDataHandler.vboVertexHandle, mShader.positionHandle, GLUtil.VERTEX_SIZE_3D);
+		GLUtil.passBufferToShader(vboDataHandler.vboNormalHandle, mShader.normalHandle, GLUtil.NORMAL_SIZE);
 
 		for(int i = 0; i < 1; i++){
-		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, shader.textureHandle);
-		    GLES20.glUniform1f(shader.instanceIdHandle, i);
+		    GLUtil.passTextureToShader(vboDataHandler.textureDataHandler, mShader.textureHandle);
+		    GLES20.glUniform1f(mShader.instanceIdHandle, i);
 			GLUtil.drawElements(vboDataHandler.vboIndexHandle, vboDataHandler.indexDataLength);
 		}
 	}
 
 
 	public Scene getParentScene() {
-		return parentScene;
+		return mParentScene;
 	}
 
 
 	public ObjectOuterCube getOuterCube() {
-		return outerCube;
+		return mOuterCube;
 	}
 	
 	public boolean checkObjectRayIntersection(Vector3D vector) {
-		setSelected(outerCube.isIntersected(vector));
-		return isSelected;
+		setSelected(mOuterCube.isIntersected(vector));
+		return mIsSelected;
 	}
 	
 	
 
 
 	public void incPosition(float x, float z) {
-		if(parentScene == null){
+		if(mParentScene == null){
 			Log.w(TAG, "setPosition(x, z): parentScene is null");
 			return;
 		}
-		float y = parentScene.getAltitude(getPosX(), getPosZ());
+		float y = mParentScene.getAltitude(getPosX(), getPosZ());
 		setPosition(getPosX() + x, y, getPosZ() + z);
 	}
 
 	public void setPosition(float x, float z) {
-		if(parentScene == null){
+		if(mParentScene == null){
 			Log.w(TAG, "setPosition(x, z): parentScene is null");
 			return;
 		}
-		float y = parentScene.getAltitude(x, z);
+		float y = mParentScene.getAltitude(x, z);
 		setPosition(x, y, z);
 	}
 	
@@ -170,92 +171,93 @@ abstract public class GameObject extends CommonGameObject{
 	
 	
 	public void moveTo(Point3D destination) {
-		movingTool.moveTo(destination);
+		mMovingTool.moveTo(destination);
 	}
 	
 	public float getCurSpeed() {
-		return curSpeed;
+		return mCurSpeed;
 	}
 
 
 	public MovingTool getMovingTool() {
-		return movingTool;
+		return mMovingTool;
 	}
 
 
 	public void setMovingTool(MovingTool movingTool) {
-		this.movingTool = movingTool;
+		this.mMovingTool = movingTool;
 	}
 
 
 	public AttackingTool getAttackingTool() {
-		return attackingTool;
+		return mAttackingTool;
 	}
 
 
 	public void setAttackingTool(AttackingTool attackingTool) {
-		this.attackingTool = attackingTool;
+		this.mAttackingTool = attackingTool;
 	}
 
 
 	public float getMaxSpeed() {
-		return movingTool.getMaxSpeed();
+		return mMovingTool.getMaxSpeed();
 	}
 	
 	
 	@Override
 	public void release() {
 		super.release();
-		movingTool.cancelMove();
-		attackingTool.cancelAttack();
-		healthBar.release();
+		mMovingTool.cancelMove();
+		mAttackingTool.cancelAttack();
+		mHealthBar.release();
+		mUnitIcon.release();
 	}
 
 
 	public boolean registerPositionListener(PositionChangeListener positionChangeListener){
-		if(positionChangeListener != this && !positionListenerList.contains(positionChangeListener)){
-			return positionListenerList.add(positionChangeListener);
+		if(positionChangeListener != this && !mPositionListenerList.contains(positionChangeListener)){
+			return mPositionListenerList.add(positionChangeListener);
 		}
 		return false;
 	}
 	
 	public boolean unregisterPositionListener(PositionChangeListener movingToolStateListener){
-		return positionListenerList.remove(movingToolStateListener);
+		return mPositionListenerList.remove(movingToolStateListener);
 	}
 	
 	private void notifyPositionChanged() {
-		for(PositionChangeListener listener: positionListenerList){
+		for(PositionChangeListener listener: mPositionListenerList){
 			listener.onPositionChanged(getPosX(), getPosY(), getPosZ());
 		}
 	}
 
 
 	public void decreaseLife(float damage) {
-		healthLevel-= damage;
-		if(healthLevel <= 0 && isAlive){
+		mHhealthLevel-= damage;
+		if(mHhealthLevel <= 0 && mIsAlive){
 			destroy();
 		}
 	}
 	
 	public float getHealthLevel(){
-		return healthLevel;
+		return mHhealthLevel;
 	}
 
 
 	private void destroy() {
-		isAlive = false;
-		parentScene.removeGameObject(this);
+		mIsAlive = false;
+		mParentScene.removeGameObject(this);
 	}
 
 
 	public float getMaxHealthLevel() {
-		return maxHealthLevel;
+		return mMaxHealthLevel;
 	}
 
 
 	protected void setHealthLevel(float maxHealthLevel) {
-		this.maxHealthLevel = maxHealthLevel;
-		healthLevel = maxHealthLevel;
+		this.mMaxHealthLevel = maxHealthLevel;
+		mHhealthLevel = maxHealthLevel;
 	}
 
 
@@ -269,33 +271,41 @@ abstract public class GameObject extends CommonGameObject{
 	}
 
 	public void moveToAttack(Point3D destination) {
-		movingTool.moveToAttack(destination);
+		mMovingTool.moveToAttack(destination);
 	}
 
 
 	public boolean isAlive() {
-		return isAlive;
+		return mIsAlive;
 	}
 
 //TODO implement object-camera clipping
 	public boolean isVisible() {
-		return isVisible;
+		return mIsVisible;
 	}
 
 
 	public void setVisible(boolean isVisible) {
-		this.isVisible = isVisible;
+		this.mIsVisible = isVisible;
 	}
 
 	public boolean isSelected() {
-		return isSelected;
+		return mIsSelected;
 	}
 	
 	public void setSelected(boolean isSelected) {
-		this.isSelected = isSelected;
+		this.mIsSelected = isSelected;
 	}
 	
-//	public abstract int getUnitIcon();
+	public abstract int getUnitIconResId();
+
+
+	public GLUnitIcon getUnitIconView(){
+		return mUnitIcon;
+	}
+	public void setUnitIconResId(int unitIconResId) {
+		mUnitIcon.setBackground(unitIconResId);
+	}
 
 
 }

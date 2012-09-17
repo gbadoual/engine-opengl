@@ -13,6 +13,9 @@ public abstract class Shader {
 	
 	public final int programHandle;
 	public final int instanceIdHandle;
+	
+	private int vertexShader;
+	private int fragmentShader;
 
 	public static final String UNIFORM_INSTANCE_ID = "uInstanceId";
 
@@ -26,8 +29,8 @@ public abstract class Shader {
 
 	public int createAndLinkProgram() {
 		int program = GLES20.glCreateProgram();
-		int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, getVertexShaderSrc());
-		int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, getFragmentShaderSrc());
+		vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, getVertexShaderSrc());
+		fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, getFragmentShaderSrc());
 		GLES20.glAttachShader(program, vertexShader);
 		GLES20.glAttachShader(program, fragmentShader);
 		GLES20.glLinkProgram(program);
@@ -49,6 +52,11 @@ public abstract class Shader {
 		}
 		return shader;
 	}	
+	
+	public void release(){
+		GLES20.glDeleteShader(vertexShader);
+		GLES20.glDeleteShader(fragmentShader);
+	}
 	
 	public abstract String getVertexShaderSrc();
 	public abstract String getFragmentShaderSrc();

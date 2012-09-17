@@ -5,15 +5,15 @@ import android.opengl.GLES20;
 import com.android.opengl.Camera;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
-import com.android.opengl.shader.SceneShader;
 import com.android.opengl.shader.Shader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.LoaderManager.MeshData;
+import com.android.opengl.util.ShaderManager;
 
 public class SkyDome {
 	
-	private SkyDomeShader mSkyBoxShader = new SkyDomeShader();
+	private SkyDomeShader mSkyBoxShader = ShaderManager.getInstance().getShader(SkyDomeShader.class);
 	private Camera camera;
 
 	int textureResId = R.raw.skydome_texture_small;
@@ -23,6 +23,7 @@ public class SkyDome {
 	public SkyDome(Camera camera, int textureResId) {
 		this(camera);
 		this.textureResId = textureResId;
+		init();
 	}
 	public SkyDome(Camera camera) {
 		this.camera = camera;
@@ -71,7 +72,7 @@ public class SkyDome {
 	
 	
 	
-	private static class SkyDomeShader extends Shader{
+	public static class SkyDomeShader extends Shader{
 
 		public static final String UNIFORM_TEXTURE = "u_Texture";
 		public static final String ATTRIBUTE_POSITION = "aPosition";
