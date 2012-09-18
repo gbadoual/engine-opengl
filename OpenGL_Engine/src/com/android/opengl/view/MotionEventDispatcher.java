@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import android.os.SystemClock;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
@@ -419,7 +420,7 @@ public class MotionEventDispatcher {
 	}
 
 	public static MotionEvent obtainCancelEvent() {
-		long curTime = System.currentTimeMillis();
+		long curTime = SystemClock.uptimeMillis();
 		return MotionEvent.obtain(curTime, curTime, MotionEvent.ACTION_CANCEL, 0, 0, 0);
 	}
 

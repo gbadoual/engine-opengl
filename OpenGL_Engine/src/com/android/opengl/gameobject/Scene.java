@@ -67,9 +67,8 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 	}
 	
 
-	public List<GameObject> checkRegionIntersection(Rect2D region) {
+	public void checkRegionIntersection(Rect2D region) {
 		Plane[] boundingPlanes = getUnprojectedPlanes(region);
-		selectedGameObjectList.clear();
 		for(GameObject gameObject: gameObjectList){
 			if(gameObject.isVisible()){
 				boolean isWithinRect = true;
@@ -81,15 +80,11 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 					};
 				}
 				gameObject.setSelected(isWithinRect);
-				if(gameObject.mIsSelected){
-					selectedGameObjectList.add(gameObject);
-				}
 			}else{
 				gameObject.setSelected(false);
 			}
 		}
-		mCamera.notifySelectedObjectsChanged(selectedGameObjectList);
-		return selectedGameObjectList;
+		mCamera.notifySelectedObjectsChanged();
 	}
 
 
@@ -198,9 +193,7 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 	}
 
 	public boolean removeGameObject(final GameObject gameObject){
-		if(selectedGameObjectList.remove(gameObject)){
-			mCamera.notifySelectedObjectsChanged(selectedGameObjectList);
-		};
+		mCamera.notifySelectedObjectsChanged();
 				
 		boolean res = gameObjectList.remove(gameObject);
 		if(gameObject != null){
@@ -323,10 +316,9 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 	List<GameObject> selectedObjectToMove = new ArrayList<GameObject>();
 	
 	//TODO "synchronized" is just workaround
-	public synchronized List<GameObject> checkObjectRayIntersection(Vector3D ray) {
+	public synchronized void checkObjectRayIntersection(Vector3D ray) {
 		boolean isAnyGameObgectSelected = false;
 		selectedObjectToMove.clear();		
-		selectedGameObjectList.clear();
 		for(GameObject gameObject: gameObjectList){
 			if(gameObject.isSelected()){
 				selectedObjectToMove.add(gameObject);
@@ -336,9 +328,6 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 
 		for(GameObject gameObject: gameObjectList){
 			isAnyGameObgectSelected |= gameObject.checkObjectRayIntersection(ray);
-			if(gameObject.mIsSelected){
-				selectedGameObjectList.add(gameObject);
-			}
 			if(gameObject.isSelected() && !prevSelectedObj.isEmpty()){
 				//Begin attack
 				for(GameObject attackingObj: prevSelectedObj){
@@ -357,8 +346,7 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 				onObjectTap(ray.getTargetPoint());
 			} 
 		}
-		mCamera.notifySelectedObjectsChanged(selectedGameObjectList);
-		return selectedGameObjectList;
+		mCamera.notifySelectedObjectsChanged();
 	}
 	
 	public void onObjectTap(Point3D point) {
@@ -459,6 +447,21 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 		notifyMVPMatrixChanged();
 	}
 
+
+	public void notifySelectedObjectChanged(GameObject gameObject) {
+		if(gameObject.isSelected()){
+			if(!selectedGameObjectList.contains(gameObject)){
+				selectedGameObjectList.add(gameObject);
+			}
+		} else {
+			selectedGameObjectList.remove(gameObject);
+		}
+//		mCamera.notifySelectedObjectsChanged(selectedGameObjectList);
+	}
+
+	public List<GameObject> getSelectedObjects(){
+		return selectedGameObjectList;
+	}
 
 
 

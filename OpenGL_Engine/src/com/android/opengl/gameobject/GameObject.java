@@ -245,8 +245,14 @@ abstract public class GameObject extends CommonGameObject{
 
 
 	private void destroy() {
-		mIsAlive = false;
+		setIsAlive(false);
 		mParentScene.removeGameObject(this);
+	}
+
+
+	private void setIsAlive(boolean isAlive) {
+		mIsAlive = false;
+		setSelected(false);
 	}
 
 
@@ -294,7 +300,10 @@ abstract public class GameObject extends CommonGameObject{
 	}
 	
 	public void setSelected(boolean isSelected) {
-		this.mIsSelected = isSelected;
+		if(isSelected != mIsSelected){
+			mIsSelected = isSelected;
+			mParentScene.notifySelectedObjectChanged(this);						
+		}
 	}
 	
 	public abstract int getUnitIconResId();

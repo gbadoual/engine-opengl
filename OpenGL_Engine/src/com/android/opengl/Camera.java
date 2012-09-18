@@ -92,9 +92,9 @@ public class Camera {
 		
 	}
 	
-	public void notifySelectedObjectsChanged(List<GameObject> gameObjectList){
+	public void notifySelectedObjectsChanged(){
 		glUnitIconLayout.removeChildren();
-		glUnitIconLayout.addUnitIconList(gameObjectList);
+		glUnitIconLayout.addUnitListToGrid(mScene.getSelectedObjects());
 		if(!glUnitIconLayout.getChildren().isEmpty()){
 			glUnitIconLayout.setVisible(true);
 		} else{

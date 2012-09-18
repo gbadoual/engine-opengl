@@ -17,7 +17,7 @@ public class WorldView extends GLSurfaceView{
 	public static final int DIALOG_LOADING_SHOW = 0;
 	public static final int DIALOG_LOADING_DISMISS = 1;
 	
-	private EngineRenderer worldRenderer;
+	private EngineRenderer engineRenderer;
 	private TextView textView;
 	private MotionEventDispatcher motionEventDispatcher;
 	
@@ -75,11 +75,11 @@ public class WorldView extends GLSurfaceView{
 	
 	private void init() {
 		
-		worldRenderer = new EngineRenderer(this, handler);
+		engineRenderer = new EngineRenderer(this, handler);
 		motionEventDispatcher = new MotionEventDispatcher();
-		motionEventDispatcher.registerToucheble(worldRenderer, 10000);
+		motionEventDispatcher.registerToucheble(engineRenderer, 10000);
 		setEGLContextClientVersion(2);
-		setRenderer(worldRenderer);
+		setRenderer(engineRenderer);
 	}
 	
 	public void updateFPS(final int fpsCount, final long facesCount){
@@ -106,8 +106,8 @@ public class WorldView extends GLSurfaceView{
 		Log.d("tag", "onPause");
 		super.onPause();
 		handler.sendEmptyMessage(DIALOG_LOADING_DISMISS);
-		if(worldRenderer != null){
-			worldRenderer.release();
+		if(engineRenderer != null){
+			engineRenderer.release();
 		}
 //		progressDialog = null;
 	}
