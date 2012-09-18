@@ -29,7 +29,7 @@ public class Cube extends GameObject{
 
 	@Override
 	public int getUnitIconResId() {
-		return getTextureResource();
+		return R.raw.icon_cube;
 	}
 	
 

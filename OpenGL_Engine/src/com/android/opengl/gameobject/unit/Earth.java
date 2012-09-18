@@ -26,7 +26,7 @@ public class Earth extends GameObject{
 
 	@Override
 	public int getUnitIconResId() {
-		return getTextureResource();
+		return R.raw.icon_earth;
 	}
 
 }

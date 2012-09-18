@@ -6,7 +6,6 @@ import java.util.List;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
-import com.android.opengl.R;
 import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.util.Log;
 import com.android.opengl.util.geometry.Rect2D;
@@ -20,7 +19,7 @@ public class GLSelectionRegion extends GLView{
 	public GLSelectionRegion(Camera camera) {
 		super(camera);
 		onMeasure(10, 10);
-		onLayout(5, 40);
+		onLayout(2, 40);
 		setzOrder(40);
 		mGLSelectionSurface = new GLSelectionSurface(camera);
 	}
