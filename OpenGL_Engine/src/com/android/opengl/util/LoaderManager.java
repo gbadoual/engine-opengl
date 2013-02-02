@@ -384,6 +384,37 @@ public class LoaderManager {
 //=======================================================================================================================
 // texture loading
 	
+	public int loadTexture(Bitmap bmpIn){
+	    final int[] textureHandle = new int[1];
+		 
+	    GLES20.glGenTextures(1, textureHandle, 0);
+
+	    if(textureHandle[0] != 0){
+
+		    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+	   	 
+	//        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+	//        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+	// 	 
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR_MIPMAP_NEAREST);
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
+	//        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
+	//        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
+	//
+	//        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+	//        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
+	
+	        
+	        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmpIn, 0);
+	        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+//	        bmp.recycle();
+	    }
+        return textureHandle[0];
+		
+	}
+	
 	public int loadTexture(final int resourceId)
 	{
 		Integer textureHandleInt = textureHandlerCache.get(resourceId);
@@ -392,41 +423,19 @@ public class LoaderManager {
 			return textureHandleInt;
 		}
 		long time = System.currentTimeMillis();
-	    final int[] textureHandle = new int[1];
 	 
-	    GLES20.glGenTextures(1, textureHandle, 0);
-	 
-	    if (textureHandle[0] != 0)
-	    {
-	    	Matrix flip = new Matrix();
-	        flip.postScale(1f, -1f);
 	        final BitmapFactory.Options options = new BitmapFactory.Options();
 	        options.inScaled = false;   // No pre-scaling
 	        // Read in the resource
-	        Bitmap temp = decodeAndFeetDegree2Dimens(resources, resourceId, options);
-	        
-	        
-	        Bitmap bmp = Bitmap.createBitmap(temp, 0, 0, temp.getWidth(), temp.getHeight(), flip, true);
-	        temp.recycle();
-	        // Bind to the texture in OpenGL
-	        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
-	 
-//	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-//	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-//	 	 
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR_MIPMAP_NEAREST);
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
-//	        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
-//	        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
-//
-//	        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
-//	        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
+	        Bitmap bmpIn = decodeAndFeetDegree2Dimens(resources, resourceId, options);
+	    	Matrix flip = new Matrix();
+	        flip.postScale(1f, -1f);
+	        Bitmap bmp = Bitmap.createBitmap(bmpIn, 0, 0, bmpIn.getWidth(), bmpIn.getHeight(), flip, true);
 
 	        
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
-            GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+	        // Bind to the texture in OpenGL
+	        int textureHandle = loadTexture(bmp);
+	        bmp.recycle();
             
 	        
 	        // Generate, and load up all of the mipmaps:
@@ -453,17 +462,16 @@ public class LoaderManager {
 ////	            if(height==1 && width==1) break;
 //	        }
 	        
-	        bmp.recycle();	
-	    }
+//	        bmp.recycle();	
 	 
 	    time = System.currentTimeMillis() - time;
 	    Log.i(TAG, "texture loaded for " + time/1000.0d + " sec.");
-	    if (textureHandle[0] == 0)
+	    if (textureHandle == 0)
 	    {
 	        throw new RuntimeException("loadTexture() - Error loading texture.");
 	    }
-	    textureHandlerCache.put(resourceId, textureHandle[0]);	 
-	    return textureHandle[0];
+	    textureHandlerCache.put(resourceId, textureHandle);	 
+	    return textureHandle;
 	}
 
 	private Bitmap decodeAndFeetDegree2Dimens(Resources resources2,

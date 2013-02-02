@@ -53,16 +53,24 @@ public class GLGridLayout extends GLLayout{
 	}
 
 	private void init(){
-		mGridInfo = new GLGridInfo(this);
+		mGridInfo = getGridInfo();
 		resetLayoutParams();
 	}
 
 	private void resetLayoutParams(){
 		nextX = 0;
-		nextY = mGridInfo.verticalSpacing;
+		nextY = getGridInfo().verticalSpacing;
 		prevRowHeight = 0;
 		
 	}
+
+	private GLGridInfo getGridInfo() {
+		if(mGridInfo == null){
+			mGridInfo = new GLGridInfo(this);
+		}
+		return mGridInfo;
+	}
+
 
 	@Override
 	public void addChild(GLView child) {
@@ -106,7 +114,7 @@ public class GLGridLayout extends GLLayout{
 		if(mGridInfo.getGridHeight() == 0){
 			mGridInfo.addRow(glView.mHeight);
 		}
-		if(mGridInfo.getColumnWidth(colunmNumber));
+//		if(mGridInfo.getColumnWidth(colunmNumber));
 	}
 
 	@Override

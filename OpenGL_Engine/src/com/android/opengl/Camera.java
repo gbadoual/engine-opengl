@@ -3,29 +3,21 @@ package com.android.opengl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 
-import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.gameobject.Scene;
-import com.android.opengl.shader.GLViewShader;
-import com.android.opengl.shader.ObjectShader;
-import com.android.opengl.shader.SceneShader;
-import com.android.opengl.util.ShaderManager;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
-import com.android.opengl.view.control.GLGridLayout;
 import com.android.opengl.view.control.GLIconGridLayout;
 import com.android.opengl.view.control.GLSelectionRegion;
-import com.android.opengl.view.control.GLUnitIcon;
+import com.android.opengl.view.control.GLTextView;
 import com.android.opengl.view.control.GLView;
 
 public class Camera {
@@ -47,6 +39,9 @@ public class Camera {
 	private int viewportHeight;
 	
 	private float aspectRatio;
+
+	public static float screenToWorldRatioX;
+	public static float screenToWorldRatioY;
 
 	public static float percentToWorldRatioX;
 	public static float percentToWorldRatioY;
@@ -71,9 +66,41 @@ public class Camera {
 		setViewport(worldView.getMeasuredWidth(), worldView.getMeasuredHeight());
 		initControls();
 	}
-	
+	GLTextView mGLTextView;
 	GLIconGridLayout glUnitIconLayout;
 	private void initControls() {
+		
+		mGLTextView = new GLTextView(this, "Airmole_Antique", 26);//setText("9:ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]");
+		mGLTextView.setText("... =)");
+		new Thread(){
+			public void run() {
+				String originalText = "qazw34rfgy678ijnmko90";//"I love Aljonka! :*";
+				final StringBuilder stepText = new StringBuilder();
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				for(int i = 0; i < originalText.length(); ++i){
+					stepText.append(originalText.charAt(i));
+					runOnGLThread(new Runnable() {
+						public void run() {
+							mGLTextView.setText(stepText.toString());
+							
+						}
+					});
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} 
+			};
+		}.start();
+
+		
 		glUnitIconLayout = new GLIconGridLayout(this, 2, 2, 15, 0);
 		glUnitIconLayout.setSpacing(1, 1);
 		
@@ -245,12 +272,16 @@ public class Camera {
 		aspectRatio = ((float)viewportWidth)/viewportHeight;
 		percentToScreenRatio = Math.max(viewportWidth, viewportHeight) / 100f;
 		screenToPercentRatio = 1 / percentToScreenRatio;
+		screenToWorldRatioX = 2.0f / viewportWidth;
+		screenToWorldRatioY = 2.0f / viewportHeight;
 		if(aspectRatio > 1){
 			percentToWorldRatioX = 2.0f / 100;
 			percentToWorldRatioY = 2.0f * (aspectRatio/100);
 		} else {
 			percentToWorldRatioX = 2.0f / (100 * aspectRatio);
 			percentToWorldRatioY = 2.0f / 100;
+			screenToWorldRatioX = 1;
+			screenToWorldRatioY = 1;
 		}
 		
 		//this coefs should be recalculated here. Notification should be send to the listeners  
@@ -373,7 +404,7 @@ public class Camera {
 		public void onViewportChanged(Rect2D newViewportRect);
 	}
 
-	public void postOnGLThread(Runnable runnable) {
+	public void runOnGLThread(Runnable runnable) {
 		worldView.queueEvent(runnable);		
 	}
 
