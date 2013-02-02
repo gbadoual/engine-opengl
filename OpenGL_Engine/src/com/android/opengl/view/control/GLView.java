@@ -59,7 +59,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 	protected Camera mCamera;
 	private int zOrder;
 	
-	private boolean isVisible = true;
+	protected boolean mIsVisible = true;
 	
 	protected final int[] indexData = new int[]{0, 2, 3, 0, 1, 2,
 											  4, 6, 7, 4, 5, 6,
@@ -130,7 +130,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 
 	
 	public void onDrawFrame(){
-		if(isVisible){
+		if(mIsVisible){
 
 			GLUtil.setGLState(GLES20.GL_DEPTH_TEST, false);
 			GLUtil.setGLState(GLES20.GL_CULL_FACE, false);
@@ -172,14 +172,14 @@ public class GLView implements Touchable, ViewportChangeListener{
 	}
 
 	public boolean isVisible() {
-		return isVisible;
+		return mIsVisible;
 	}
 
 	public void setVisible(boolean isVisible) {
 		if(!isVisible){
 			onTouchEvent(MotionEventDispatcher.obtainCancelEvent());
 		}
-		this.isVisible = isVisible;
+		mIsVisible = isVisible;
 	}
 	
 
@@ -346,7 +346,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event){
-		if(!isVisible){
+		if(!mIsVisible){
 			return false;
 		}
 		if (mFocusedView != null && mFocusedView != this){
@@ -473,7 +473,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 	
 	@Override
 	public Rect2D getBoundariesRectInPixel() {
-		if(isVisible){
+		if(mIsVisible){
 			return mBoundariesRectInPixel ;
 		} else{
 			return new Rect2D(); // returns empty rect

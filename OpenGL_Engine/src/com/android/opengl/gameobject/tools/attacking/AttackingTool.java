@@ -68,7 +68,7 @@ public abstract class AttackingTool{
 
 
 	public void fire(final GameObject objectToAttack) {
-		objectToAttack.getParentScene().getCamera().postOnGLThread(new Runnable() {
+		objectToAttack.getParentScene().getCamera().runOnGLThread(new Runnable() {
 			
 			@Override
 			public void run() {
