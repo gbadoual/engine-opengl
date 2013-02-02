@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
 //        testBluetoothConnection();
     }
   
+    
     //any random valid string. Should be the same across participating devices
     private UUID mUuid = UUID.fromString("550e8400-e29b-41d4-a716-446655446543");
 
