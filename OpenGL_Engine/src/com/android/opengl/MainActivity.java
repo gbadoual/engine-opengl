@@ -22,10 +22,10 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.opengl.interaction.BaseInteractionProvider.NewDataReceiveListner;
-import com.android.opengl.interaction.bluetooth.BaseBluetoothInteractionProvider.OnBluetoothDeviceConnectListener;
-import com.android.opengl.interaction.bluetooth.BluetoothClientInteractionProvider;
-import com.android.opengl.interaction.bluetooth.BluetoothServerInteractionProvider;
+import com.android.opengl.interaction.remote.IBaseInteractionProvider.NewDataReceiveListner;
+import com.android.opengl.interaction.remote.bluetooth.BaseBluetoothInteractionProvider.OnBluetoothDeviceConnectListener;
+import com.android.opengl.interaction.remote.bluetooth.BluetoothClient;
+import com.android.opengl.interaction.remote.bluetooth.BluetoothServer;
 import com.android.opengl.util.Log;
 import com.android.opengl.view.WorldView;
 
@@ -37,8 +37,8 @@ public class MainActivity extends Activity {
 	private static final String PREFS_KEY_UUID = "key_uuid";
 	private TextView fpsView;
 	private WorldView worldView;
-	private BluetoothServerInteractionProvider mServerProvider;
-	private BluetoothClientInteractionProvider mClientProvider;
+	private BluetoothServer mServerProvider;
+	private BluetoothClient mClientProvider;
 	
     /** Called when the activity is first created. */
     @Override
@@ -58,8 +58,8 @@ public class MainActivity extends Activity {
     private void testBluetoothConnection() {
 
     	try {
-			mServerProvider = new BluetoothServerInteractionProvider();
-			mClientProvider = new BluetoothClientInteractionProvider();
+			mServerProvider = new BluetoothServer();
+			mClientProvider = new BluetoothClient();
 			mServerProvider.registerNewDataReceiveListener(new NewDataReceiveListner() {
 				
 				@Override
@@ -149,8 +149,13 @@ public class MainActivity extends Activity {
 		} catch (JSONException e) {
 			Log.e(TAG, "onClick(): " + e);			
 		}
-		mClientProvider.sendData(clientData);
-		mServerProvider.sendData(serverData);
+		
+		if(mClientProvider != null){
+			mClientProvider.sendData(clientData);
+		}
+		if(mServerProvider != null){
+			mServerProvider.sendData(serverData);
+		}
     	return super.onTouchEvent(event);
     }
     
