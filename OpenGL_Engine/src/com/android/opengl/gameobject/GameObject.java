@@ -26,7 +26,7 @@ abstract public class GameObject extends CommonGameObject{
 	private String TAG;
 	
 	
-	protected Scene mParentScene;
+	protected GLScene mParentScene;
 	protected ObjectOuterCube mOuterCube;
 	protected ObjectShader mShader = ShaderManager.getInstance().getShader(ObjectShader.class);
 	
@@ -52,7 +52,7 @@ abstract public class GameObject extends CommonGameObject{
 
 	private boolean mIsVisible = true;
 	
-	public GameObject(Scene parentScene) {
+	public GameObject(GLScene parentScene) {
 		super(parentScene.getResources());
 		mIsAlive = true;
 		vboDataHandlerMap.get(getClass().getSimpleName()).indexData = null;
@@ -101,7 +101,7 @@ abstract public class GameObject extends CommonGameObject{
 	}
 
 
-	public Scene getParentScene() {
+	public GLScene getParentScene() {
 		return mParentScene;
 	}
 

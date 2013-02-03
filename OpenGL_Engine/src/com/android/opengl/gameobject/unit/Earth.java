@@ -2,12 +2,12 @@ package com.android.opengl.gameobject.unit;
 
 import com.android.opengl.R;
 import com.android.opengl.gameobject.GameObject;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 import com.android.opengl.gameobject.tools.moving.Wheels;
 
 public class Earth extends GameObject{
 
-	public Earth(Scene parentScene) {
+	public Earth(GLScene parentScene) {
 		super(parentScene);
 		setMovingTool(new Wheels(this));
 		setHealthLevel(500);

@@ -2,7 +2,7 @@ package com.android.opengl.gameobject.unit;
 
 import com.android.opengl.R;
 import com.android.opengl.gameobject.GameObject;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 import com.android.opengl.gameobject.tools.attacking.SimpleGun;
 import com.android.opengl.gameobject.tools.moving.Wheels;
 import com.android.opengl.view.control.GLHealthBar;
@@ -10,7 +10,7 @@ import com.android.opengl.view.control.GLHealthBar;
 public class Cube extends GameObject{
 
 
-	public Cube(Scene parentScene) {
+	public Cube(GLScene parentScene) {
 		super(parentScene);
 		mMovingTool = new Wheels(this);
 		mAttackingTool = new SimpleGun(this);

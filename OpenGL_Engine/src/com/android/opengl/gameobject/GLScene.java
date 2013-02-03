@@ -12,6 +12,8 @@ import com.android.opengl.Camera;
 import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.light.PointLight;
+import com.android.opengl.interaction.user.BaseRemoteUser;
+import com.android.opengl.interaction.user.BaseUser;
 import com.android.opengl.shader.SceneShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.MeshQuadNode2D;
@@ -21,9 +23,8 @@ import com.android.opengl.util.geometry.Plane;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.util.geometry.Vector3D;
-import com.android.opengl.view.control.GLSelectionRegion;
 
-public class Scene extends CommonGameObject implements ViewportChangeListener{
+public class GLScene extends CommonGameObject implements ViewportChangeListener{
 
 	
 //	private static final float MIN_ANGLE = -90;
@@ -34,29 +35,30 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 	
 	private static final float SCALING_STEP = 10;
 	
-	private static final String TAG = Scene.class.getSimpleName();
+	private static final String TAG = GLScene.class.getSimpleName();
 	
 	private List<GameObject> gameObjectList = new ArrayList<GameObject>();
 	private List<GameObject> selectedGameObjectList = new ArrayList<GameObject>();
 	private List<PointLight> lightList = new ArrayList<PointLight>(); 
+	private List<BaseUser> userList = new ArrayList<BaseUser>();
 
 	
 	private MeshQuadNode2D sceneQuad2D;
 	
 	
 	private Camera mCamera;
-	private SkyDome skyDome;
+	private GLSkyDome skyDome;
 	private SceneShader shader = ShaderManager.getInstance().getShader(SceneShader.class);
 
 	
 	private boolean isRendingFinished = true;
 	
-	public Scene(Camera camera) {
+	public GLScene(Camera camera) {
 		super(camera.getContext().getResources());
 		mCamera = camera;
 		mCamera.setScene(this);
 		mCamera.registerViewportChangeListener(this);
-		skyDome = new SkyDome(camera);
+		skyDome = new GLSkyDome(camera);
 		lightList.add(new PointLight(new Point3D(-50, 5, 0)));
 		lightList.add(new PointLight(new Point3D(40, 5, 40)));
 
@@ -128,7 +130,7 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 		pointsToUnproj[7 * 3 + 1] = bottom;
 		pointsToUnproj[7 * 3 + 2] = 1;
 
-		int[] screenDimens = new int[]{0, 0, Scene.this.mCamera.getViewportWidth(), Scene.this.mCamera.getViewportHeight()};
+		int[] screenDimens = new int[]{0, 0, GLScene.this.mCamera.getViewportWidth(), GLScene.this.mCamera.getViewportHeight()};
 		float[] unprojectedPoints = new float[pointsToUnproj.length];
 		GLUtil.glUnproj(pointsToUnproj, getMVMatrix(), getProjectionMatrix(), screenDimens, unprojectedPoints);
 		Plane[] boundingPlanes = new Plane[5];
@@ -461,6 +463,11 @@ public class Scene extends CommonGameObject implements ViewportChangeListener{
 
 	public List<GameObject> getSelectedObjects(){
 		return selectedGameObjectList;
+	}
+
+
+	public void addUser(BaseUser baseUser) {
+				
 	}
 
 

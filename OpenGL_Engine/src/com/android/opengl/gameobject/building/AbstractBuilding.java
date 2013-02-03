@@ -4,14 +4,14 @@ import java.util.Random;
 
 import com.android.opengl.Clan;
 import com.android.opengl.gameobject.GameObject;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 import com.android.opengl.util.geometry.Point3D;
 
 public abstract class AbstractBuilding extends GameObject {
 
 
 	
-	public AbstractBuilding(Scene parentScene, Clan clan) {
+	public AbstractBuilding(GLScene parentScene, Clan clan) {
 		super(parentScene);
 		mClan = clan;
 		setHealthLevel(1000);

@@ -1,12 +1,12 @@
 package com.android.opengl.gameobject.unit.vehicle;
 
 import com.android.opengl.R;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 import com.android.opengl.gameobject.tools.moving.Wheels;
 
 public class BMW extends AbstractVehicle{
 
-	public BMW(Scene parentScene) {
+	public BMW(GLScene parentScene) {
 		super(parentScene);
 		setMovingTool(new Wheels(this));
 	}

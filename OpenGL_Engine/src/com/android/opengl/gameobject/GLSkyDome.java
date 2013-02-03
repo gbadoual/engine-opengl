@@ -11,7 +11,7 @@ import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.LoaderManager.MeshData;
 import com.android.opengl.util.ShaderManager;
 
-public class SkyDome {
+public class GLSkyDome {
 	
 	private SkyDomeShader mSkyBoxShader = ShaderManager.getInstance().getShader(SkyDomeShader.class);
 	private Camera camera;
@@ -20,12 +20,12 @@ public class SkyDome {
 	private VboDataHandler mVboDataHandler = new VboDataHandler();
 	
 	
-	public SkyDome(Camera camera, int textureResId) {
+	public GLSkyDome(Camera camera, int textureResId) {
 		this(camera);
 		this.textureResId = textureResId;
 		init();
 	}
-	public SkyDome(Camera camera) {
+	public GLSkyDome(Camera camera) {
 		this.camera = camera;
 		init();
 	}
