@@ -2,9 +2,9 @@ package com.android.opengl.interaction.bluetooth;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONException;
@@ -30,7 +30,8 @@ public abstract class BaseBluetoothInteractionProvider implements BaseInteractio
 	protected BluetoothAdapter mBluetoothAdapter;
 	protected List<OnBluetoothDeviceConnectListener> mBluetoothDeviceConnectListeners = new ArrayList<BluetoothServerInteractionProvider.OnBluetoothDeviceConnectListener>();
 	protected List<BluetoothDevice> mDiscoveredDevices = new ArrayList<BluetoothDevice>();
-	protected OnNewDataListner mOnNewDataListener;
+	protected List<NewDataReceiveListner> mNewDataReceiverListenerList = Collections.synchronizedList(new ArrayList<NewDataReceiveListner>());
+	
 
 
 	
@@ -105,7 +106,7 @@ public abstract class BaseBluetoothInteractionProvider implements BaseInteractio
 	public void resgisterOnBTDeviceConnectListener(OnBluetoothDeviceConnectListener listener){
 		mBluetoothDeviceConnectListeners.add(listener);
 	}
-	public void unResgisterOnBTDeviceConnectListener(OnBluetoothDeviceConnectListener listener){
+	public void unresgisterOnBTDeviceConnectListener(OnBluetoothDeviceConnectListener listener){
 		mBluetoothDeviceConnectListeners.remove(listener);
 	}
 
@@ -116,7 +117,6 @@ public abstract class BaseBluetoothInteractionProvider implements BaseInteractio
 
 
 	public void notifyDeviceConnected(BluetoothSocket bluetoothSocket) {
-		notifyConnectionChanged();
 		for(OnBluetoothDeviceConnectListener listener : mBluetoothDeviceConnectListeners){
 			listener.onBluetoothDeviceConnected(bluetoothSocket);
 		}
@@ -124,11 +124,9 @@ public abstract class BaseBluetoothInteractionProvider implements BaseInteractio
 
 	protected class NewDataListenerThread extends Thread{
 		
-		private OnNewDataListner mOnNewDataListner;
 		private List<BluetoothSocket> mBluetoothSocketList;
 
-		public NewDataListenerThread(List<BluetoothSocket> bluetoothSocketList, OnNewDataListner onNewDataListner) {
-			mOnNewDataListner = onNewDataListner;
+		public NewDataListenerThread(List<BluetoothSocket> bluetoothSocketList) {
 			mBluetoothSocketList = bluetoothSocketList;
 		}
 		
@@ -155,7 +153,7 @@ public abstract class BaseBluetoothInteractionProvider implements BaseInteractio
 						newData = bufferedReader.readLine();
 						Log.i(TAG, "newData = " +newData);
 						if(newData != null && !newData.trim().isEmpty()){
-							mOnNewDataListner.onNewDataReceived(new JSONObject(newData));
+							notifyNewData(new JSONObject(newData));
 						}
 					}
 				} catch (IOException e) {
@@ -181,28 +179,36 @@ public abstract class BaseBluetoothInteractionProvider implements BaseInteractio
 				}
 			}
 		}
-		
 	}
 	
-
-	
-
-	protected void startListningData(List<BluetoothSocket> bluetoothSocketList, OnNewDataListner onNewDataListner) {
-		mOnNewDataListener = onNewDataListner;
-		mDataListenerThread = new NewDataListenerThread(bluetoothSocketList, onNewDataListner);
+	protected void startListningData(List<BluetoothSocket> bluetoothSocketList) {
+		stopListningData();
+		mDataListenerThread = new NewDataListenerThread(bluetoothSocketList);
 		mDataListenerThread.start();
 	}
 	
-	@Override
-	public void stopListningData(OnNewDataListner onNewDataListner) {
+	public void stopListningData() {
 		if(mDataListenerThread != null){
 			mDataListenerThread.interrupt();
 		}
 		mDataListenerThread = null;
-		onNewDataListner = null;
 	}
 	
-	public abstract void notifyConnectionChanged();
+	public void notifyNewData(JSONObject newDataJson) {
+		for(NewDataReceiveListner onNewDataListner: mNewDataReceiverListenerList){
+			onNewDataListner.onNewDataReceived(newDataJson);
+		}
+	}
+	
+	@Override
+	public void registerNewDataReceiveListener(NewDataReceiveListner listner){
+		mNewDataReceiverListenerList.add(listner);
+	}
+
+	@Override
+	public void unregisterNewDataReceiveListener(NewDataReceiveListner listner){
+		mNewDataReceiverListenerList.remove(listner);
+	}
 
 
 }
