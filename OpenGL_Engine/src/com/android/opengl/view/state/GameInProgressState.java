@@ -17,12 +17,12 @@ public class GameInProgressState extends EngineState{
 
 	@Override
 	public void onWorldUpdate() {
-		engineRenderer.getScene().onWorldUpdate();		
+		mEngineRenderer.getScene().onWorldUpdate();		
 	}		
 
 	@Override
 	public void onDrawFrame() {
-		engineRenderer.getCamera().onDrawFrame();
+		mEngineRenderer.getCamera().onDrawFrame();
 	}
 	
 	
@@ -42,32 +42,32 @@ public class GameInProgressState extends EngineState{
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-			engineRenderer.translateScene(distanceX / TRANSLATE_FACTOR, distanceY / TRANSLATE_FACTOR);
+			mEngineRenderer.translateScene(distanceX / TRANSLATE_FACTOR, distanceY / TRANSLATE_FACTOR);
 			return true;
 		}
 	
 		@Override
 		public boolean onRotate(float centerX, float centerY, float angle) {
-			engineRenderer.rotateScene(0, angle ,0);
+			mEngineRenderer.rotateScene(0, angle ,0);
 //			Log.i("tag", "onRotate: angle = " + angle);
 			return true;
 		}
 		@Override
 		public boolean onDoubleSlide(float distanceX, float distanceY) {
-			engineRenderer.rotateScene(distanceY * SLIDE_FACTOR, 0 ,0);
+			mEngineRenderer.rotateScene(distanceY * SLIDE_FACTOR, 0 ,0);
 //			Log.i("tag", "onDoubleSlide: distanceY = " + distanceY);
 			return true;
 		}	
 		@Override
 		public boolean onPinch(float centerX, float centerY, float scaleFactor) {
-			engineRenderer.scaleScene(scaleFactor);
+			mEngineRenderer.scaleScene(scaleFactor);
 //			Log.i("tag", "onPinch: scaleFactor = " + scaleFactor);
 			return true;
 		}
 		
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
-			engineRenderer.onSingleTap(e.getX(), e.getY());
+			mEngineRenderer.onSingleTap(e.getX(), e.getY());
 			return true;
 		}
 	

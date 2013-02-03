@@ -74,7 +74,7 @@ public class GLTextView extends GLView{
 		}
 	}
 	
-	public void onDrawText(){
+	private void onDrawText(){
 	
 //		if(isVisible){
 

@@ -3,6 +3,7 @@ package com.android.opengl.view;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
@@ -15,28 +16,26 @@ import android.view.MotionEvent;
 import com.android.opengl.Camera;
 import com.android.opengl.Clan;
 import com.android.opengl.gameobject.CommonGameObject;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 import com.android.opengl.gameobject.building.MainBase;
-import com.android.opengl.gameobject.unit.Cube;
-import com.android.opengl.gameobject.unit.Earth;
-import com.android.opengl.gameobject.unit.vehicle.BMW;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.util.geometry.Vector3D;
-import com.android.opengl.view.control.GLButton;
 import com.android.opengl.view.state.EngineState;
 import com.android.opengl.view.state.GameInProgressState;
 import com.android.opengl.view.state.LoadingLevelState;
+import com.android.opengl.view.state.MainScreenState;
 
 public class EngineRenderer implements Renderer, Touchable{
 
 	
-	private EngineState currentEngineState;
+	private EngineState mCurrentEngineState;
 	
-	private LoadingLevelState loadingLevelState;
-	private GameInProgressState gameInProgressState;
+	private LoadingLevelState mLoadingLevelState;
+	private GameInProgressState mGameInProgressState;
+	private MainScreenState mMainScreenState;
 	
-	private Camera camera;
+	private Camera mCamera;
 	
 	
 	private Rect2D mViewBoundaries;	
@@ -53,7 +52,7 @@ public class EngineRenderer implements Renderer, Touchable{
 //	private MainBase mainBase;
 ////	private GameObject bmw2;
 //	private Earth earth;
-	private Scene scene;
+	private GLScene scene;
 
 
 
@@ -73,22 +72,26 @@ public class EngineRenderer implements Renderer, Touchable{
 
 
 	private void initStates() {
-		loadingLevelState = new LoadingLevelState(this);
-		gameInProgressState = new GameInProgressState(this);
+		mLoadingLevelState = new LoadingLevelState(this);
+		mGameInProgressState = new GameInProgressState(this);
+		mMainScreenState = new MainScreenState(this, (Activity)worldView.getContext());
 	}
 
 
 	@Override
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
-		camera = new Camera(worldView);
-		currentEngineState = loadingLevelState;
-		currentEngineState.loadLevel();		
+		mCamera = new Camera(worldView);
+//		mCurrentEngineState = mLoadingLevelState;
+//		mCurrentEngineState.loadLevel();
+		mCurrentEngineState = mMainScreenState;
+		mCurrentEngineState.showMainScreen();
+
 	}
 
 
 	@Override
 	public void onSurfaceChanged(GL10 arg0, int width, int height) {
-		camera.setViewport(width, height);
+		mCamera.setViewport(width, height);
 		mViewBoundaries.mWidth = width;
 		mViewBoundaries.mHeight = height;
 	}
@@ -104,8 +107,8 @@ public class EngineRenderer implements Renderer, Touchable{
 		currentFrame++;
 		if(currentFrame <0){currentFrame = 0;}
 		clearScreen();
-		currentEngineState.onWorldUpdate();
-		currentEngineState.onDrawFrame();
+		mCurrentEngineState.onWorldUpdate();
+		mCurrentEngineState.onDrawFrame();
 		countFPS();
 	}
 
@@ -118,7 +121,7 @@ public class EngineRenderer implements Renderer, Touchable{
 	public void initGameObjects() {
 		CommonGameObject.facesCount = 0;
 		
-		scene = new Scene(camera);
+		scene = new GLScene(mCamera);
 //		scene.setPosition(centerX, centerY, centerZ)
 //		bmw1 = new BMW(scene);
 //		bmw1.setPosition(-8, -7);
@@ -168,15 +171,15 @@ public class EngineRenderer implements Renderer, Touchable{
 	
 
 
-	public Scene getScene() {
+	public GLScene getScene() {
 		return scene;
 	}
 
 
 	public void onSingleTap(float x, float y) {
 			
-		int w = camera.getViewportWidth();
-		int h = camera.getViewportHeight();
+		int w = mCamera.getViewportWidth();
+		int h = mCamera.getViewportHeight();
 		y = h - y;
 
 		if(scene == null){
@@ -195,8 +198,8 @@ public class EngineRenderer implements Renderer, Touchable{
 
 
 		public void release() {
-			if(camera != null){
-				camera.release();				
+			if(mCamera != null){
+				mCamera.release();				
 			} 
 		}
 
@@ -236,38 +239,38 @@ public class EngineRenderer implements Renderer, Touchable{
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			return currentEngineState.onTouchEvent(event);
+			return mCurrentEngineState.onTouchEvent(event);
 		}
 		
 
 
 		public EngineState getEngineState() {
-			return currentEngineState;
+			return mCurrentEngineState;
 		}
 
 
 		public void setEngineState(EngineState engineState) {
-			this.currentEngineState = engineState;
+			this.mCurrentEngineState = engineState;
 		}
 
 
 		public LoadingLevelState getLoadingLevelState() {
-			return loadingLevelState;
+			return mLoadingLevelState;
 		}
 
 
 		public void setLoadingLevelState(LoadingLevelState loadingLevelState) {
-			this.loadingLevelState = loadingLevelState;
+			this.mLoadingLevelState = loadingLevelState;
 		}
 
 
 		public GameInProgressState getGameInProgressState() {
-			return gameInProgressState;
+			return mGameInProgressState;
 		}
 
 
 		public void setGameInProgressState(GameInProgressState gameInProgressState) {
-			this.gameInProgressState = gameInProgressState;
+			this.mGameInProgressState = gameInProgressState;
 		}
 
 
@@ -288,7 +291,7 @@ public class EngineRenderer implements Renderer, Touchable{
 
 
 		public Camera getCamera() {
-			return camera;
+			return mCamera;
 		}
 
 

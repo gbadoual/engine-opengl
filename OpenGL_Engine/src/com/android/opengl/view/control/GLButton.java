@@ -1,7 +1,7 @@
 package com.android.opengl.view.control;
 
 import com.android.opengl.Camera;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 
 
 public class GLButton extends GLView{
@@ -9,12 +9,12 @@ public class GLButton extends GLView{
 	
 	
 
-	public GLButton(Scene scene) {
+	public GLButton(GLScene scene) {
 		super(scene);
 
 	}
 
-	public GLButton(Scene scene, float left, float top, float width, float height) {
+	public GLButton(GLScene scene, float left, float top, float width, float height) {
 		super(scene, left, top, width, height);
 	}
 	
