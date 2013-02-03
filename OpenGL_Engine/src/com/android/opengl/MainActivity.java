@@ -4,14 +4,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -19,8 +22,10 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.opengl.interaction.BluetoothInteractionProvider;
-import com.android.opengl.interaction.BluetoothInteractionProvider.OnBluetoothDeviceConnectListener;
+import com.android.opengl.interaction.BaseInteractionProvider.OnNewDataListner;
+import com.android.opengl.interaction.bluetooth.BaseBluetoothInteractionProvider.OnBluetoothDeviceConnectListener;
+import com.android.opengl.interaction.bluetooth.BluetoothClientInteractionProvider;
+import com.android.opengl.interaction.bluetooth.BluetoothServerInteractionProvider;
 import com.android.opengl.util.Log;
 import com.android.opengl.view.WorldView;
 
@@ -32,7 +37,8 @@ public class MainActivity extends Activity {
 	private static final String PREFS_KEY_UUID = "key_uuid";
 	private TextView fpsView;
 	private WorldView worldView;
-	private BluetoothInteractionProvider mProvider;
+	private BluetoothServerInteractionProvider mServerProvider;
+	private BluetoothClientInteractionProvider mClientProvider;
 	
     /** Called when the activity is first created. */
     @Override
@@ -52,13 +58,25 @@ public class MainActivity extends Activity {
     private void testBluetoothConnection() {
 
     	try {
-			mProvider = new BluetoothInteractionProvider();
-			mProvider.resgisterOnBTDeviceConnectListener(new OnBluetoothDeviceConnectListener() {
+			mServerProvider = new BluetoothServerInteractionProvider();
+			mClientProvider = new BluetoothClientInteractionProvider();
+			mServerProvider.startListningData(new OnNewDataListner() {
+				
+				@Override
+				public void onNewDataReceived(final JSONObject newDataJson) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(MainActivity.this, newDataJson.toString(), Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+			});
+			mServerProvider.resgisterOnBTDeviceConnectListener(new OnBluetoothDeviceConnectListener() {
 				
 				@Override
 				public void onBluetoothDeviceConnected(BluetoothSocket bluetoothSocket) {
 					runOnUiThread(new Runnable() {
-						
 						@Override
 						public void run() {
 							Toast.makeText(MainActivity.this, "new client device connected to server", Toast.LENGTH_SHORT).show();
@@ -67,8 +85,8 @@ public class MainActivity extends Activity {
 					
 				}
 			});
-			mProvider.startServer(BT_NAME_OPEN_GL_ENGINE, mUuid);
-			final List<BluetoothDevice> pairedDevices = mProvider.getPairedDevices();
+			mServerProvider.startServer(BT_NAME_OPEN_GL_ENGINE, mUuid);
+			final List<BluetoothDevice> pairedDevices = mServerProvider.getPairedDevices();
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			ListAdapter adapter = new ArrayAdapter<BluetoothDevice>(this, android.R.layout.simple_list_item_1, pairedDevices){
 				@Override
@@ -85,7 +103,14 @@ public class MainActivity extends Activity {
 				public void onClick(DialogInterface dialog, int which) {
 					BluetoothDevice bluetoothDevice = pairedDevices.get(which);
 					try {
-						mProvider.startClient(bluetoothDevice, mUuid);
+						mClientProvider.startClient(bluetoothDevice, mUuid);
+//						JSONObject data = new JSONObject();
+//						try {
+//							data.put("message", "Hello from client!");
+//						} catch (JSONException e) {
+//							Log.e(TAG, "onClick(): " + e);			
+//						}
+//						mClientProvider.sendData(data);
 						
 					} catch (IOException e) {
 						Log.e(TAG, "onClick(): " + e);
@@ -102,6 +127,18 @@ public class MainActivity extends Activity {
 		
 	}
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+		JSONObject data = new JSONObject();
+		try {
+			data.put("message", "Hello from client!");
+		} catch (JSONException e) {
+			Log.e(TAG, "onClick(): " + e);			
+		}
+		mClientProvider.sendData(data);
+    	return super.onTouchEvent(event);
+    }
+    
 	@Override
     protected void onResume() {
     	super.onResume();
