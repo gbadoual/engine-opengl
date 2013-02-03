@@ -22,7 +22,7 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.opengl.interaction.BaseInteractionProvider.OnNewDataListner;
+import com.android.opengl.interaction.BaseInteractionProvider.NewDataReceiveListner;
 import com.android.opengl.interaction.bluetooth.BaseBluetoothInteractionProvider.OnBluetoothDeviceConnectListener;
 import com.android.opengl.interaction.bluetooth.BluetoothClientInteractionProvider;
 import com.android.opengl.interaction.bluetooth.BluetoothServerInteractionProvider;
@@ -60,7 +60,19 @@ public class MainActivity extends Activity {
     	try {
 			mServerProvider = new BluetoothServerInteractionProvider();
 			mClientProvider = new BluetoothClientInteractionProvider();
-			mServerProvider.startListningData(new OnNewDataListner() {
+			mServerProvider.registerNewDataReceiveListener(new NewDataReceiveListner() {
+				
+				@Override
+				public void onNewDataReceived(final JSONObject newDataJson) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(MainActivity.this, newDataJson.toString(), Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+			});
+			mClientProvider.registerNewDataReceiveListener(new NewDataReceiveListner() {
 				
 				@Override
 				public void onNewDataReceived(final JSONObject newDataJson) {
@@ -129,13 +141,16 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-		JSONObject data = new JSONObject();
+		JSONObject clientData = new JSONObject();
+		JSONObject serverData = new JSONObject();
 		try {
-			data.put("message", "Hello from client!");
+			clientData.put("message", "Hello from client!");
+			serverData.put("message", "Hi there from server!");
 		} catch (JSONException e) {
 			Log.e(TAG, "onClick(): " + e);			
 		}
-		mClientProvider.sendData(data);
+		mClientProvider.sendData(clientData);
+		mServerProvider.sendData(serverData);
     	return super.onTouchEvent(event);
     }
     

@@ -27,20 +27,19 @@ public class BluetoothClientInteractionProvider extends BaseBluetoothInteraction
 
 	@Override
 	public void sendData(JSONObject data) {
-		if (!mBluetoothClientSocket.isConnected()){
-			Log.w(TAG, "sendData(): BluetoothClientSocket is not connected yet. Can't send data");
+		
+		if (mBluetoothClientSocket == null || !mBluetoothClientSocket.isConnected()){
+			Log.w(TAG, "sendData(): BluetoothClientSocket is not connected. Can't send data");
 			return;
 		}
-		OutputStream outputStream = null;
 		try {
-			outputStream = mBluetoothClientSocket.getOutputStream();
+			OutputStream outputStream = mBluetoothClientSocket.getOutputStream();
+			PrintWriter printWriter = new PrintWriter(outputStream);
+			printWriter.println(data.toString());
+			printWriter.flush();
 		} catch (IOException e) {
 			Log.e(TAG, "sendData(): " + e);
-			return;
 		}
-		PrintWriter printWriter = new PrintWriter(outputStream);
-		printWriter.println(data.toString());
-		printWriter.flush();
 	}
 
 	
@@ -49,7 +48,7 @@ public class BluetoothClientInteractionProvider extends BaseBluetoothInteraction
 		mBluetoothClientSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
 		mBluetoothAdapter.cancelDiscovery();
 		mBluetoothClientSocket.connect();
-		notifyConnectionChanged();
+		startListningData();
 	}
 
 	@Override
@@ -62,8 +61,7 @@ public class BluetoothClientInteractionProvider extends BaseBluetoothInteraction
 			}
 		}		
 		mBluetoothClientSocket = null;
-		mOnNewDataListener = null;
-		notifyConnectionChanged();
+		stopListningData();
 	}
 
 	@Override
@@ -72,28 +70,17 @@ public class BluetoothClientInteractionProvider extends BaseBluetoothInteraction
 		
 	}
 
-	@Override
-	public void startListningData(OnNewDataListner onNewDataListner) {
+	public void startListningData() {
 		if(mDataListenerThread != null){
 			Log.i(TAG, "startListningData(): client is already listning for new data");
 			return;
 		}
-		mOnNewDataListener = onNewDataListner;
 		if(mBluetoothClientSocket != null){
 			List<BluetoothSocket> bluetoothSocketList = new ArrayList<BluetoothSocket>();
 			bluetoothSocketList.add(mBluetoothClientSocket);
-			startListningData(bluetoothSocketList, onNewDataListner);
+			startListningData(bluetoothSocketList);
 		}
 	}
 
-
-	@Override
-	public void notifyConnectionChanged() {
-		Log.d(TAG, "notifyConnectionChanged(): " + mOnNewDataListener);
-		stopListningData(null);
-		if(mOnNewDataListener != null){
-			startListningData(mOnNewDataListener);
-		}
-	}
 
 }

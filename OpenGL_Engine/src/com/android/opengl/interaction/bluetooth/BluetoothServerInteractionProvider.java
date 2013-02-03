@@ -1,6 +1,8 @@
 package com.android.opengl.interaction.bluetooth;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,14 +10,8 @@ import java.util.UUID;
 
 import org.json.JSONObject;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 
 import com.android.opengl.interaction.BaseServerInteractionProvider;
 import com.android.opengl.util.Log;
@@ -24,14 +20,12 @@ public class BluetoothServerInteractionProvider extends BaseBluetoothInteraction
 	
 	private static final String TAG = BluetoothServerInteractionProvider.class.getSimpleName();
 	private List<BluetoothSocket> mBluetoothClientSocketList = Collections.synchronizedList(new ArrayList<BluetoothSocket>());
-
+	
 	private BluetoothServerThread mServerThread;
 
 	public BluetoothServerInteractionProvider() throws IllegalAccessException{
 		super(TAG);
 	}
-	
-	
 	
 	private class BluetoothServerThread extends Thread{
 		
@@ -75,35 +69,18 @@ public class BluetoothServerInteractionProvider extends BaseBluetoothInteraction
 		}
 	}
 
-	
-
-
 	@Override
-	public void startListningData(OnNewDataListner onNewDataListener) {
-		if(mDataListenerThread != null){
-			Log.i(TAG, "startListningData(): client is already listning for new data");
-			return;
+	public void sendData(JSONObject data) {
+		for(BluetoothSocket bluetoothClientSocket: mBluetoothClientSocketList){
+			try {
+				OutputStream outputStream = bluetoothClientSocket.getOutputStream();
+				PrintWriter printWriter = new PrintWriter(outputStream);
+				printWriter.println(data.toString());
+				printWriter.flush();
+			} catch (IOException e) {
+				Log.e(TAG, "sendData(): " + e);
+			}
 		}
-		startListningData(mBluetoothClientSocketList, onNewDataListener);		
-	}
-	
-
-	@Override
-	public void sendData(JSONObject jsonObject) {
-//		if (!mBluetoothClientSocket.isConnected()){
-//			Log.w(TAG, "sendData(): BluetoothClientSocket is not connected yet. Can't send data");
-//			return;
-//		}
-//		OutputStream outputStream = null;
-//		try {
-//			outputStream = mBluetoothClientSocket.getOutputStream();
-//		} catch (IOException e) {
-//			Log.e(TAG, "sendData(): " + e);
-//			return;
-//		}
-//		PrintWriter printWriter = new PrintWriter(outputStream);
-//		printWriter.println("Hello from client!");
-//		printWriter.close();
 	}
 
 	public void startServer(String name, UUID uuid) throws IOException{
@@ -112,6 +89,8 @@ public class BluetoothServerInteractionProvider extends BaseBluetoothInteraction
 		}
 		mServerThread = new BluetoothServerThread(name, uuid);
 		mServerThread.start();
+		resgisterOnBTDeviceConnectListener(mBluetoothDeviceConnectListener);
+		startListningData(mBluetoothClientSocketList);
 	}
 	
 	public void stopServer(){
@@ -119,26 +98,23 @@ public class BluetoothServerInteractionProvider extends BaseBluetoothInteraction
 			mServerThread.interrupt();
 		}
 		mServerThread = null;
-		mOnNewDataListener = null;
-		notifyConnectionChanged();
+		stopListningData();
+		unresgisterOnBTDeviceConnectListener(mBluetoothDeviceConnectListener);
 	}
 	
 	@Override
 	public void startServer() {
 		// TODO Auto-generated method stub
+	}
+	
+	private OnBluetoothDeviceConnectListener mBluetoothDeviceConnectListener = new OnBluetoothDeviceConnectListener() {
 		
-	}
-
-
-	@Override
-	public void notifyConnectionChanged() {
-		Log.d(TAG, "notifyConnectionChanged(): " + mOnNewDataListener);
-		stopListningData(null);
-		if(mOnNewDataListener != null){
-			startListningData(mOnNewDataListener);
-		}				
-	}
-
+		@Override
+		public void onBluetoothDeviceConnected(BluetoothSocket bluetoothSocket) {
+			stopListningData();
+			startListningData(mBluetoothClientSocketList);
+		}
+	};
 
 
 }
