@@ -18,23 +18,23 @@ public class LoadingLevelState extends EngineState{
 	@Override
 	public void loadLevel() {
 		long time = System.currentTimeMillis();
+		mEngineRenderer.getCamera().initControls();
 
-		engineRenderer.getCallbackHandler().removeMessages(WorldView.DIALOG_LOADING_SHOW);
-		engineRenderer.getCallbackHandler().sendEmptyMessage(WorldView.DIALOG_LOADING_SHOW);
+		mEngineRenderer.getCallbackHandler().removeMessages(WorldView.DIALOG_LOADING_SHOW);
+		mEngineRenderer.getCallbackHandler().sendEmptyMessage(WorldView.DIALOG_LOADING_SHOW);
 		// Use culling to remove back faces.
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
 //		// Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 
-		engineRenderer.initGameObjects();
-		engineRenderer.initFpsCount();
-		engineRenderer.getCallbackHandler().sendEmptyMessage(WorldView.DIALOG_LOADING_DISMISS);
+		mEngineRenderer.initGameObjects();
+		mEngineRenderer.initFpsCount();
+		mEngineRenderer.getCallbackHandler().sendEmptyMessage(WorldView.DIALOG_LOADING_DISMISS);
 
 		time = System.currentTimeMillis() - time;
 		Log.i("tag", "world loaded for " + time / 1000.0f + " sec.");
 		
-		engineRenderer.setEngineState(engineRenderer.getGameInProgressState());
-		engineRenderer.getEngineState().loadLevel();
+		mEngineRenderer.setEngineState(mEngineRenderer.getGameInProgressState());
 	}
 
 	@Override

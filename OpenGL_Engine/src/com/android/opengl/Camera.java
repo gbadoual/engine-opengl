@@ -9,7 +9,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
@@ -54,7 +54,7 @@ public class Camera {
 	private float angleZ;
 	
 	private WorldView worldView;
-	private Scene mScene;
+	private GLScene mScene;
 	private List<GLView> glViewList = new ArrayList<GLView>();
 	private List<ViewportChangeListener> viewportChangeListenerList = new ArrayList<ViewportChangeListener>();
 	
@@ -64,12 +64,12 @@ public class Camera {
 		this.worldView = worldView;
 		initViewMatrix(viewMatrix);
 		setViewport(worldView.getMeasuredWidth(), worldView.getMeasuredHeight());
-		initControls();
+//		initControls();
 	}
 	GLTextView mGLTextView;
 	GLIconGridLayout glUnitIconLayout;
-	private void initControls() {
-		
+	public void initControls() {
+		clearCamera();
 		mGLTextView = new GLTextView(this, "Airmole_Antique", 26);//setText("9:ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]");
 		mGLTextView.setText("... =)");
 		new Thread(){
@@ -304,11 +304,11 @@ public class Camera {
 		return worldView.getContext();
 	}
 
-	public Scene getScene() {
+	public GLScene getScene() {
 		return mScene;
 	}
 
-	public void setScene(Scene scene) {
+	public void setScene(GLScene scene) {
 		if(mScene != null){
 			Log.w(TAG, "setScene: scene was alredy set");
 		}
@@ -371,11 +371,7 @@ public class Camera {
 	};
 	
 	public void release(){
-		while(!glViewList.isEmpty()){
-			GLView glView = glViewList.remove(0);
-			glView.release();
-			unregisterGLView(glView);
-		}
+		clearCamera();
 		if(mScene != null){
 			mScene.release();
 			mScene = null;
@@ -391,6 +387,13 @@ public class Camera {
 		return aspectRatio;
 	}
 
+	public void clearCamera(){
+		while(!glViewList.isEmpty()){
+			GLView glView = glViewList.remove(0);
+			glView.release();
+			unregisterGLView(glView);
+		}
+	}
 
 	public boolean registerViewportChangeListener(ViewportChangeListener listener){
 		return viewportChangeListenerList.add(listener);

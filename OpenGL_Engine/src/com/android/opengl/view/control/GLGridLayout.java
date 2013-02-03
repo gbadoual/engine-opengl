@@ -6,7 +6,7 @@ import java.util.List;
 import android.util.Log;
 
 import com.android.opengl.Camera;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 
 public class GLGridLayout extends GLLayout{
 	
@@ -29,13 +29,13 @@ public class GLGridLayout extends GLLayout{
 	private float nextY;
 	private float prevRowHeight;
 	
- 	public GLGridLayout(Scene scene, float left, float top, float width, float height) {
+ 	public GLGridLayout(GLScene scene, float left, float top, float width, float height) {
 		super(scene, left, top, width, height);
 		init();
 	}
 
 
-	public GLGridLayout(Scene scene) {
+	public GLGridLayout(GLScene scene) {
 		super(scene);
 		init();
 	}
@@ -117,14 +117,14 @@ public class GLGridLayout extends GLLayout{
 //		if(mGridInfo.getColumnWidth(colunmNumber));
 	}
 
-	@Override
-	public void invalidate() {
-		super.invalidate();
-		resetLayoutParams();
-		for(GLView child: mChildren){
-			layoutNextChild(child);
-		}
-	}
+//	@Override
+//	public void invalidate() {
+//		super.invalidate();
+//		resetLayoutParams();
+//		for(GLView child: mChildren){
+//			layoutNextChild(child);
+//		}
+//	}
 
 	@Override
 	public void removeChildren() {

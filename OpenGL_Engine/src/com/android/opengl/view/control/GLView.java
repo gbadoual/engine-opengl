@@ -12,7 +12,7 @@ import android.view.MotionEvent;
 import com.android.opengl.Camera;
 import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
@@ -78,11 +78,11 @@ public class GLView implements Touchable, ViewportChangeListener{
 	private boolean isLongTapOccured;
 	private boolean isLongTapEnabled;
 	
-	public GLView(Scene scene) {
+	public GLView(GLScene scene) {
 		this.mCamera = scene.getCamera();
 		init();
 	}
-	public GLView(Scene scene, float left, float top, float width, float height) {
+	public GLView(GLScene scene, float left, float top, float width, float height) {
 		this(scene.getCamera(), left, top, width, height);
 	}
 
@@ -127,6 +127,10 @@ public class GLView implements Touchable, ViewportChangeListener{
 		}
 	}
 
+	
+	public void setPosition(float leftCoord, float topCoord){
+		onLayout(leftCoord, topCoord);
+	}
 
 	
 	public void onDrawFrame(){

@@ -8,11 +8,11 @@ import com.android.opengl.view.EngineRenderer;
 public abstract class EngineState {
 	
 	private static final String TAG = EngineState.class.getSimpleName();
-	protected EngineRenderer engineRenderer;
+	protected final EngineRenderer mEngineRenderer;
 	
 	
 	public EngineState(EngineRenderer engineRenderer) {
-		this.engineRenderer = engineRenderer;
+		mEngineRenderer = engineRenderer;
 	}
 	
 	

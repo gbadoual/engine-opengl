@@ -3,17 +3,17 @@ package com.android.opengl.view.control;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
-import com.android.opengl.gameobject.Scene;
+import com.android.opengl.gameobject.GLScene;
 
 public abstract class GLLayout extends GLView{
 
 
 	
-	public GLLayout(Scene scene, float left, float top, float width, float height) {
+	public GLLayout(GLScene scene, float left, float top, float width, float height) {
 		super(scene, left, top, width, height);
 	}
 
-	public GLLayout(Scene scene) {
+	public GLLayout(GLScene scene) {
 		super(scene);
 	}
 
