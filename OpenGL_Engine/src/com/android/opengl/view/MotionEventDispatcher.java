@@ -355,7 +355,11 @@ public class MotionEventDispatcher {
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder("[TouchableWrapper: ");
-			sb.append("touchable: " +touchable + ", event: " + motionEvent + "]");
+			try{
+				sb.append("touchable: " +touchable + ", event: " + motionEvent + "]");
+			} catch (IllegalArgumentException e){
+				Log.w(TAG, "toString(): " + e);
+			}
 			return sb.toString();
 		}
 				

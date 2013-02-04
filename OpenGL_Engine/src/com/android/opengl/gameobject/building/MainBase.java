@@ -52,8 +52,8 @@ public class MainBase extends AbstractBuilding{
 			}
 		});
 		GLView child2 = new GLButton(mParentScene, 5, 2, 10, 10);
-		GLView child3 = new GLButton(mParentScene, 5, 2, 10, 5);
-		GLView child4 = new GLButton(mParentScene, 5, 2, 10, 5);
+//		GLView child3 = new GLButton(mParentScene, 5, 2, 10, 5);
+//		GLView child4 = new GLButton(mParentScene, 5, 2, 10, 5);
 //		GLView child5 = new GLButton(parentScene, 5, 2, 10, 5);
 //		GLView child6 = new GLButton(parentScene, 5, 2, 10, 5);
 		child2.setBackground(R.raw.icon_earth);
@@ -74,8 +74,8 @@ public class MainBase extends AbstractBuilding{
 		});
 		mainPanleLayout.addChild(child1);
 		mainPanleLayout.addChild(child2);
-		mainPanleLayout.addChild(child3);
-		mainPanleLayout.addChild(child4);
+//		mainPanleLayout.addChild(child3);
+//		mainPanleLayout.addChild(child4);
 //		mainPanleLayout.addChild(child5);
 //		mainPanleLayout.addChild(child6);
 //		mainPanleLayout.addChild(child);
