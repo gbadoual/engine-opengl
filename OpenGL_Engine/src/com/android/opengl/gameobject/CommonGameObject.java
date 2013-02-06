@@ -13,8 +13,9 @@ import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
+import com.android.opengl.view.Renderable;
 
-public abstract class CommonGameObject {
+public abstract class CommonGameObject implements Renderable{
 	
 	private static final String TAG = CommonGameObject.class.getSimpleName();
 

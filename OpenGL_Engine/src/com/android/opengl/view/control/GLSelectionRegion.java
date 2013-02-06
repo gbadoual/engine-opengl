@@ -162,6 +162,13 @@ public class GLSelectionRegion extends GLView{
 			mSurfaceBounds.mWidth = newViewportRect.mWidth;			
 			mSurfaceBounds.mHeight = newViewportRect.mHeight;			
 		}
+
+
+		@Override
+		public void onDrawFrame() {
+			// TODO Auto-generated method stub
+			
+		}
 		
 		
 	}

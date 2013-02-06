@@ -6,7 +6,6 @@ import java.util.List;
 
 import android.opengl.GLES20;
 import android.os.SystemClock;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
@@ -20,6 +19,7 @@ import com.android.opengl.util.Log;
 import com.android.opengl.util.ShaderManager;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;
+import com.android.opengl.view.Renderable;
 import com.android.opengl.view.Touchable;
 
 public class GLView implements Touchable, ViewportChangeListener{
