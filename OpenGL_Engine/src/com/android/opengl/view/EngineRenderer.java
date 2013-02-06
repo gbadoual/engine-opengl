@@ -100,6 +100,11 @@ public class EngineRenderer implements Renderer, Touchable{
 	public void onDrawFrame(GL10 arg0) {
 		gameLoopStep();
 	}
+	
+//	@Override
+//	public void onDrawFrame() {
+//		//stub
+//	}
 
 
 

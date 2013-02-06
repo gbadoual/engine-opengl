@@ -7,12 +7,12 @@ import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.util.FloatMath;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
 import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.light.PointLight;
-import com.android.opengl.interaction.user.BaseRemoteUser;
 import com.android.opengl.interaction.user.BaseUser;
 import com.android.opengl.shader.SceneShader;
 import com.android.opengl.util.GLUtil;
@@ -469,7 +469,6 @@ public class GLScene extends CommonGameObject implements ViewportChangeListener{
 	public void addUser(BaseUser baseUser) {
 				
 	}
-
 
 
 }

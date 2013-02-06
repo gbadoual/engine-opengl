@@ -13,6 +13,7 @@ import com.android.opengl.gameobject.GLScene;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
+import com.android.opengl.view.Renderable;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
 import com.android.opengl.view.control.GLIconGridLayout;
@@ -54,6 +55,7 @@ public class Camera {
 	private float angleZ;
 	
 	private WorldView worldView;
+	private List<Renderable> mRenderableList = new ArrayList<Renderable>();
 	private GLScene mScene;
 	private List<GLView> glViewList = new ArrayList<GLView>();
 	private List<ViewportChangeListener> viewportChangeListenerList = new ArrayList<ViewportChangeListener>();
@@ -74,7 +76,7 @@ public class Camera {
 		mGLTextView.setText("... =)");
 		new Thread(){
 			public void run() {
-				String originalText = "qazw34rfgy678ijnmko90";//"I love Aljonka! :*";
+				String originalText = "I love Aljonka! :*";//"qazw34rfgy678ijnmko90";
 				final StringBuilder stepText = new StringBuilder();
 				try {
 					Thread.sleep(3000);
