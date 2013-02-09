@@ -5,7 +5,7 @@ import android.view.MotionEvent;
 
 import com.android.opengl.view.EngineRenderer;
 
-public abstract class EngineState {
+public abstract class EngineState implements BaseState{
 	
 	private static final String TAG = EngineState.class.getSimpleName();
 	protected final EngineRenderer mEngineRenderer;
@@ -25,9 +25,6 @@ public abstract class EngineState {
 	};
 	public void showMenu(){
 		Log.i(TAG, "showMenu() is not implemented");
-	};
-	public void loadLevel(){
-		Log.i(TAG, "loadLevel() is not implemented");
 	};
 	public void startGame(){
 		Log.i(TAG, "startGame() is not implemented");

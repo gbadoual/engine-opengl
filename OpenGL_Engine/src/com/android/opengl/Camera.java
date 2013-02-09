@@ -8,12 +8,15 @@ import java.util.List;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import com.android.opengl.gameobject.GLScene;
+import com.android.opengl.listener.ViewportChangeListener;
+import com.android.opengl.listener.listenerholder.TouchEventListenerHolder;
+import com.android.opengl.listener.listenerholder.ViewportChangeListenerHolder;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
-import com.android.opengl.view.Renderable;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
 import com.android.opengl.view.control.GLIconGridLayout;
@@ -21,7 +24,7 @@ import com.android.opengl.view.control.GLSelectionRegion;
 import com.android.opengl.view.control.GLTextView;
 import com.android.opengl.view.control.GLView;
 
-public class Camera {
+public class Camera implements Touchable{
 	
 	private static final int MATRIX_X_OFFSET = 12;
 	private static final int MATRIX_Y_OFFSET = 13;
@@ -36,8 +39,8 @@ public class Camera {
 	private float[] projectionMatrix = new float[16];
 	private float[] vpMatrix = new float[16];
 	
-	private int viewportWidth;
-	private int viewportHeight;
+	private int mViewportWidth;
+	private int mViewportHeight;
 	
 	private float aspectRatio;
 
@@ -55,15 +58,21 @@ public class Camera {
 	private float angleZ;
 	
 	private WorldView worldView;
-	private List<Renderable> mRenderableList = new ArrayList<Renderable>();
+//	private List<Renderable> mRenderableList = new ArrayList<Renderable>();
 	private GLScene mScene;
 	private List<GLView> glViewList = new ArrayList<GLView>();
-	private List<ViewportChangeListener> viewportChangeListenerList = new ArrayList<ViewportChangeListener>();
-	
+//	private List<ViewportChangeListener> viewportChangeListenerHolder = new ArrayList<ViewportChangeListener>();
+
+	private ViewportChangeListenerHolder viewportChangeListenerHolder = new ViewportChangeListenerHolder();
+	private TouchEventListenerHolder touchEventListenerHolder = new TouchEventListenerHolder();
 
 	
 	public Camera(WorldView worldView) {
+//		h.registerlistener(listener);
+//		h.unregisterlistener(listener);
+//		h.no
 		this.worldView = worldView;
+		worldView.registerToucheble(this, 10000);
 		initViewMatrix(viewMatrix);
 		setViewport(worldView.getMeasuredWidth(), worldView.getMeasuredHeight());
 //		initControls();
@@ -147,8 +156,7 @@ public class Camera {
 			right = ratio;
 		}
 		float [] projectionMatrix = new float[16];
-		Matrix.frustumM(projectionMatrix, 0, left, right, bottom, top, near,
-				far);
+		Matrix.frustumM(projectionMatrix, 0, left, right, bottom, top, near, far);
 		return projectionMatrix;
 	}
 	
@@ -252,16 +260,17 @@ public class Camera {
 
 	public void setViewport(int width, int height) {
 		Log.i(TAG, "viewport changed: new w/h = " + width + "/" + height);
-		viewportWidth = width;
-		viewportHeight = height;
+		mViewportWidth = width;
+		mViewportHeight = height;
 		initRatioCoeffitients();
 		GLES20.glViewport(0, 0, width, height);
 		Rect2D newViewportRect = new Rect2D(0, 0, width, height);
-		projectionMatrix = calculateProjectionMatrix(viewportWidth, viewportHeight);
+		projectionMatrix = calculateProjectionMatrix(mViewportWidth, mViewportHeight);
 		notifyVPMatrixChanged();
-		for(ViewportChangeListener listener: viewportChangeListenerList){
-			listener.onViewportChanged(newViewportRect);
-		}
+		viewportChangeListenerHolder.notifyListeners(newViewportRect);
+//		for(ViewportChangeListener listener: viewportChangeListenerHolder){
+//			listener.onViewportChanged(newViewportRect);
+//		}
 //		if(scene != null){
 //			scene.notifyViewportChanged(width, height);
 //		}
@@ -271,11 +280,11 @@ public class Camera {
 	}
 
 	private void initRatioCoeffitients() {
-		aspectRatio = ((float)viewportWidth)/viewportHeight;
-		percentToScreenRatio = Math.max(viewportWidth, viewportHeight) / 100f;
+		aspectRatio = ((float)mViewportWidth)/mViewportHeight;
+		percentToScreenRatio = Math.max(mViewportWidth, mViewportHeight) / 100f;
 		screenToPercentRatio = 1 / percentToScreenRatio;
-		screenToWorldRatioX = 2.0f / viewportWidth;
-		screenToWorldRatioY = 2.0f / viewportHeight;
+		screenToWorldRatioX = 2.0f / mViewportWidth;
+		screenToWorldRatioY = 2.0f / mViewportHeight;
 		if(aspectRatio > 1){
 			percentToWorldRatioX = 2.0f / 100;
 			percentToWorldRatioY = 2.0f * (aspectRatio/100);
@@ -295,11 +304,11 @@ public class Camera {
 	}
 
 	public int getViewportHeight() {
-		return viewportHeight;
+		return mViewportHeight;
 	}
 
 	public int getViewportWidth() {
-		return viewportWidth;
+		return mViewportWidth;
 	}
 
 	public Context getContext() {
@@ -378,7 +387,8 @@ public class Camera {
 			mScene.release();
 			mScene = null;
 		}
-		viewportChangeListenerList.clear();
+		viewportChangeListenerHolder.clear();
+		worldView.unregisterToucheble(this);
 	}
 
 	public void notifyGLViewzOrderChanged() {
@@ -397,21 +407,37 @@ public class Camera {
 		}
 	}
 
-	public boolean registerViewportChangeListener(ViewportChangeListener listener){
-		return viewportChangeListenerList.add(listener);
-	}
-
-	public boolean unregisterViewportChangeListener(ViewportChangeListener listener){
-		return viewportChangeListenerList.remove(listener);
-	}
+//	public boolean registerViewportChangeListener(ViewportChangeListener listener){
+//		return viewportChangeListenerList.add(listener);
+//	}
+//
+//	public boolean unregisterViewportChangeListener(ViewportChangeListener listener){
+//		return viewportChangeListenerList.remove(listener);
+//	}
 	
-	public static interface ViewportChangeListener{
-		public void onViewportChanged(Rect2D newViewportRect);
-	}
 
 	public void runOnGLThread(Runnable runnable) {
 		worldView.queueEvent(runnable);		
 	}
 
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		touchEventListenerHolder.notifyListeners(event);
+		return true;
+	}
+
+	@Override
+	public Rect2D getBoundariesRectInPixel() {
+		// TODO Auto-generated method stub
+		return new Rect2D(0, 0, mViewportWidth, mViewportHeight);
+	}
+
+	public ViewportChangeListenerHolder getViewportChangeListenerHolder() {
+		return viewportChangeListenerHolder;
+	}
+
+	public TouchEventListenerHolder getTouchEventListenerHolder() {
+		return touchEventListenerHolder;
+	}
 
 }

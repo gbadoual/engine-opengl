@@ -9,9 +9,9 @@ import android.os.SystemClock;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
-import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.gameobject.CommonGameObject.VboDataHandler;
 import com.android.opengl.gameobject.GLScene;
+import com.android.opengl.listener.ViewportChangeListener;
 import com.android.opengl.shader.GLViewShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.LoaderManager;
@@ -19,7 +19,6 @@ import com.android.opengl.util.Log;
 import com.android.opengl.util.ShaderManager;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;
-import com.android.opengl.view.Renderable;
 import com.android.opengl.view.Touchable;
 
 public class GLView implements Touchable, ViewportChangeListener{
@@ -123,7 +122,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 		GLUtil.attachIndexesToHandler(indexData, mVboHandler.vboIndexHandle);
 		if(mParent == null){
 			mCamera.registerGLView(this, zOrder);
-			mCamera.registerViewportChangeListener(this);
+			mCamera.getViewportChangeListenerHolder().registerListener(this);
 		}
 	}
 
@@ -539,7 +538,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 		public void onTap(GLView glView);
 		public void onLongTap(GLView glView);
 	}
-
+	
 	@Override
 	public void onViewportChanged(Rect2D newViewportRect) {
 		invalidate();
