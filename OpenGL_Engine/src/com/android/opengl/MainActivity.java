@@ -51,6 +51,12 @@ public class MainActivity extends Activity {
 //        testBluetoothConnection();
     }
   
+    @Override
+    public void onBackPressed() {
+    	if(!worldView.onBackPressed()){
+    		super.onBackPressed();
+    	}
+    }
     
     //any random valid string. Should be the same across participating devices
     private UUID mUuid = UUID.fromString("550e8400-e29b-41d4-a716-446655446543");

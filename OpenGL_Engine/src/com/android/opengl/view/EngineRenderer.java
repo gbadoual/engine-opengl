@@ -76,8 +76,6 @@ public class EngineRenderer implements Renderer, TouchEventListener{
 	
 
 	private void gameLoopStep() {
-		currentFrame++;
-		if(currentFrame <0){currentFrame = 0;}
 		clearScreen();
 		mCurrentEngineState.onWorldUpdate();
 		mCurrentEngineState.onDrawFrame();
@@ -105,6 +103,8 @@ public class EngineRenderer implements Renderer, TouchEventListener{
 	}
 
 	private void countFPS() {
+		currentFrame++;
+		if(currentFrame <0){currentFrame = 0;}
 		fps++;
 		if(SystemClock.uptimeMillis() - prevTime>= 1000){
 //			Log.i("tag", "fps = "+fps);
@@ -132,7 +132,7 @@ public class EngineRenderer implements Renderer, TouchEventListener{
 		
 
 
-		public EngineState getEngineState() {
+		public EngineState getCurrentEngineState() {
 			return mCurrentEngineState;
 		}
 
@@ -164,6 +164,11 @@ public class EngineRenderer implements Renderer, TouchEventListener{
 
 		public Camera getCamera() {
 			return mCamera;
+		}
+
+
+		public boolean onBackPressed() {
+			return mCurrentEngineState.onBackPressed();
 		}
 
 

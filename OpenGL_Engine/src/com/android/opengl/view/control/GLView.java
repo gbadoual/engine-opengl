@@ -322,6 +322,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 	public void setParent(GLView parent) {
 		this.mParent = parent;
 		if(mParent == null){
+			mCamera.unregisterGLView(this);
 			mCamera.registerGLView(this, zOrder);
 		} else{
 			mCamera.unregisterGLView(this);
@@ -484,8 +485,8 @@ public class GLView implements Touchable, ViewportChangeListener{
 	}
 
 	public void release(){
-		mCamera.unregisterGLView(this);		
-		mChildren.clear();
+		mCamera.unregisterGLView(this);
+		removeChildren();
 	}
 	
 	public int getzOrder() {
@@ -521,6 +522,9 @@ public class GLView implements Touchable, ViewportChangeListener{
 		}
 	};
 	public void removeChildren() {
+		for(GLView child: mChildren){
+			child.release();
+		}
 		mChildren.clear();
 		invalidate();
 	}

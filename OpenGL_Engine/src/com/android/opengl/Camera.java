@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.GLSurfaceView.Renderer;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -17,6 +18,7 @@ import com.android.opengl.listener.listenerholder.ViewportChangeListenerHolder;
 import com.android.opengl.util.geometry.Matrix;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Rect2D;
+import com.android.opengl.view.EngineRenderer;
 import com.android.opengl.view.Touchable;
 import com.android.opengl.view.WorldView;
 import com.android.opengl.view.control.GLIconGridLayout;
@@ -438,6 +440,10 @@ public class Camera implements Touchable{
 
 	public TouchEventListenerHolder getTouchEventListenerHolder() {
 		return touchEventListenerHolder;
+	}
+	
+	public EngineRenderer getEngineRenderer(){
+		return worldView.getEngineRenderer();
 	}
 
 }
