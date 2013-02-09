@@ -4,12 +4,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.android.opengl.view.EngineRenderer;
+import com.android.opengl.view.screen.GLScreenStack;
 
 public abstract class EngineState implements BaseState{
 	
 	private static final String TAG = EngineState.class.getSimpleName();
 	protected final EngineRenderer mEngineRenderer;
-	
+	protected GLScreenStack mGLScreenStack = new GLScreenStack();
 	
 	public EngineState(EngineRenderer engineRenderer) {
 		mEngineRenderer = engineRenderer;
@@ -38,6 +39,10 @@ public abstract class EngineState implements BaseState{
 
 	public boolean onTouchEvent(MotionEvent event){
 		return false;
-	};
+	}
 
+
+	public GLScreenStack getGlScreenStack() {
+		return mGLScreenStack;
+	}
 }

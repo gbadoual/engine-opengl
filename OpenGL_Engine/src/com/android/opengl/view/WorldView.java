@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLSurfaceView.Renderer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -17,7 +18,7 @@ public class WorldView extends GLSurfaceView{
 	public static final int DIALOG_LOADING_SHOW = 0;
 	public static final int DIALOG_LOADING_DISMISS = 1;
 	
-	private EngineRenderer engineRenderer;
+	private EngineRenderer mEngineRenderer;
 	private TextView textView;
 	private MotionEventDispatcher motionEventDispatcher;
 	
@@ -75,10 +76,10 @@ public class WorldView extends GLSurfaceView{
 	
 	private void init() {
 		
-		engineRenderer = new EngineRenderer(this, handler);
+		mEngineRenderer = new EngineRenderer(this, handler);
 		motionEventDispatcher = new MotionEventDispatcher();
 		setEGLContextClientVersion(2);
-		setRenderer(engineRenderer);
+		setRenderer(mEngineRenderer);
 	}
 	
 	public void updateFPS(final int fpsCount, final long facesCount){
@@ -105,8 +106,8 @@ public class WorldView extends GLSurfaceView{
 		Log.d("tag", "onPause");
 		super.onPause();
 		handler.sendEmptyMessage(DIALOG_LOADING_DISMISS);
-		if(engineRenderer != null){
-			engineRenderer.release();
+		if(mEngineRenderer != null){
+			mEngineRenderer.release();
 		}
 //		progressDialog = null;
 	}
@@ -148,6 +149,14 @@ public class WorldView extends GLSurfaceView{
 
 	public boolean unregisterToucheble(Touchable touchable) {
 		return motionEventDispatcher.unregisterToucheble(touchable);
+	}
+
+	public boolean onBackPressed() {
+		return mEngineRenderer.onBackPressed();
+	}
+
+	public EngineRenderer getEngineRenderer() {
+		return mEngineRenderer;
 	}
 
 

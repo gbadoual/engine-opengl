@@ -86,4 +86,10 @@ public class LoadingLevelState extends BaseStartedGameSubstate{
 		
 	}
 
+	@Override
+	public boolean onBackPressed() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

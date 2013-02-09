@@ -1,6 +1,5 @@
 package com.android.opengl.view.state.startedgamestate;
 
-import com.android.opengl.view.state.BaseState;
 import com.android.opengl.view.state.StartedGameState;
 
 public class GameInProgressState extends BaseStartedGameSubstate{
@@ -29,6 +28,12 @@ public class GameInProgressState extends BaseStartedGameSubstate{
 	@Override
 	public void onWorldUpdate() {
 		mStartedGameState.getScene().onWorldUpdate();		
+	}
+
+	@Override
+	public boolean onBackPressed() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

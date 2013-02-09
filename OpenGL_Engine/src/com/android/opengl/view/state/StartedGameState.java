@@ -1,21 +1,16 @@
 package com.android.opengl.view.state;
 
-import android.opengl.GLES20;
 import android.opengl.GLU;
 import android.util.Log;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
-import com.android.opengl.Clan;
-import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.gameobject.GLScene;
-import com.android.opengl.gameobject.building.MainBase;
 import com.android.opengl.gameobject.unit.vehicle.BMW;
 import com.android.opengl.util.geometry.Point3D;
 import com.android.opengl.util.geometry.Vector3D;
 import com.android.opengl.view.EngineRenderer;
 import com.android.opengl.view.GestureDetector;
-import com.android.opengl.view.WorldView;
 import com.android.opengl.view.state.startedgamestate.BaseStartedGameSubstate;
 import com.android.opengl.view.state.startedgamestate.GameInProgressState;
 import com.android.opengl.view.state.startedgamestate.LoadingLevelState;
@@ -225,6 +220,11 @@ public class StartedGameState extends EngineState{
 
 	public GLScene getScene() {
 		return mScene;
+	}
+
+	@Override
+	public boolean onBackPressed() {
+		return false;
 	}
 
 
