@@ -15,8 +15,8 @@ public class MainScreenState extends EngineState{
 		
 		@Override
 		public void onTap(GLView glView) {
-			mEngineRenderer.setEngineState(mEngineRenderer.getLoadingLevelState());
-			mEngineRenderer.getEngineState().loadLevel();
+			mEngineRenderer.setEngineState(mEngineRenderer.getGameInProgressState());
+			mEngineRenderer.getEngineState().startGame();
 		}
 		
 		@Override
@@ -29,8 +29,8 @@ public class MainScreenState extends EngineState{
 		
 		@Override
 		public void onTap(GLView glView) {
-			mEngineRenderer.setEngineState(mEngineRenderer.getLoadingLevelState());
-			mEngineRenderer.getEngineState().loadLevel();
+			mEngineRenderer.setEngineState(mEngineRenderer.getGameInProgressState());
+			mEngineRenderer.getEngineState().startGame();
 		}
 		
 		@Override

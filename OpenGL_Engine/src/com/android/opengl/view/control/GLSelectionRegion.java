@@ -6,7 +6,7 @@ import java.util.List;
 import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
-import com.android.opengl.Camera.ViewportChangeListener;
+import com.android.opengl.listener.ViewportChangeListener;
 import com.android.opengl.util.Log;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.MotionEventDispatcher;

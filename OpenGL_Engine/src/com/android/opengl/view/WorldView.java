@@ -77,7 +77,6 @@ public class WorldView extends GLSurfaceView{
 		
 		engineRenderer = new EngineRenderer(this, handler);
 		motionEventDispatcher = new MotionEventDispatcher();
-		motionEventDispatcher.registerToucheble(engineRenderer, 10000);
 		setEGLContextClientVersion(2);
 		setRenderer(engineRenderer);
 	}
@@ -113,17 +112,17 @@ public class WorldView extends GLSurfaceView{
 	}
 	
 	
-	private boolean onTouchEventRes;
+	private boolean mOnTouchEventRes;
 	private Object syncObj = new Object();
 	@Override
 	public boolean onTouchEvent(final MotionEvent event) {
-		onTouchEventRes = true;
+		mOnTouchEventRes = true;
 		queueEvent(new Runnable() {
 			
 			@Override
 			public void run() {
 				synchronized (syncObj) {
-					onTouchEventRes = motionEventDispatcher.dispatchTouchEvent(event);
+					mOnTouchEventRes = motionEventDispatcher.dispatchTouchEvent(event);
 					syncObj.notifyAll();
 				}
 			}
@@ -135,7 +134,7 @@ public class WorldView extends GLSurfaceView{
 				e.printStackTrace();
 			}
 		}
-		return onTouchEventRes;
+		return mOnTouchEventRes;
 	}
 
 

@@ -7,13 +7,12 @@ import android.content.res.Resources;
 import android.opengl.GLES20;
 import android.util.FloatMath;
 import android.util.Log;
-import android.view.MotionEvent;
 
 import com.android.opengl.Camera;
-import com.android.opengl.Camera.ViewportChangeListener;
 import com.android.opengl.R;
 import com.android.opengl.gameobject.light.PointLight;
 import com.android.opengl.interaction.user.BaseUser;
+import com.android.opengl.listener.ViewportChangeListener;
 import com.android.opengl.shader.SceneShader;
 import com.android.opengl.util.GLUtil;
 import com.android.opengl.util.MeshQuadNode2D;
@@ -57,7 +56,7 @@ public class GLScene extends CommonGameObject implements ViewportChangeListener{
 		super(camera.getContext().getResources());
 		mCamera = camera;
 		mCamera.setScene(this);
-		mCamera.registerViewportChangeListener(this);
+		mCamera.getViewportChangeListenerHolder().registerListener(this);
 		skyDome = new GLSkyDome(camera);
 		lightList.add(new PointLight(new Point3D(-50, 5, 0)));
 		lightList.add(new PointLight(new Point3D(40, 5, 40)));
@@ -373,7 +372,7 @@ public class GLScene extends CommonGameObject implements ViewportChangeListener{
 	public void release() {
 		Log.d(TAG, "release");
 		if(mCamera != null){
-			mCamera.unregisterViewportChangeListener(this);
+			mCamera.getViewportChangeListenerHolder().unregisterListener(this);
 		}
 		for(GameObject gameObject: gameObjectList){
 			gameObject.release();
