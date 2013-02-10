@@ -24,26 +24,23 @@ public abstract class GLScreen extends GLView{
 				newViewportRect.mHeight * Camera.screenToPercentRatio);
 	}
 	
-	public abstract void onCreate();
+	protected abstract void onCreate();
 //	public abstract void onStart();
 //	public abstract void onStop();
-	public void onDestroy(){
+	protected void onDestroy(){
 		
 	};
 	
-	public void launch(){
-		mGLScreenContext.getGlScreenStack().add(this);
+	protected void onBackPressed(){
+		close();
+	} 
+	
+	protected void close(){
+		mGLScreenContext.close(this);
 	}
 	
-	public void close(){
-		GLScreenStack glScreenStack = mGLScreenContext.getGlScreenStack(); 
-		if(!glScreenStack.isEmpty() && glScreenStack.lastElement() == this){
-			mGLScreenContext.getGlScreenStack().pop();			
-		} else {
-			Log.d(TAG, "The screen is not on top {" + this + "}");
-		}
-	}
-	
-	
+	protected EngineState getGlScreenContext(){
+		return mGLScreenContext;
+	};
 
 }

@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.android.opengl.view.EngineRenderer;
+import com.android.opengl.view.screen.GLScreen;
 import com.android.opengl.view.screen.GLScreenStack;
 
 public abstract class EngineState implements BaseState{
@@ -34,6 +35,18 @@ public abstract class EngineState implements BaseState{
 		Log.i(TAG, "pauseGame() is not implemented");
 	};
 
+	public void launch(GLScreen glScreen){
+		mGLScreenStack.add(glScreen);
+	}
+	public void close(GLScreen glScreen){
+		if(!mGLScreenStack.isEmpty() && mGLScreenStack.lastElement() == glScreen){
+			mGLScreenStack.pop();			
+		} else {
+			Log.d(TAG, "The screen is not on top {" + this + "}");
+		}
+	}
+
+	
 	abstract public void onWorldUpdate();
 	abstract public void onDrawFrame();
 
@@ -41,8 +54,4 @@ public abstract class EngineState implements BaseState{
 		return false;
 	}
 
-
-	public GLScreenStack getGlScreenStack() {
-		return mGLScreenStack;
-	}
 }

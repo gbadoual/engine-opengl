@@ -12,7 +12,7 @@ public class GLMainScreen extends GLScreen{
 	}
 
 	@Override
-	public void onCreate() {
+	protected void onCreate() {
 		GLTextView glStartSingleGameView = new GLTextView(mCamera);
 		glStartSingleGameView.setText("Start single game");
 		glStartSingleGameView.setOnTapListener(mOnStartSingleGameListener);
@@ -45,7 +45,7 @@ public class GLMainScreen extends GLScreen{
 		
 		@Override
 		public void onTap(GLView glView) {
-			new BTMultyScreen(mCamera).launch();			
+			getGlScreenContext().launch(new BTMultyScreen(mCamera));			
 		}
 		
 		@Override
