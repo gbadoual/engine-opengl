@@ -32,7 +32,9 @@ public class GLScreenStack extends Stack<GLScreen>{
 	}
 	
 	public boolean onBackPressed(){
-		pop();
+		if(!isEmpty()){
+			lastElement().onBackPressed();
+		}
 		return !isEmpty();
 	}
 

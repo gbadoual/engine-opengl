@@ -10,16 +10,11 @@ public class BTMultyScreen extends GLScreen{
 	}
 
 	@Override
-	public void onCreate() {
+	protected void onCreate() {
 		GLTextView glStartSingleGameView = new GLTextView(mCamera);
 		glStartSingleGameView.setText("Hi there! It is empty yet");
 		glStartSingleGameView.showBackground(true);
 		addChild(glStartSingleGameView);
-	}
-
-	@Override
-	public void onDestroy() {
-				
 	}
 
 }

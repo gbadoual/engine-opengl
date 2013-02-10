@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import com.android.opengl.view.EngineRenderer;
 import com.android.opengl.view.screen.GLMainScreen;
+import com.android.opengl.view.screen.GLScreen;
 
 public class MainScreenState extends EngineState{
 
@@ -20,7 +21,9 @@ public class MainScreenState extends EngineState{
 	@Override
 	public void showMainScreen() {
 		super.showMainScreen();
-		new GLMainScreen(mEngineRenderer.getCamera()).launch();
+		GLScreen glScreen = new GLMainScreen(mEngineRenderer.getCamera());
+		launch(glScreen);
+		
 	}
 
 
