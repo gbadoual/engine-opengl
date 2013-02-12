@@ -1,6 +1,7 @@
 package com.android.opengl.view.control;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -48,12 +49,13 @@ public class GLView implements Touchable, ViewportChangeListener{
 	protected GLViewShader mShader;
 	protected VboDataHandler mVboHandler;
 	private OnTapListener mOnTapListener;
+	private OnLongTapListener mOnLongTapListener;
 	private int mBackgroundResId;
 
 	protected GLView mFocusedView;
 
 	protected GLView mParent;
-	protected List<GLView> mChildren = new ArrayList<GLView>();
+	protected List<GLView> mChildren = Collections.synchronizedList(new ArrayList<GLView>());
 	
 	protected Camera mCamera;
 	private int zOrder;
@@ -75,7 +77,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 
 	private boolean isLongTapAccessible;
 	private boolean isLongTapOccured;
-	private boolean isLongTapEnabled;
+//	private boolean isLongTapEnabled;
 	
 	public GLView(GLScene scene) {
 		this.mCamera = scene.getCamera();
@@ -180,9 +182,12 @@ public class GLView implements Touchable, ViewportChangeListener{
 
 	public void setVisible(boolean isVisible) {
 		if(!isVisible){
-			onTouchEvent(MotionEventDispatcher.obtainCancelEvent());
+			sendActionCancel();
 		}
 		mIsVisible = isVisible;
+		for(GLView child: mChildren){
+			child.setVisible(isVisible);
+		}
 	}
 	
 
@@ -326,6 +331,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 			mCamera.registerGLView(this, zOrder);
 		} else{
 			mCamera.unregisterGLView(this);
+			mCamera.registerGLView(this, parent.zOrder - zOrder - 1);
 		}
 	}
 	
@@ -353,15 +359,15 @@ public class GLView implements Touchable, ViewportChangeListener{
 		if(!mIsVisible){
 			return false;
 		}
-		if (mFocusedView != null && mFocusedView != this){
-			return mFocusedView.onTouchEvent(event);
-			
-		}
-		for(int i = 0; i < mChildren.size(); ++i){
-			if(mChildren.get(i).onTouchEvent(event)){
-				return true;
-			}
-		}
+//		if (mFocusedView != null && mFocusedView != this){
+//			return mFocusedView.onTouchEvent(event);
+//			
+//		}
+//		for(int i = 0; i < mChildren.size(); ++i){
+//			if(mChildren.get(i).onTouchEvent(event)){
+//				return true;
+//			}
+//		}
 		float x = event.getX();// * ratio;
 		float y = event.getY();// * ratio;
 
@@ -405,7 +411,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 	}
 	
 	private void monitorForLongTap(MotionEvent event) {
-		if(!isLongTapEnabled || isLongTapOccured){
+		if(mOnLongTapListener == null || isLongTapOccured){
 			return;
 		}
 		if(isLongTapAccessible && mBoundariesRectInPixel.isWithinRect(event.getX(), event.getY())){
@@ -414,12 +420,14 @@ public class GLView implements Touchable, ViewportChangeListener{
 			isLongTapAccessible = false;
 		}
 		if(SystemClock.uptimeMillis() - event.getDownTime() >= longTapTimeout && isLongTapAccessible){
-			if(mOnTapListener != null){
-				mOnTapListener.onLongTap(this);
-			}
-			handleActionCancel();
+			mOnLongTapListener.onLongTap(this);
 			isLongTapOccured = true;
+			sendActionCancel();
 		}
+	}
+	
+	protected void sendActionCancel(){
+		onTouchEvent(MotionEventDispatcher.obtainCancelEvent());
 	}
 	
 	public void setBackground(int resourceId){
@@ -436,16 +444,16 @@ public class GLView implements Touchable, ViewportChangeListener{
 	
 	
 	private void setFocusedView(GLView glView) {
-		if(mParent != null){
-			mParent.setFocusedView(glView);
-		} else {
+//		if(mParent != null){
+//			mParent.setFocusedView(glView);
+//		} else {
 			mFocusedView = glView;
-		}
+//		}
 	}
 	private GLView getFocusedView() {
-		if(mParent != null){
-			return mParent.getFocusedView();
-		}
+//		if(mParent != null){
+//			return mParent.getFocusedView();
+//		}
 		return	mFocusedView;
 	}
 	
@@ -486,6 +494,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 
 	public void release(){
 		mCamera.unregisterGLView(this);
+		sendActionCancel();
 		removeChildren();
 	}
 	
@@ -540,6 +549,9 @@ public class GLView implements Touchable, ViewportChangeListener{
 
 	public static interface OnTapListener{
 		public void onTap(GLView glView);
+	}
+	
+	public static interface OnLongTapListener{
 		public void onLongTap(GLView glView);
 	}
 	
@@ -554,11 +566,15 @@ public class GLView implements Touchable, ViewportChangeListener{
 	public static void setLongTapTimeout(int longTapTimeout) {
 		GLView.longTapTimeout = longTapTimeout;
 	}
-	public boolean isLongTapEnabled() {
-		return isLongTapEnabled;
-	}
-	public void enableLongTap(boolean isLongTapEnabled) {
-		this.isLongTapEnabled = isLongTapEnabled;
+//	public boolean isLongTapEnabled() {
+//		return isLongTapEnabled;
+//	}
+//	public void enableLongTap(boolean isLongTapEnabled) {
+//		this.isLongTapEnabled = isLongTapEnabled;
+//	}
+
+	public void setOnLongTapListener(OnLongTapListener mOnLongTapListener) {
+		this.mOnLongTapListener = mOnLongTapListener;
 	}
 	
 //	private static class ViewGestureDetector{

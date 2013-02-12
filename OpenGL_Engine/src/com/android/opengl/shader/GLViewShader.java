@@ -39,6 +39,7 @@ public class GLViewShader extends Shader{
 	@Override
 	public String getVertexShaderSrc() {
 		return 
+		"precision mediump float;																" +
 		"uniform 	vec2 " + UNIFORM_POSITION_OFFSET + ";											" +
 
 		"attribute 	vec2 " + ATTRIBUTE_POSITION + ";												" +
@@ -71,7 +72,7 @@ public class GLViewShader extends Shader{
 
 			"void main(){																			" +
 			"		vec4 resColor = " + UNIFORM_COLOR + ";" +
-			"		if(vInstanceID == 1.0){" +
+			"		if(vInstanceID > 0.0){" +
 			"			if("+UNIFORM_TEXTURE_ENABLED+" > 0.0) {" +
 			"				resColor = texture2D("+UNIFORM_TEXTURE+", v_TexCoord);						" +
 			"			}" +

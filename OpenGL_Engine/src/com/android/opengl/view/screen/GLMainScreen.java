@@ -2,8 +2,10 @@ package com.android.opengl.view.screen;
 
 import com.android.opengl.Camera;
 import com.android.opengl.view.EngineRenderer;
+import com.android.opengl.view.control.GLLinearLayout;
 import com.android.opengl.view.control.GLTextView;
 import com.android.opengl.view.control.GLView;
+import com.android.opengl.view.control.GLLayout.Orientation;
 
 public class GLMainScreen extends GLScreen{
 
@@ -13,17 +15,20 @@ public class GLMainScreen extends GLScreen{
 
 	@Override
 	protected void onCreate() {
+		final GLLinearLayout glLinearLayout = new GLLinearLayout(mCamera);
+		glLinearLayout.setOrientation(Orientation.VERTICAL);
+
 		GLTextView glStartSingleGameView = new GLTextView(mCamera);
 		glStartSingleGameView.setText("Start single game");
 		glStartSingleGameView.setOnTapListener(mOnStartSingleGameListener);
 		glStartSingleGameView.showBackground(true);
 		GLTextView glStartMultiGameBTView = new GLTextView(mCamera);
-		glStartMultiGameBTView.setPosition(0, 10);
 		glStartMultiGameBTView.showBackground(true);
 		glStartMultiGameBTView.setText("Start multi game via Bluetooth");
 		glStartMultiGameBTView.setOnTapListener(mOnStartMultuGameBTListener);
-		addChild(glStartSingleGameView);
-		addChild(glStartMultiGameBTView);
+		glLinearLayout.addChild(glStartSingleGameView);
+		glLinearLayout.addChild(glStartMultiGameBTView);
+		addChild(glLinearLayout);
 	}
 
 	private OnTapListener mOnStartSingleGameListener = new OnTapListener() {
@@ -34,12 +39,7 @@ public class GLMainScreen extends GLScreen{
 			engineRenderer.setEngineState(engineRenderer.getGameInProgressState());
 			engineRenderer.getCurrentEngineState().startGame();
 		}
-		
-		@Override
-		public void onLongTap(GLView glView) {
-			// TODO Auto-generated method stub
-			
-		}
+
 	};
 	private OnTapListener mOnStartMultuGameBTListener = new OnTapListener() {
 		
@@ -47,11 +47,7 @@ public class GLMainScreen extends GLScreen{
 		public void onTap(GLView glView) {
 			getGlScreenContext().launch(new BTMultyScreen(mCamera));			
 		}
-		
-		@Override
-		public void onLongTap(GLView glView) {
-			
-		}
+
 	};
 
 }

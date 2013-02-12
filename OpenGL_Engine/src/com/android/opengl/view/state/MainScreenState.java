@@ -43,4 +43,8 @@ public class MainScreenState extends EngineState{
 		return mGLScreenStack.onBackPressed();
 	}
 
+	public Activity getActivity() {
+		return mActivity;
+	}
+
 }

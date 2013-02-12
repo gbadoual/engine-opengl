@@ -1,13 +1,13 @@
 package com.android.opengl.view.control;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import android.annotation.SuppressLint;
+
 import com.android.opengl.Camera;
 import com.android.opengl.gameobject.GameObject;
 import com.android.opengl.util.Log;
@@ -62,8 +62,9 @@ public class GLIconGridLayout extends GLGridLayout{
 	private boolean addGLIconAsChild(GameObject gameObject) {
 		if(mChildren.size() < maxIconCount){
 			GLUnitIcon glUnitIcon = gameObject.getUnitIconView();
-			glUnitIcon.enableLongTap(true);
+//			glUnitIcon.enableLongTap(true);
 			glUnitIcon.setOnTapListener(onIconTapListener);
+			glUnitIcon.setOnLongTapListener(onIconLongTapListener);
 			super.addChild(glUnitIcon);
 			return true;
 		}
@@ -167,7 +168,9 @@ public class GLIconGridLayout extends GLGridLayout{
 			}
 			glUnitIcon.getGameObject().getParentScene().getCamera().notifySelectedObjectsChanged();
 		}
-
+	};
+	
+	private OnLongTapListener onIconLongTapListener = new OnLongTapListener() {
 		@Override
 		public void onLongTap(GLView glView) {
 			GLUnitIcon glUnitIcon = (GLUnitIcon)glView;

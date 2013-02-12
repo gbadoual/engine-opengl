@@ -82,7 +82,7 @@ abstract public class GameObject extends CommonGameObject{
 	private void openGLDraw() {
 		VboDataHandler vboDataHandler = vboDataHandlerMap.get(getClass().getSimpleName());
 		GLES20.glUseProgram(mShader.programHandle);
-		GLES20.glUniform1f(mShader.isSelectedHandle, isSelected()?1:0);
+		GLES20.glUniform1f(mShader.isSelectedHandle, isSelected()?2.0f:0.0f);
 		GLES20.glUniform4fv(mShader.clanColorHandle, 1, mClan.getColor(), 0);
 		GLES20.glUniform1f(mShader.lightCountHandle, mParentScene.getLightListSize());
 		GLES20.glUniform3fv(mShader.lightPositionHandle, mParentScene.getLightListSize(), mParentScene.lightListToFloatArray(), 0);

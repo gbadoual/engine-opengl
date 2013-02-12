@@ -127,7 +127,7 @@ public class GLHealthBar extends GLView{
 				"varying 	vec2 v_TexCoord; 															" +
 				"void main(){																			" +
 				"		vec4 resColor = " + UNIFORM_COLOR + ";" +
-				"		if(vInstanceID != 1.0){" +
+				"		if(vInstanceID < 0.99){" +
 				"			resColor = vec4(0.2, 0.3, 0.2, 0.7);" +
 				"		} else {" +
 				"			if(gl_FragCoord.x > vHealthLevel){" +

@@ -24,12 +24,18 @@ public abstract class GLScreen extends GLView{
 				newViewportRect.mHeight * Camera.screenToPercentRatio);
 	}
 	
+	@Override
+	public void onDrawFrame() {
+		super.onDrawFrame();
+	}
+	
 	protected abstract void onCreate();
 //	public abstract void onStart();
 //	public abstract void onStop();
 	protected void onDestroy(){
 		
 	};
+	
 	
 	protected void onBackPressed(){
 		close();
