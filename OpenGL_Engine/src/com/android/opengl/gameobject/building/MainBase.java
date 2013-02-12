@@ -44,12 +44,6 @@ public class MainBase extends AbstractBuilding{
 				Cube cube = new Cube(mParentScene);
 				initBuildedObject(cube);
 			}
-
-			@Override
-			public void onLongTap(GLView glView) {
-				// TODO Auto-generated method stub
-				
-			}
 		});
 		GLView child2 = new GLButton(mParentScene, 5, 2, 10, 10);
 //		GLView child3 = new GLButton(mParentScene, 5, 2, 10, 5);
@@ -66,11 +60,6 @@ public class MainBase extends AbstractBuilding{
 				initBuildedObject(earth);
 			}
 
-			@Override
-			public void onLongTap(GLView glView) {
-				// TODO Auto-generated method stub
-				
-			}
 		});
 		mainPanleLayout.addChild(child1);
 		mainPanleLayout.addChild(child2);
@@ -86,11 +75,6 @@ public class MainBase extends AbstractBuilding{
 				Log.i("tag", "glview tapped: " + glView);
 			}
 
-			@Override
-			public void onLongTap(GLView glView) {
-				// TODO Auto-generated method stub
-				
-			}
 		});
 	}
 

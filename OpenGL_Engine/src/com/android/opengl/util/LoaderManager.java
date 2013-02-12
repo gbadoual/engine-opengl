@@ -397,9 +397,13 @@ public class LoaderManager {
 	//        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
 	// 	 
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
+	        Log.v("tag","" + GLES20.glGetError());
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR_MIPMAP_NEAREST);
+	        Log.v("tag","" + GLES20.glGetError());
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+	        Log.v("tag","" + GLES20.glGetError());
 	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
+	        Log.v("tag","" + GLES20.glGetError());
 	//        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
 	//        GLES20.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
 	//
@@ -408,7 +412,9 @@ public class LoaderManager {
 	
 	        
 	        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmpIn, 0);
+	        Log.v("tag","" + GLES20.glGetError());
 	        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+	        Log.v("tag","" + GLES20.glGetError());
 //	        bmp.recycle();
 	    }
         return textureHandle[0];

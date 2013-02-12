@@ -7,12 +7,10 @@ import java.util.List;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.GLSurfaceView.Renderer;
 import android.util.Log;
 import android.view.MotionEvent;
 
 import com.android.opengl.gameobject.GLScene;
-import com.android.opengl.listener.ViewportChangeListener;
 import com.android.opengl.listener.listenerholder.TouchEventListenerHolder;
 import com.android.opengl.listener.listenerholder.ViewportChangeListenerHolder;
 import com.android.opengl.util.geometry.Matrix;
@@ -70,15 +68,13 @@ public class Camera implements Touchable{
 
 	
 	public Camera(WorldView worldView) {
-//		h.registerlistener(listener);
-//		h.unregisterlistener(listener);
-//		h.no
 		this.worldView = worldView;
 		worldView.registerToucheble(this, 10000);
 		initViewMatrix(viewMatrix);
 		setViewport(worldView.getMeasuredWidth(), worldView.getMeasuredHeight());
 //		initControls();
 	}
+	
 	GLTextView mGLTextView;
 	GLIconGridLayout glUnitIconLayout;
 	public void initControls() {
@@ -87,7 +83,7 @@ public class Camera implements Touchable{
 		mGLTextView.setText("... =)");
 		new Thread(){
 			public void run() {
-				String originalText = "I love Aljonka! :*";//"qazw34rfgy678ijnmko90";
+				String originalText = "1231435623";//"I love Aljonka! :*";//"qazw34rfgy678ijnmko90";
 				final StringBuilder stepText = new StringBuilder();
 				try {
 					Thread.sleep(3000);

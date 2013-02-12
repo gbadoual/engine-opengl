@@ -33,7 +33,9 @@ public class GLSelectionRegion extends GLView{
 		case MotionEvent.ACTION_UP:
 		case MotionEvent.ACTION_CANCEL:
 			mCamera.unregisterTouchable(mGLSelectionSurface);
-			mGLSelectionSurface.onTouchEvent(MotionEventDispatcher.obtainCancelEvent());
+			if(mGLSelectionSurface != null){
+				mGLSelectionSurface.onTouchEvent(MotionEventDispatcher.obtainCancelEvent());
+			}
 			break;
 
 		default:
@@ -76,7 +78,7 @@ public class GLSelectionRegion extends GLView{
 
 		public GLSelectionSurface(Camera camera) {
 			mCamera = camera;
-			mSurfaceBounds = new Rect2D(0, 0, mCamera.getViewportWidth(), mCamera.getViewportHeight());
+			mSurfaceBounds = new Rect2D(0, 0, mCamera.getViewportWidth() * Camera.percentToScreenRatio, mCamera.getViewportHeight()  * Camera.percentToScreenRatio);
 			mSelectionRectangle = new GLView(mCamera);
 			mCamera.unregisterGLView(mSelectionRectangle);
 			mSelectionRectangle.setColor(0, 40, 50, 0);

@@ -16,7 +16,7 @@ public class GLSkyDome {
 	private SkyDomeShader mSkyBoxShader = ShaderManager.getInstance().getShader(SkyDomeShader.class);
 	private Camera camera;
 
-	int textureResId = R.raw.skydome_texture_2048;//R.raw.skydome_texture_small;
+	int textureResId = R.raw.skydome_texture_small; //R.raw.skydome_texture_2048;
 	private VboDataHandler mVboDataHandler = new VboDataHandler();
 	
 	

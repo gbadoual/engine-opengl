@@ -7,6 +7,10 @@ import com.android.opengl.gameobject.GLScene;
 
 public abstract class GLLayout extends GLView{
 
+	public enum Orientation{
+		VERTICAL,
+		HORIZONTAL
+	};
 
 	
 	public GLLayout(GLScene scene, float left, float top, float width, float height) {

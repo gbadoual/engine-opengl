@@ -69,14 +69,14 @@ public class Font {
 		Bitmap bitmap = renderFontToBitmap(paint);
 		mTextureHandle = LoaderManager.getInstance(mResources).loadTexture(bitmap);
 
-		try {
-		       FileOutputStream out = new FileOutputStream("mnt/sdcard/font1.jpg");
-		       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-		       out.close();
-		       bitmap.recycle();
-		} catch (Exception e) {
-			Log.e("tag", e.toString());
-		}
+//		try {
+//		       FileOutputStream out = new FileOutputStream("mnt/sdcard/font1.jpg");
+//		       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//		       out.close();
+//		       bitmap.recycle();
+//		} catch (Exception e) {
+//			Log.e("tag", e.toString());
+//		}
 
 	}
 	
