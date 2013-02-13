@@ -1,4 +1,4 @@
-package com.android.opengl.interaction.remote.bluetooth;
+package com.android.opengl.interaction.provider.bluetooth;
 
 public class BluetoothClientFactory {
 	

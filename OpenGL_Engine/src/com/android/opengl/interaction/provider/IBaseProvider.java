@@ -1,4 +1,4 @@
-package com.android.opengl.interaction.remote;
+package com.android.opengl.interaction.provider;
 
 import org.json.JSONObject;
 

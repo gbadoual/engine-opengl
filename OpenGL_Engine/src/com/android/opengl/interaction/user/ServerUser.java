@@ -1,7 +1,7 @@
 package com.android.opengl.interaction.user;
 
 import com.android.opengl.gameobject.GLScene;
-import com.android.opengl.interaction.remote.IBaseServerProvider;
+import com.android.opengl.interaction.provider.IBaseServerProvider;
 
 public class ServerUser extends BaseRemoteUser{
 	

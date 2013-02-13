@@ -23,11 +23,11 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.opengl.interaction.remote.IBaseProvider.NewDataReceiveListner;
-import com.android.opengl.interaction.remote.bluetooth.BaseBluetoothProvider;
-import com.android.opengl.interaction.remote.bluetooth.BaseBluetoothProvider.OnBluetoothDeviceConnectListener;
-import com.android.opengl.interaction.remote.bluetooth.BluetoothClientProvider;
-import com.android.opengl.interaction.remote.bluetooth.BluetoothServerProvider;
+import com.android.opengl.interaction.provider.IBaseProvider.NewDataReceiveListner;
+import com.android.opengl.interaction.provider.bluetooth.BaseBluetoothProvider;
+import com.android.opengl.interaction.provider.bluetooth.BluetoothClientProvider;
+import com.android.opengl.interaction.provider.bluetooth.BluetoothServerProvider;
+import com.android.opengl.interaction.provider.bluetooth.BaseBluetoothProvider.OnBluetoothDeviceConnectListener;
 import com.android.opengl.util.Log;
 import com.android.opengl.view.WorldView;
 
