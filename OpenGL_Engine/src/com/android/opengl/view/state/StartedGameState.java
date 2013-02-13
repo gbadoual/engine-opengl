@@ -15,7 +15,7 @@ import com.android.opengl.view.state.startedgamestate.BaseStartedGameSubstate;
 import com.android.opengl.view.state.startedgamestate.GameInProgressState;
 import com.android.opengl.view.state.startedgamestate.LoadingLevelState;
 
-public class StartedGameState extends EngineState{
+public class StartedGameState extends GameState{
 	
 	private static final String TAG = StartedGameState.class.getSimpleName();
 	

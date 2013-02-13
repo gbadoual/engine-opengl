@@ -55,25 +55,25 @@ public class LoadingLevelState extends BaseStartedGameSubstate{
 		CommonGameObject.facesCount = 0;
 		
 		GLScene scene = new GLScene(mStartedGameState.getCamera());
-		BMW bmw1 = new BMW(scene);
-		bmw1.setPosition(-8, -7);
-
+//		BMW bmw1 = new BMW(scene);
+//		bmw1.setPosition(-8, -7);
+//
 //		bmw2 = new BMW(scene);
 //		cube1 = new Cube(scene);
 //		cube1.setPosition(0, -6);
 //		cube1.moveTo(new Point3D(-5, 0, 0));
-
-		
+//
+//		
 //		cube2 = new Cube(scene);
 //		cube2.setPosition(4, 4);
 //
 //		earth = new Earth(scene);
 //		earth.setPosition(-6, 3);
-		MainBase mainBase = new MainBase(scene, Clan.BLUE);
-		mainBase.setPosition(-40, 40);
-
-		MainBase enemyMainBase = new MainBase(scene, Clan.RED);
-		enemyMainBase.setPosition(40, -40);
+//		MainBase mainBase = new MainBase(scene, Clan.BLUE);
+//		mainBase.setPosition(-40, 40);
+//
+//		MainBase enemyMainBase = new MainBase(scene, Clan.RED);
+//		enemyMainBase.setPosition(40, -40);
 		mStartedGameState.setScene(scene);
 //		for(int i = 0; i < 4; ++i){
 //			gameObjectList.add(new BMW(scene));

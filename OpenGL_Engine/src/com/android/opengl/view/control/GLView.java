@@ -40,14 +40,14 @@ public class GLView implements Touchable, ViewportChangeListener{
 
 	protected float mScaledWidth;
 	protected float mScaledHeight;
-	protected float mScaledBorderWidth;
-	protected float mScaledBorderHeight;
-	protected Rect2D mBoundariesRectInPixel;
+	private float mScaledBorderWidth;
+	private float mScaledBorderHeight;
+	private Rect2D mBoundariesRectInPixel;
 	
-	protected float[] bkgColor = new float[4];
+	private float[] bkgColor = new float[4];
 
 	protected GLViewShader mShader;
-	protected VboDataHandler mVboHandler;
+	private VboDataHandler mVboHandler;
 	private OnTapListener mOnTapListener;
 	private OnLongTapListener mOnLongTapListener;
 	private int mBackgroundResId;
@@ -62,7 +62,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 	
 	protected boolean mIsVisible = true;
 	
-	protected final int[] indexData = new int[]{0, 2, 3, 0, 1, 2,
+	private final int[] indexData = new int[]{0, 2, 3, 0, 1, 2,
 											  4, 6, 7, 4, 5, 6,
 											  8, 10, 11, 8, 9, 10,
 											  12, 14, 15, 12, 13, 14,
@@ -73,7 +73,7 @@ public class GLView implements Touchable, ViewportChangeListener{
 												   1, 1, 
 												   1, 0, 
 												   0, 0};
-	protected float[] positionOffset = new float[2];
+	private float[] positionOffset = new float[2];
 
 	private boolean isLongTapAccessible;
 	private boolean isLongTapOccured;

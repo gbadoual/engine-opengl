@@ -14,16 +14,16 @@ import android.view.MotionEvent;
 import com.android.opengl.Camera;
 import com.android.opengl.gameobject.CommonGameObject;
 import com.android.opengl.listener.TouchEventListener;
-import com.android.opengl.view.state.EngineState;
-import com.android.opengl.view.state.MainScreenState;
+import com.android.opengl.view.state.GameState;
+import com.android.opengl.view.state.SettingGameState;
 import com.android.opengl.view.state.StartedGameState;
 
 public class EngineRenderer implements Renderer, TouchEventListener{
 
-	private EngineState mCurrentEngineState;
+	private GameState mCurrentEngineState;
 	
 	private StartedGameState mGameInProgressState;
-	private MainScreenState mMainScreenState;
+	private SettingGameState mMainScreenState;
 	
 	private Camera mCamera;
 	
@@ -49,7 +49,7 @@ public class EngineRenderer implements Renderer, TouchEventListener{
 
 	private void initStates() {
 		mGameInProgressState = new StartedGameState(this);
-		mMainScreenState = new MainScreenState(this, (Activity)worldView.getContext());
+		mMainScreenState = new SettingGameState(this);
 	}
 
 	@Override
@@ -132,12 +132,12 @@ public class EngineRenderer implements Renderer, TouchEventListener{
 		
 
 
-		public EngineState getCurrentEngineState() {
+		public GameState getCurrentEngineState() {
 			return mCurrentEngineState;
 		}
 
 
-		public void setEngineState(EngineState engineState) {
+		public void setEngineState(GameState engineState) {
 			this.mCurrentEngineState = engineState;
 		}
 
@@ -169,6 +169,11 @@ public class EngineRenderer implements Renderer, TouchEventListener{
 
 		public boolean onBackPressed() {
 			return mCurrentEngineState.onBackPressed();
+		}
+
+
+		public Activity getActivity() {
+			return (Activity)worldView.getContext();
 		}
 
 

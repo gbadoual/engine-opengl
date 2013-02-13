@@ -6,16 +6,11 @@ import com.android.opengl.view.EngineRenderer;
 import com.android.opengl.view.screen.GLMainScreen;
 import com.android.opengl.view.screen.GLScreen;
 
-public class MainScreenState extends EngineState{
+public class SettingGameState extends GameState{
 
-//	private GLTextView glStartSingleGameView;
-//	private GLTextView glStartMultiGameBTView;
-	private Activity mActivity;
 	
-	
-	public MainScreenState(EngineRenderer engineRenderer, Activity activity) {
+	public SettingGameState(EngineRenderer engineRenderer) {
 		super(engineRenderer);
-		mActivity = activity;
 	}
 	
 	@Override
@@ -41,10 +36,6 @@ public class MainScreenState extends EngineState{
 	@Override
 	public boolean onBackPressed() {
 		return mGLScreenStack.onBackPressed();
-	}
-
-	public Activity getActivity() {
-		return mActivity;
 	}
 
 }

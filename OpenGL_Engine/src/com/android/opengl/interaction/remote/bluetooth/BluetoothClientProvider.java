@@ -12,16 +12,20 @@ import org.json.JSONObject;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
-import com.android.opengl.interaction.remote.IBaseClient;
+import com.android.opengl.interaction.remote.IBaseClientProvider;
 import com.android.opengl.util.Log;
 
-public class BluetoothClient extends BaseBluetoothInteractionProvider implements IBaseClient{
+public class BluetoothClientProvider extends BaseBluetoothProvider implements IBaseClientProvider{
 	
-	private static final String TAG = BluetoothClient.class.getSimpleName();
+	private static final String TAG = BluetoothClientProvider.class.getSimpleName();
 	private BluetoothSocket mBluetoothClientSocket;
+	private BluetoothDevice mBluetoothDevice;
+	private UUID mUuid;
 
-	public BluetoothClient() throws IllegalAccessException{
+	public BluetoothClientProvider(BluetoothDevice bluetoothDevice, UUID uuid) throws IllegalAccessException{
 		super(TAG);
+		mBluetoothDevice = bluetoothDevice;
+		mUuid = uuid;
 	}
 	
 
@@ -42,10 +46,10 @@ public class BluetoothClient extends BaseBluetoothInteractionProvider implements
 		}
 	}
 
-	
-	public void startClient(BluetoothDevice bluetoothDevice, UUID uuid) throws IOException{
+	@Override
+	public void startClient() throws IOException{
 		stopClient();
-		mBluetoothClientSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+		mBluetoothClientSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(mUuid);
 		mBluetoothAdapter.cancelDiscovery();
 		mBluetoothClientSocket.connect();
 		startListningData();
@@ -64,11 +68,6 @@ public class BluetoothClient extends BaseBluetoothInteractionProvider implements
 		stopListningData();
 	}
 
-	@Override
-	public void startClient() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public void startListningData() {
 		if(mDataListenerThread != null){

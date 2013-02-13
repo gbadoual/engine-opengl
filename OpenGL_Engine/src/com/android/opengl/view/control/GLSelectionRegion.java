@@ -78,7 +78,7 @@ public class GLSelectionRegion extends GLView{
 
 		public GLSelectionSurface(Camera camera) {
 			mCamera = camera;
-			mSurfaceBounds = new Rect2D(0, 0, mCamera.getViewportWidth() * Camera.percentToScreenRatio, mCamera.getViewportHeight()  * Camera.percentToScreenRatio);
+			mSurfaceBounds = new Rect2D(0, 0, mCamera.getViewportWidth(), mCamera.getViewportHeight());
 			mSelectionRectangle = new GLView(mCamera);
 			mCamera.unregisterGLView(mSelectionRectangle);
 			mSelectionRectangle.setColor(0, 40, 50, 0);

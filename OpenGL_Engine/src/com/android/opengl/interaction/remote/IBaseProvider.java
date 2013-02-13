@@ -2,7 +2,7 @@ package com.android.opengl.interaction.remote;
 
 import org.json.JSONObject;
 
-public interface IBaseInteractionProvider {
+public interface IBaseProvider {
 
 	public void registerNewDataReceiveListener(NewDataReceiveListner listner);
 	public void unregisterNewDataReceiveListener(NewDataReceiveListner listner);

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,12 +19,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.android.opengl.interaction.remote.IBaseInteractionProvider;
+import com.android.opengl.interaction.remote.IBaseProvider;
 import com.android.opengl.util.Log;
 
-public abstract class BaseBluetoothInteractionProvider implements IBaseInteractionProvider{
+public abstract class BaseBluetoothProvider implements IBaseProvider{
 
-	private static final long DEFAULT_DEVICE_DISCOVERY_TIMEOUT = 15 * 1000;
+    //any random valid string. Should be the same across participating devices
+    public static final UUID DEFAULT_UUID = UUID.fromString("550e8400-e29b-41d4-a716-446655446543");	
+
+    private static final long DEFAULT_DEVICE_DISCOVERY_TIMEOUT = 15 * 1000;
 
 	private String TAG; 
 	protected NewDataListenerThread mDataListenerThread;
@@ -35,7 +39,7 @@ public abstract class BaseBluetoothInteractionProvider implements IBaseInteracti
 
 
 	
-	public BaseBluetoothInteractionProvider(String tag) throws IllegalAccessException {
+	public BaseBluetoothProvider(String tag) throws IllegalAccessException {
 		TAG = tag;
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if(mBluetoothAdapter == null){
@@ -116,7 +120,7 @@ public abstract class BaseBluetoothInteractionProvider implements IBaseInteracti
 	}
 
 
-	public void notifyDeviceConnected(BluetoothSocket bluetoothSocket) {
+	protected void notifyDeviceConnected(BluetoothSocket bluetoothSocket) {
 		for(OnBluetoothDeviceConnectListener listener : mBluetoothDeviceConnectListeners){
 			listener.onBluetoothDeviceConnected(bluetoothSocket);
 		}
@@ -194,7 +198,7 @@ public abstract class BaseBluetoothInteractionProvider implements IBaseInteracti
 		mDataListenerThread = null;
 	}
 	
-	public void notifyNewData(JSONObject newDataJson) {
+	private void notifyNewData(JSONObject newDataJson) {
 		for(NewDataReceiveListner onNewDataListner: mNewDataReceiverListenerList){
 			onNewDataListner.onNewDataReceived(newDataJson);
 		}

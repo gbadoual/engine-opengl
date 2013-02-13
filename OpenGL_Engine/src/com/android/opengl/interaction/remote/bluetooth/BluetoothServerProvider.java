@@ -12,21 +12,26 @@ import org.json.JSONObject;
 
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 
-import com.android.opengl.interaction.remote.IBaseServer;
+import com.android.opengl.interaction.remote.IBaseServerProvider;
 import com.android.opengl.util.Log;
 
-public class BluetoothServer extends BaseBluetoothInteractionProvider implements IBaseServer{
+public class BluetoothServerProvider extends BaseBluetoothProvider implements IBaseServerProvider{
 	
-	private static final String TAG = BluetoothServer.class.getSimpleName();
+	private static final String TAG = BluetoothServerProvider.class.getSimpleName();
+	
+    private String mServerName;
+	private UUID mUuid;
 	private List<BluetoothSocket> mBluetoothClientSocketList = Collections.synchronizedList(new ArrayList<BluetoothSocket>());
-	
 	private BluetoothServerThread mServerThread;
 
-	public BluetoothServer() throws IllegalAccessException{
+	public BluetoothServerProvider(String name, UUID uuid) throws IllegalAccessException{
 		super(TAG);
+		mServerName = name;
+		mUuid = uuid;
 	}
-	
+
 	private class BluetoothServerThread extends Thread{
 		
 		private BluetoothServerSocket mBluetoothServerSocket;
@@ -83,11 +88,13 @@ public class BluetoothServer extends BaseBluetoothInteractionProvider implements
 		}
 	}
 
-	public void startServer(String name, UUID uuid) throws IOException{
+	@Override
+	public void startServer() throws IOException{
 		if(mServerThread != null){
-			throw new IllegalStateException("Serevr is already started. Use stopServer() before starting it again");
+			Log.d(TAG, "Serevr is already started. Use stopServer() before starting it again");
+			return;
 		}
-		mServerThread = new BluetoothServerThread(name, uuid);
+		mServerThread = new BluetoothServerThread(mServerName, mUuid);
 		mServerThread.start();
 		resgisterOnBTDeviceConnectListener(mBluetoothDeviceConnectListener);
 		startListningData(mBluetoothClientSocketList);
@@ -102,10 +109,7 @@ public class BluetoothServer extends BaseBluetoothInteractionProvider implements
 		unresgisterOnBTDeviceConnectListener(mBluetoothDeviceConnectListener);
 	}
 	
-	@Override
-	public void startServer() {
-		// TODO Auto-generated method stub
-	}
+
 	
 	private OnBluetoothDeviceConnectListener mBluetoothDeviceConnectListener = new OnBluetoothDeviceConnectListener() {
 		
@@ -116,5 +120,13 @@ public class BluetoothServer extends BaseBluetoothInteractionProvider implements
 		}
 	};
 
+	public void enableDiscoverability(Context context) {
+		if(!mBluetoothAdapter.isEnabled()){
+			context.startActivity(getEnableBluetoothRequestIntent());
+			return;
+		}
+		context.startActivity(getEnableDiscoverablyModeIntent(300));
+	}
 
-}
+
+} 
