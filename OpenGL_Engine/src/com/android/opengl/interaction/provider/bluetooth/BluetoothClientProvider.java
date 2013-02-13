@@ -1,4 +1,4 @@
-package com.android.opengl.interaction.remote.bluetooth;
+package com.android.opengl.interaction.provider.bluetooth;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
-import com.android.opengl.interaction.remote.IBaseClientProvider;
+import com.android.opengl.interaction.provider.IBaseClientProvider;
 import com.android.opengl.util.Log;
 
 public class BluetoothClientProvider extends BaseBluetoothProvider implements IBaseClientProvider{

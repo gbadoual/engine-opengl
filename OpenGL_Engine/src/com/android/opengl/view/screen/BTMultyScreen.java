@@ -3,8 +3,8 @@ package com.android.opengl.view.screen;
 import android.util.Log;
 
 import com.android.opengl.Camera;
-import com.android.opengl.interaction.remote.bluetooth.BaseBluetoothProvider;
-import com.android.opengl.interaction.remote.bluetooth.BluetoothServerProvider;
+import com.android.opengl.interaction.provider.bluetooth.BaseBluetoothProvider;
+import com.android.opengl.interaction.provider.bluetooth.BluetoothServerProvider;
 import com.android.opengl.view.control.GLLayout.Orientation;
 import com.android.opengl.view.control.GLLinearLayout;
 import com.android.opengl.view.control.GLTextView;

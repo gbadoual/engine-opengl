@@ -1,4 +1,4 @@
-package com.android.opengl.interaction.remote.bluetooth;
+package com.android.opengl.interaction.provider.bluetooth;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.android.opengl.interaction.remote.IBaseProvider;
+import com.android.opengl.interaction.provider.IBaseProvider;
 import com.android.opengl.util.Log;
 
 public abstract class BaseBluetoothProvider implements IBaseProvider{
