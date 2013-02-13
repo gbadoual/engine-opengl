@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -22,10 +23,11 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.opengl.interaction.remote.IBaseInteractionProvider.NewDataReceiveListner;
-import com.android.opengl.interaction.remote.bluetooth.BaseBluetoothInteractionProvider.OnBluetoothDeviceConnectListener;
-import com.android.opengl.interaction.remote.bluetooth.BluetoothClient;
-import com.android.opengl.interaction.remote.bluetooth.BluetoothServer;
+import com.android.opengl.interaction.remote.IBaseProvider.NewDataReceiveListner;
+import com.android.opengl.interaction.remote.bluetooth.BaseBluetoothProvider;
+import com.android.opengl.interaction.remote.bluetooth.BaseBluetoothProvider.OnBluetoothDeviceConnectListener;
+import com.android.opengl.interaction.remote.bluetooth.BluetoothClientProvider;
+import com.android.opengl.interaction.remote.bluetooth.BluetoothServerProvider;
 import com.android.opengl.util.Log;
 import com.android.opengl.view.WorldView;
 
@@ -37,8 +39,8 @@ public class MainActivity extends Activity {
 	private static final String PREFS_KEY_UUID = "key_uuid";
 	private TextView fpsView;
 	private WorldView worldView;
-	private BluetoothServer mServerProvider;
-	private BluetoothClient mClientProvider;
+	private BluetoothServerProvider mServerProvider;
+	private BluetoothClientProvider mClientProvider;
 	
     /** Called when the activity is first created. */
     @Override
@@ -58,14 +60,11 @@ public class MainActivity extends Activity {
     	}
     }
     
-    //any random valid string. Should be the same across participating devices
-    private UUID mUuid = UUID.fromString("550e8400-e29b-41d4-a716-446655446543");
-
     private void testBluetoothConnection() {
 
     	try {
-			mServerProvider = new BluetoothServer();
-			mClientProvider = new BluetoothClient();
+			mServerProvider = new BluetoothServerProvider(BT_NAME_OPEN_GL_ENGINE, BaseBluetoothProvider.DEFAULT_UUID);
+			mClientProvider = null;
 			mServerProvider.registerNewDataReceiveListener(new NewDataReceiveListner() {
 				
 				@Override
@@ -103,7 +102,7 @@ public class MainActivity extends Activity {
 					
 				}
 			});
-			mServerProvider.startServer(BT_NAME_OPEN_GL_ENGINE, mUuid);
+			mServerProvider.startServer();
 			final List<BluetoothDevice> pairedDevices = mServerProvider.getPairedDevices();
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			ListAdapter adapter = new ArrayAdapter<BluetoothDevice>(this, android.R.layout.simple_list_item_1, pairedDevices){
@@ -121,7 +120,8 @@ public class MainActivity extends Activity {
 				public void onClick(DialogInterface dialog, int which) {
 					BluetoothDevice bluetoothDevice = pairedDevices.get(which);
 					try {
-						mClientProvider.startClient(bluetoothDevice, mUuid);
+						mClientProvider = new BluetoothClientProvider(bluetoothDevice, BaseBluetoothProvider.DEFAULT_UUID);
+						mClientProvider.startClient();
 //						JSONObject data = new JSONObject();
 //						try {
 //							data.put("message", "Hello from client!");
@@ -131,6 +131,8 @@ public class MainActivity extends Activity {
 //						mClientProvider.sendData(data);
 						
 					} catch (IOException e) {
+						Log.e(TAG, "onClick(): " + e);
+					} catch (IllegalAccessException e) {
 						Log.e(TAG, "onClick(): " + e);
 					}
 				}
@@ -176,6 +178,5 @@ public class MainActivity extends Activity {
     	super.onPause();
     	worldView.onPause();
     }
-    
 
 }

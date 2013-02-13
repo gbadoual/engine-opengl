@@ -2,19 +2,24 @@ package com.android.opengl.view.screen;
 
 import com.android.opengl.Camera;
 import com.android.opengl.view.EngineRenderer;
+import com.android.opengl.view.control.GLLayout.Orientation;
 import com.android.opengl.view.control.GLLinearLayout;
 import com.android.opengl.view.control.GLTextView;
 import com.android.opengl.view.control.GLView;
-import com.android.opengl.view.control.GLLayout.Orientation;
 
 public class GLMainScreen extends GLScreen{
 
+	
 	public GLMainScreen(Camera camera) {
 		super(camera);
 	}
 
 	@Override
 	protected void onCreate() {
+		initView();
+	}
+
+	private void initView() {
 		final GLLinearLayout glLinearLayout = new GLLinearLayout(mCamera);
 		glLinearLayout.setOrientation(Orientation.VERTICAL);
 

@@ -1,5 +1,7 @@
 package com.android.opengl.view.state;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -7,13 +9,13 @@ import com.android.opengl.view.EngineRenderer;
 import com.android.opengl.view.screen.GLScreen;
 import com.android.opengl.view.screen.GLScreenStack;
 
-public abstract class EngineState implements BaseState{
+public abstract class GameState implements BaseState{
 	
-	private static final String TAG = EngineState.class.getSimpleName();
+	private static final String TAG = GameState.class.getSimpleName();
 	protected final EngineRenderer mEngineRenderer;
 	protected GLScreenStack mGLScreenStack = new GLScreenStack();
 	
-	public EngineState(EngineRenderer engineRenderer) {
+	public GameState(EngineRenderer engineRenderer) {
 		mEngineRenderer = engineRenderer;
 	}
 	
@@ -52,6 +54,15 @@ public abstract class EngineState implements BaseState{
 
 	public boolean onTouchEvent(MotionEvent event){
 		return false;
+	}
+
+
+	public Activity getActivity() {
+		return mEngineRenderer.getActivity();
+	}
+	
+	public Context getContext(){
+		return mEngineRenderer.getContext();
 	}
 
 }

@@ -1,14 +1,15 @@
 package com.android.opengl.view.screen;
 
+import android.app.Activity;
+
 import com.android.opengl.Camera;
-import com.android.opengl.util.Log;
 import com.android.opengl.util.geometry.Rect2D;
 import com.android.opengl.view.control.GLView;
-import com.android.opengl.view.state.EngineState;
+import com.android.opengl.view.state.GameState;
 
 public abstract class GLScreen extends GLView{
 
-	private EngineState mGLScreenContext;
+	private GameState mGLScreenContext;
 	
 	public GLScreen(Camera camera) {
 		super(camera);
@@ -45,8 +46,12 @@ public abstract class GLScreen extends GLView{
 		mGLScreenContext.close(this);
 	}
 	
-	protected EngineState getGlScreenContext(){
+	protected GameState getGlScreenContext(){
 		return mGLScreenContext;
 	};
+	
+	protected Activity getActivity(){
+		return mGLScreenContext.getActivity();
+	}
 
 }

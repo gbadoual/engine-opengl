@@ -380,6 +380,9 @@ public class Camera implements Touchable{
 	};
 	
 	public void release(){
+		if(mScene == null){
+			mScene = new GLScene(this);
+		}
 		clearCamera();
 		if(mScene != null){
 			mScene.release();
